@@ -312,6 +312,29 @@ const AdminChat: React.FC = () => {
       <input ref={fileRef} type="file" accept="image/*" onChange={onFileChange} style={{ display: 'none' }} />
       <input ref={videoFileRef} type="file" accept="video/*" onChange={onVideoFileChange} style={{ display: 'none' }} />
 
+      {/* Mobile top nav */}
+      <div className="ap-mobile-nav">
+        <Link to="/admin" className="ap-mobile-nav__link ap-mobile-nav__link--active">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+          Chat
+          {totalUnread > 0 && <span style={{ background: '#ef4444', color: '#fff', borderRadius: '50px', fontSize: '0.65rem', padding: '0 5px', fontWeight: 700 }}>{totalUnread}</span>}
+        </Link>
+        <Link to="/admin/products" className="ap-mobile-nav__link">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" />
+          </svg>
+          Fish
+        </Link>
+        <button
+          className="ap-mobile-nav__exit"
+          onClick={() => { sessionStorage.removeItem('egf_admin'); navigate('/'); }}
+        >
+          ← Exit
+        </button>
+      </div>
+
       {/* ── Sidebar ── */}
       <aside className="admin-chat__sidebar">
         <div className="admin-chat__sidebar-header">

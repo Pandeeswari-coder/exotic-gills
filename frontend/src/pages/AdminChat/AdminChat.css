@@ -877,4 +877,44 @@
   .admin-chat__sidebar {
     display: none;
   }
+
+  /* Mobile nav shared with AdminProducts */
+  .ap-mobile-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: var(--dark);
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid rgba(0,201,167,0.15);
+    flex-shrink: 0;
+  }
+
+  .ap-mobile-nav__link {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.85rem;
+    border-radius: 8px;
+    color: rgba(255,255,255,0.55);
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 600;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .ap-mobile-nav__link--active {
+    background: rgba(0,201,167,0.15);
+    color: var(--primary);
+  }
+
+  .ap-mobile-nav__exit {
+    margin-left: auto;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.45);
+    border-radius: 8px;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.78rem;
+    cursor: pointer;
+  }
 }
