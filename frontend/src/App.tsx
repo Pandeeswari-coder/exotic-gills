@@ -1,5 +1,11 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
+
+const ScrollToTop: React.FC = () => {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
+};
 import NavBar from './components/NavBar/NavBar';
 import Footer from './components/Footer/Footer';
 import ChatBot from './components/ChatBot/ChatBot';
@@ -45,14 +51,16 @@ const getCustomerSessionId = (): string => {
 const App: React.FC = () => {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
+  const isAdminChat = location.pathname === '/admin'; // only chat needs the viewport lock
   // Each browser tab / session gets a unique conversation with the owner
   const customerSessionId = React.useMemo(getCustomerSessionId, []);
 
   return (
     <ChatProvider sessionId={customerSessionId}>
-      <div className={`page-wrapper${isAdmin ? ' page-wrapper--admin' : ''}`}>
+      <ScrollToTop />
+      <div className={`page-wrapper${isAdminChat ? ' page-wrapper--admin' : isAdmin ? ' page-wrapper--admin-content' : ''}`}>
         <NavBar />
-        <main className={`page-content${isAdmin ? ' page-content--admin' : ''}`}>
+        <main className={`page-content${isAdminChat ? ' page-content--admin' : isAdmin ? ' page-content--admin-content' : ''}`}>
           <Suspense fallback={<LoadingFallback />}>
             <Routes>
               <Route path="/"          element={<Home />} />

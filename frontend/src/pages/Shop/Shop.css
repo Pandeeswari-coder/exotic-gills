@@ -4,79 +4,216 @@
 }
 
 .shop-hero {
-  background: linear-gradient(160deg, #006994 0%, #0096c7 35%, #00b4d8 65%, #00c9a7 100%);
-  padding: 4.5rem 2rem 5.5rem;
+  background:
+    radial-gradient(ellipse 65% 55% at 25% -5%,  rgba(120, 230, 255, 0.22) 0%, transparent 65%),
+    radial-gradient(ellipse 45% 45% at 78% 105%, rgba(0, 210, 160, 0.18) 0%, transparent 60%),
+    linear-gradient(170deg, #020b2e 0%, #083980 28%, #0068b0 55%, #00a8cc 78%, #00d4aa 100%);
+  padding: 2rem 2rem 4.5rem;
   text-align: center;
   position: relative;
   overflow: hidden;
+  min-height: 220px;
 }
 
-/* Animated floating bubbles */
-.shop-hero__bubbles {
+/* Subtle water-shimmer overlay */
+.shop-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 18px,
+    rgba(255,255,255,0.03) 18px,
+    rgba(255,255,255,0.03) 19px
+  );
+  pointer-events: none;
+  z-index: 1;
+  animation: water-move 6s linear infinite;
+}
+
+@keyframes water-move {
+  0%   { background-position-y: 0; }
+  100% { background-position-y: 38px; }
+}
+
+/* ── Swimming fish ────────────────────────────────────────── */
+.shop-hero__fish-scene {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 0;
+  z-index: 2;
 }
 
-.shop-hero__bubbles span {
+.shop-fish {
   position: absolute;
-  border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.28);
-  background: rgba(255, 255, 255, 0.06);
-  animation: bubble-float linear infinite;
+  line-height: 1;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.2));
+  will-change: transform;
 }
 
-.shop-hero__bubbles span:nth-child(1) { width: 50px; height: 50px; left: 8%;  bottom: 10%; animation-duration: 9s;  animation-delay: 0s; }
-.shop-hero__bubbles span:nth-child(2) { width: 28px; height: 28px; left: 22%; bottom: 5%;  animation-duration: 7s;  animation-delay: 1.2s; }
-.shop-hero__bubbles span:nth-child(3) { width: 40px; height: 40px; left: 38%; bottom: 12%; animation-duration: 11s; animation-delay: 0.5s; }
-.shop-hero__bubbles span:nth-child(4) { width: 22px; height: 22px; left: 55%; bottom: 8%;  animation-duration: 8s;  animation-delay: 2s; }
-.shop-hero__bubbles span:nth-child(5) { width: 60px; height: 60px; left: 70%; bottom: 6%;  animation-duration: 10s; animation-delay: 0.8s; }
-.shop-hero__bubbles span:nth-child(6) { width: 32px; height: 32px; left: 84%; bottom: 15%; animation-duration: 6s;  animation-delay: 1.8s; }
-.shop-hero__bubbles span:nth-child(7) { width: 18px; height: 18px; left: 14%; bottom: 30%; animation-duration: 8.5s; animation-delay: 3s; }
-.shop-hero__bubbles span:nth-child(8) { width: 44px; height: 44px; left: 92%; bottom: 25%; animation-duration: 12s; animation-delay: 0.3s; }
+/* Swim left → right */
+@keyframes swim-r {
+  0%   { transform: translateX(-140px) scaleX(1);  opacity: 0; }
+  6%   { opacity: 1; }
+  94%  { opacity: 1; }
+  100% { transform: translateX(calc(100vw + 140px)) scaleX(1); opacity: 0; }
+}
 
-@keyframes bubble-float {
-  0%   { transform: translateY(0) scale(1);    opacity: 0; }
-  10%  { opacity: 0.8; }
-  90%  { opacity: 0.6; }
-  100% { transform: translateY(-280px) scale(1.08); opacity: 0; }
+/* Swim right → left (flipped) */
+@keyframes swim-l {
+  0%   { transform: translateX(calc(100vw + 140px)) scaleX(-1); opacity: 0; }
+  6%   { opacity: 1; }
+  94%  { opacity: 1; }
+  100% { transform: translateX(-140px) scaleX(-1); opacity: 0; }
+}
+
+.shop-fish--1 { top: 22%; font-size: 2rem;   animation: swim-r 12s linear infinite; animation-delay: 0s;   }
+.shop-fish--2 { top: 50%; font-size: 1.5rem; animation: swim-l 15s linear infinite; animation-delay: 2.5s; }
+.shop-fish--3 { top: 72%; font-size: 1.8rem; animation: swim-r 10s linear infinite; animation-delay: 5s;   }
+.shop-fish--4 { top: 35%; font-size: 1.3rem; animation: swim-l 13s linear infinite; animation-delay: 1s;   }
+.shop-fish--5 { top: 60%; font-size: 2.2rem; animation: swim-r 17s linear infinite; animation-delay: 8s;   }
+.shop-fish--6 { top: 18%; font-size: 1.6rem; animation: swim-l 11s linear infinite; animation-delay: 4s;   }
+.shop-fish--7 { top: 45%; font-size: 1.1rem; animation: swim-r 14s linear infinite; animation-delay: 6.5s; }
+
+/* ── Seaweed / coral decorations ────────────────────────── */
+.shop-hero__decor {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.shop-seaweed {
+  position: absolute;
+  bottom: 52px;
+  font-size: 2.2rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+  animation: sway 3s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+.shop-seaweed--l1 { left: 24px;  animation-delay: 0s;    font-size: 2.4rem; }
+.shop-seaweed--l2 { left: 70px;  animation-delay: 0.8s;  font-size: 1.8rem; }
+.shop-seaweed--r1 { right: 24px; animation-delay: 0.4s;  font-size: 2.4rem; }
+.shop-seaweed--r2 { right: 70px; animation-delay: 1.2s;  font-size: 1.8rem; }
+
+@keyframes sway {
+  0%, 100% { transform: rotate(-6deg); }
+  50%       { transform: rotate(6deg);  }
 }
 
 /* Hero content */
 .shop-hero__content {
   position: relative;
   z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-.shop-hero__tag {
-  display: inline-block;
-  background: rgba(255, 255, 255, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  color: #fff;
-  font-size: 0.8rem;
+.shop-hero__eyebrow {
+  font-size: 0.78rem;
   font-weight: 700;
-  letter-spacing: 0.5px;
-  padding: 0.3rem 1rem;
-  border-radius: 50px;
-  margin-bottom: 1rem;
-  backdrop-filter: blur(4px);
-}
-
-.shop-hero__content h1 {
-  font-size: clamp(2rem, 5vw, 3rem);
-  font-weight: 800;
-  color: #fff;
-  margin: 0 0 0.6rem;
-  font-family: 'Georgia', serif;
-  text-shadow: 0 0 30px rgba(0, 201, 167, 0.25);
-  line-height: 1.2;
-}
-
-.shop-hero__content p {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 1.05rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(160, 235, 255, 0.85);
   margin: 0;
+}
+
+/* Two-line gradient title */
+.shop-hero__title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+  line-height: 1.1;
+  gap: 0.1rem;
+}
+
+.shop-hero__title-line1 {
+  font-size: clamp(1.3rem, 3.5vw, 2rem);
+  font-weight: 500;
+  color: rgba(200, 240, 255, 0.9);
+  font-family: 'Georgia', serif;
+  font-style: italic;
+  letter-spacing: 1px;
+}
+
+.shop-hero__title-line2 {
+  font-size: clamp(2.4rem, 6vw, 3.8rem);
+  font-weight: 900;
+  font-family: 'Georgia', serif;
+  background: linear-gradient(90deg, #ffffff 0%, #a8eeff 40%, #00e5c8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
+  filter: drop-shadow(0 0 18px rgba(0, 210, 230, 0.45));
+  letter-spacing: -1px;
+}
+
+.shop-hero__sub {
+  color: rgba(200, 240, 255, 0.72);
+  font-size: 0.97rem;
+  margin: 0;
+  line-height: 1.7;
+  max-width: 520px;
+}
+
+.shop-hero__br { display: none; }
+@media (min-width: 640px) { .shop-hero__br { display: inline; } }
+
+/* Species pills */
+.shop-hero__pills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.45rem;
+  margin-top: 0.25rem;
+}
+
+.shop-hero__pills span {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: rgba(220, 248, 255, 0.9);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 50px;
+  backdrop-filter: blur(6px);
+  letter-spacing: 0.3px;
+}
+
+/* CTA button */
+.shop-hero__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.5rem;
+  background: var(--primary);
+  color: var(--dark);
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  padding: 0.7rem 1.8rem;
+  border-radius: 50px;
+  text-decoration: none;
+  box-shadow: 0 6px 24px rgba(0, 201, 167, 0.45), 0 0 0 0 rgba(0, 201, 167, 0);
+  transition: transform 0.2s, box-shadow 0.2s;
+  animation: pulse-cta 2.5s ease-in-out infinite;
+}
+
+.shop-hero__cta:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 10px 32px rgba(0, 201, 167, 0.6);
+  animation: none;
+}
+
+@keyframes pulse-cta {
+  0%, 100% { box-shadow: 0 6px 24px rgba(0, 201, 167, 0.45), 0 0 0 0 rgba(0, 201, 167, 0.3); }
+  50%       { box-shadow: 0 6px 24px rgba(0, 201, 167, 0.45), 0 0 0 10px rgba(0, 201, 167, 0); }
 }
 
 /* Wave separator */

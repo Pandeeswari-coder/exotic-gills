@@ -99,20 +99,31 @@ a {
   min-height: 100vh;
 }
 
-/* Admin layout: lock to viewport height so flex children fill correctly */
+/* Admin chat: lock to viewport so the chat panel fills exactly one screen */
 .page-wrapper--admin {
   height: 100vh;
   overflow: hidden;
+}
+
+/* Admin products / other admin pages: natural page scroll */
+.page-wrapper--admin-content {
+  min-height: 100vh;
 }
 
 .page-content {
   flex: 1;
 }
 
+/* Chat-specific content area (internal flex scroll) */
 .page-content--admin {
   flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   min-height: 0;
+}
+
+/* Products-specific content area (normal document flow) */
+.page-content--admin-content {
+  flex: 1;
 }

@@ -102,14 +102,46 @@ const Shop: React.FC = () => {
   return (
     <div className="shop-page">
       <div className="shop-hero">
-        {/* Animated bubbles */}
-        <div className="shop-hero__bubbles" aria-hidden>
-          <span /><span /><span /><span /><span /><span /><span /><span />
+        {/* Swimming fish scene */}
+        <div className="shop-hero__fish-scene" aria-hidden>
+          <span className="shop-fish shop-fish--1">🐠</span>
+          <span className="shop-fish shop-fish--2">🐟</span>
+          <span className="shop-fish shop-fish--3">🐡</span>
+          <span className="shop-fish shop-fish--4">🐠</span>
+          <span className="shop-fish shop-fish--5">🐟</span>
+          <span className="shop-fish shop-fish--6">🐡</span>
+          <span className="shop-fish shop-fish--7">🐠</span>
+        </div>
+        {/* Seaweed / coral decorations */}
+        <div className="shop-hero__decor" aria-hidden>
+          <span className="shop-seaweed shop-seaweed--l1">🌿</span>
+          <span className="shop-seaweed shop-seaweed--l2">🪸</span>
+          <span className="shop-seaweed shop-seaweed--r1">🌿</span>
+          <span className="shop-seaweed shop-seaweed--r2">🪸</span>
         </div>
         <div className="shop-hero__content">
-          <span className="shop-hero__tag">🐠 Premium Aquarium Fish</span>
-          <h1>Our Fish Collection</h1>
-          <p>Browse our premium selection of Discus and tropical fish</p>
+          <p className="shop-hero__eyebrow">✦ &nbsp;Hand-Picked · Rare · Exotic&nbsp; ✦</p>
+          <h1 className="shop-hero__title">
+            <span className="shop-hero__title-line1">Discover the</span>
+            <span className="shop-hero__title-line2">Ocean's Finest</span>
+          </h1>
+          <p className="shop-hero__sub">
+            Premium live Discus, Bettas &amp; tropical fish — <br className="shop-hero__br" />
+            sourced from trusted breeders, delivered to your door.
+          </p>
+          <div className="shop-hero__pills">
+            <span>🐠 Discus</span>
+            <span>🐡 Puffers</span>
+            <span>🐟 Cichlids</span>
+            <span>🦭 Bettas</span>
+            <span>🐙 Goldfish</span>
+          </div>
+          <a href="#shop-main" className="shop-hero__cta">
+            Explore Collection
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </a>
         </div>
         <div className="shop-hero__wave" aria-hidden>
           <svg viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
@@ -224,7 +256,7 @@ const Shop: React.FC = () => {
         </aside>
 
         {/* Product grid */}
-        <main className="shop-main">
+        <main className="shop-main" id="shop-main">
           <div className="shop-results-header">
             {!loading && (
               <p className="results-count">

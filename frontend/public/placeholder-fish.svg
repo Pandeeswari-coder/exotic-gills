@@ -1,13 +1,27 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
-  <rect width="400" height="300" fill="#e0f2f1"/>
-  <g transform="translate(200,150)" opacity="0.35">
-    <ellipse cx="0" cy="0" rx="80" ry="45" fill="#26a69a"/>
-    <polygon points="80,0 110,-30 110,30" fill="#26a69a"/>
-    <circle cx="-40" cy="-12" r="8" fill="white"/>
-    <circle cx="-42" cy="-13" r="4" fill="#00695c"/>
-    <line x1="-10" y1="-20" x2="-10" y2="20" stroke="#1a7a72" stroke-width="2"/>
-    <line x1="20" y1="-30" x2="20" y2="30" stroke="#1a7a72" stroke-width="2"/>
-    <line x1="50" y1="-25" x2="50" y2="25" stroke="#1a7a72" stroke-width="2"/>
-  </g>
-  <text x="200" y="240" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#80cbc4">No Image</text>
+  <rect width="400" height="300" fill="#d0f0ec"/>
+  <!-- bubbles -->
+  <circle cx="60" cy="60" r="10" fill="rgba(0,201,167,0.15)"/>
+  <circle cx="340" cy="80" r="16" fill="rgba(0,201,167,0.12)"/>
+  <circle cx="180" cy="40" r="7" fill="rgba(0,201,167,0.18)"/>
+  <!-- fish body -->
+  <ellipse cx="200" cy="150" rx="75" ry="42" fill="#26a69a"/>
+  <!-- tail -->
+  <polygon points="275,150 310,-25 310,325" fill="#1a8a80" transform="rotate(0,275,150) translate(0,-125)"/>
+  <!-- tail actual -->
+  <polygon points="273,150 308,118 308,182" fill="#1a8a80"/>
+  <!-- belly highlight -->
+  <ellipse cx="190" cy="160" rx="50" ry="22" fill="rgba(255,255,255,0.18)"/>
+  <!-- eye -->
+  <circle cx="148" cy="140" r="10" fill="white"/>
+  <circle cx="146" cy="139" r="5" fill="#004d40"/>
+  <circle cx="144" cy="137" r="2" fill="white"/>
+  <!-- fin stripes -->
+  <line x1="180" y1="115" x2="175" y2="185" stroke="rgba(0,77,64,0.25)" stroke-width="1.5"/>
+  <line x1="210" y1="110" x2="206" y2="190" stroke="rgba(0,77,64,0.25)" stroke-width="1.5"/>
+  <line x1="240" y1="116" x2="237" y2="184" stroke="rgba(0,77,64,0.25)" stroke-width="1.5"/>
+  <!-- dorsal fin -->
+  <path d="M160,108 Q200,75 240,108" fill="none" stroke="#1a8a80" stroke-width="3"/>
+  <!-- label -->
+  <text x="200" y="250" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#5a8c85" font-weight="600">No Image</text>
 </svg>

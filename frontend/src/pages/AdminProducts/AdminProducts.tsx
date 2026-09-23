@@ -79,6 +79,11 @@ const AdminProducts: React.FC = () => {
       .then(cats => setCategories(cats.length > 0 ? cats : STATIC_CATEGORIES))
       .catch(() => setCategories(STATIC_CATEGORIES));
     setLoading(false);
+
+    // Refresh product list whenever the admin tab regains focus
+    const onFocus = () => setProducts(getLocalProducts());
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
   }, [authed]);
 
   const refresh = () => setProducts(getLocalProducts());
