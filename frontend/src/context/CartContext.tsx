@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { CartItem, Product } from '../types';
+import { getLocalProducts } from '../services/localProductStore';
 
 interface CartContextType {
   items: CartItem[];
@@ -15,11 +16,26 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 const CART_STORAGE_KEY = 'aquafin_cart';
 
+/* Sync cart items with latest product data from local store.
+   Removes out-of-stock items and updates image/price to current values. */
+const syncWithStore = (items: CartItem[]): CartItem[] => {
+  const localProds = getLocalProducts();
+  return items
+    .map(item => {
+      const current = localProds.find(p => p.id === item.product.id);
+      if (!current) return item; // API product — keep as-is
+      if (!current.available) return null; // out of stock — remove
+      return { ...item, product: current }; // refresh image/price
+    })
+    .filter(Boolean) as CartItem[];
+};
+
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [items, setItems] = useState<CartItem[]>(() => {
     try {
       const stored = localStorage.getItem(CART_STORAGE_KEY);
-      return stored ? JSON.parse(stored) : [];
+      const parsed: CartItem[] = stored ? JSON.parse(stored) : [];
+      return syncWithStore(parsed);
     } catch {
       return [];
     }

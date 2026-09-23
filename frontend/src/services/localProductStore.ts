@@ -84,8 +84,13 @@ export const updateLocalProduct = async (
   const idx = products.findIndex(p => p.id === id);
   if (idx === -1) throw new Error('Not found');
 
-  let image = existingImageUrl;
-  if (imageFile) image = await resizeImage(imageFile);
+  // Start with the currently stored image so edits never accidentally blank it
+  let image = products[idx].image;
+  if (imageFile) {
+    image = await resizeImage(imageFile);
+  } else if (existingImageUrl && (existingImageUrl.startsWith('data:') || existingImageUrl.startsWith('http'))) {
+    image = existingImageUrl;
+  }
 
   const cat = categories.find(c => String(c.id) === form.category);
 

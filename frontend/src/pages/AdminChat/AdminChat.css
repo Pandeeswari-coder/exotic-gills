@@ -1,3 +1,41 @@
+/* ── Inline edit ──────────────────────────────────────────── */
+.admin-msg__text-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+.admin-msg__edit-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  opacity: 0;
+  padding: 0;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+.admin-msg__bubble:hover .admin-msg__edit-btn { opacity: 1; }
+.admin-msg__edit-wrap { display: flex; flex-direction: column; gap: 6px; }
+.admin-msg__edit-input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #26a69a;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+}
+.admin-msg__edit-actions { display: flex; gap: 6px; }
+.admin-msg__edit-actions button {
+  padding: 3px 10px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+}
+.admin-msg__edit-actions button:first-child { background: #26a69a; color: white; }
+.admin-msg__edit-actions button:last-child { background: #eee; color: #555; }
+
 /* ── Password gate ───────────────────────────────────────── */
 .admin-gate {
   flex: 1;
@@ -752,6 +790,87 @@
   color: #94a3b8;
   text-align: center;
 }
+
+/* ── Sessions list ────────────────────────────────────────── */
+.admin-chat__sessions-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem 0.3rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  flex-shrink: 0;
+}
+
+.admin-chat__total-badge {
+  background: #ef4444;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 0.65rem;
+  font-weight: 700;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-chat__sessions-list {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,201,167,0.2) transparent;
+}
+
+.admin-chat__sessions-list::-webkit-scrollbar { width: 3px; }
+.admin-chat__sessions-list::-webkit-scrollbar-thumb { background: rgba(0,201,167,0.2); border-radius: 2px; }
+
+.admin-chat__no-sessions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 2.5rem 1rem;
+  color: rgba(255,255,255,0.25);
+  text-align: center;
+}
+.admin-chat__no-sessions span { font-size: 2rem; }
+.admin-chat__no-sessions p { font-size: 0.78rem; line-height: 1.5; margin: 0; }
+
+.admin-chat__conv-item:hover {
+  background: rgba(0, 201, 167, 0.06);
+}
+
+.admin-chat__conv-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.3rem;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.admin-chat__conv-time {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.3);
+  white-space: nowrap;
+}
+
+/* ── No-selection placeholder ─────────────────────────────── */
+.admin-chat__no-selection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  color: #94a3b8;
+}
+.admin-chat__no-selection span { font-size: 3.5rem; }
+.admin-chat__no-selection p { font-size: 1rem; }
 
 /* ── Responsive ───────────────────────────────────────────── */
 @media (max-width: 768px) {

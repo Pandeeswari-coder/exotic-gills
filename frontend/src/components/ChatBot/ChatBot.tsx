@@ -13,7 +13,9 @@ const ChatBot: React.FC = () => {
   const bottomRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<HTMLDivElement>(null);
   const isAtBottom = useRef(true);
-  const { messages, customerUnread, sendMessage, markCustomerRead } = useChat();
+  const { messages, customerUnread, sendMessage, editMessage, markCustomerRead } = useChat();
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editText, setEditText] = useState('');
   const { addToCart } = useCart();
   const navigate = useNavigate();
 
@@ -63,7 +65,7 @@ const ChatBot: React.FC = () => {
     new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
   const getImgSrc = (p: Product) => {
-    if (!p.image) return '/placeholder-fish.jpg';
+    if (!p.image) return '/placeholder-fish.svg';
     return (p.image.startsWith('http') || p.image.startsWith('data:')) ? p.image : `http://localhost:8000${p.image}`;
   };
 
@@ -133,9 +135,35 @@ const ChatBot: React.FC = () => {
                   {/* Text */}
                   {msg.type === 'text' && msg.text && (
                     <div className="chatbot-msg__bubble">
-                      <p dangerouslySetInnerHTML={{
-                        __html: msg.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                      }} />
+                      {editingId === msg.id ? (
+                        <div className="chatbot-msg__edit-wrap">
+                          <input
+                            className="chatbot-msg__edit-input"
+                            value={editText}
+                            onChange={e => setEditText(e.target.value)}
+                            onKeyDown={e => {
+                              if (e.key === 'Enter' && editText.trim()) { editMessage(msg.id, editText.trim()); setEditingId(null); }
+                              if (e.key === 'Escape') setEditingId(null);
+                            }}
+                            autoFocus
+                          />
+                          <div className="chatbot-msg__edit-actions">
+                            <button onClick={() => { if (editText.trim()) { editMessage(msg.id, editText.trim()); setEditingId(null); } }}>Save</button>
+                            <button onClick={() => setEditingId(null)}>Cancel</button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="chatbot-msg__text-wrap">
+                          <p dangerouslySetInnerHTML={{ __html: msg.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
+                          {msg.sender === 'customer' && (
+                            <button
+                              className="chatbot-msg__edit-btn"
+                              title="Edit message"
+                              onClick={() => { setEditingId(msg.id); setEditText(msg.text!); }}
+                            >✏️</button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -182,7 +210,7 @@ const ChatBot: React.FC = () => {
                             <img
                               src={getImgSrc(p)}
                               alt={p.name}
-                              onError={e => { (e.target as HTMLImageElement).src = '/placeholder-fish.jpg'; }}
+                              onError={e => { (e.target as HTMLImageElement).src = '/placeholder-fish.svg'; }}
                             />
                             <div className="chatbot-catalog__info">
                               <span className="chatbot-catalog__name">{p.name}</span>

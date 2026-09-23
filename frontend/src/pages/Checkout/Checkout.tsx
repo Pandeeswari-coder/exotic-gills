@@ -234,7 +234,7 @@ const Checkout: React.FC = () => {
                   ? (product.image.startsWith('http') || product.image.startsWith('data:'))
                     ? product.image
                     : `http://localhost:8000${product.image}`
-                  : '/placeholder-fish.jpg';
+                  : '/placeholder-fish.svg';
 
                 return (
                   <div key={product.id} className="checkout-item">
@@ -242,7 +242,7 @@ const Checkout: React.FC = () => {
                       src={imageSrc}
                       alt={product.name}
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = '/placeholder-fish.jpg';
+                        (e.target as HTMLImageElement).src = '/placeholder-fish.svg';
                       }}
                     />
                     <div className="checkout-item-info">

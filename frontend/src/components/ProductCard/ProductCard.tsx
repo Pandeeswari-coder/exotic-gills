@@ -14,16 +14,20 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (product.available) {
-      addToCart(product, 1);
-    }
+    if (product.available) addToCart(product, 1);
+  };
+
+  const handleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // wishlist — coming soon
   };
 
   const imageSrc = product.image
     ? (product.image.startsWith('http') || product.image.startsWith('data:'))
       ? product.image
       : `http://localhost:8000${product.image}`
-    : '/placeholder-fish.jpg';
+    : '/placeholder-fish.svg';
 
   return (
     <Link to={`/product/${product.id}`} className="product-card">
@@ -32,17 +36,33 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           src={imageSrc}
           alt={product.name}
           className="product-card__image"
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = '/placeholder-fish.jpg';
-          }}
+          onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder-fish.svg'; }}
         />
-        <span className={`product-card__badge ${product.available ? 'available' : 'unavailable'}`}>
-          {product.available ? 'Available' : 'Not Available'}
-        </span>
+
+        {/* Wishlist heart */}
+        <button className="product-card__wishlist" onClick={handleWishlist} title="Add to wishlist">
+          ♡
+        </button>
+
+        {/* Quick-add slides up on hover when available */}
+        {product.available && (
+          <div className="product-card__quick-add" onClick={handleAddToCart}>
+            + Add to Cart
+          </div>
+        )}
+
+        {/* Sold-out overlay */}
+        {!product.available && (
+          <div className="product-card__out-overlay">
+            <span>Sold Out</span>
+          </div>
+        )}
       </div>
 
       <div className="product-card__body">
-        <p className="product-card__category">{product.category?.name}</p>
+        {product.category?.name && (
+          <p className="product-card__category">{product.category.name}</p>
+        )}
         <h3 className="product-card__name">{product.name}</h3>
         <p className="product-card__price">₹{Number(product.price).toFixed(2)}</p>
 

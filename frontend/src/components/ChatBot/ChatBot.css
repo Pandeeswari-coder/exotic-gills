@@ -1,3 +1,37 @@
+/* ── Inline edit ──────────────────────────────────────────── */
+.chatbot-msg__text-wrap { display: flex; align-items: flex-start; gap: 5px; }
+.chatbot-msg__edit-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 11px;
+  opacity: 0;
+  padding: 0;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+.chatbot-msg__bubble:hover .chatbot-msg__edit-btn { opacity: 1; }
+.chatbot-msg__edit-wrap { display: flex; flex-direction: column; gap: 5px; }
+.chatbot-msg__edit-input {
+  width: 100%;
+  padding: 5px 8px;
+  border: 1px solid #26a69a;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+}
+.chatbot-msg__edit-actions { display: flex; gap: 5px; }
+.chatbot-msg__edit-actions button {
+  padding: 2px 9px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+}
+.chatbot-msg__edit-actions button:first-child { background: #26a69a; color: white; }
+.chatbot-msg__edit-actions button:last-child { background: #eee; color: #555; }
+
 /* ── Floating trigger ─────────────────────────────────────── */
 .chatbot-trigger {
   position: fixed;

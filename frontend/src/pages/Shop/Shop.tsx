@@ -6,6 +6,17 @@ import { getLocalProducts } from '../../services/localProductStore';
 import ProductCard from '../../components/ProductCard/ProductCard';
 import './Shop.css';
 
+const STATIC_CATEGORIES: Category[] = [
+  { id: 101, name: 'Pterophyllum scalare',      slug: 'pterophyllum-scalare' },
+  { id: 102, name: 'Poecilia sp',               slug: 'poecilia-sp' },
+  { id: 103, name: 'Puntigrus tetrazona',        slug: 'puntigrus-tetrazona' },
+  { id: 104, name: 'Astronotus ocellatus',       slug: 'astronotus-ocellatus' },
+  { id: 105, name: 'Amatitlania nigrofasciata',  slug: 'amatitlania-nigrofasciata' },
+  { id: 106, name: 'Various genus and species',  slug: 'various' },
+  { id: 107, name: 'Carassias auratus',          slug: 'carassias-auratus' },
+  { id: 108, name: 'Betta splendens',            slug: 'betta-splendens' },
+];
+
 const Shop: React.FC = () => {
   const [searchParams] = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
@@ -25,8 +36,8 @@ const Shop: React.FC = () => {
 
   useEffect(() => {
     getCategories()
-      .then(setCategories)
-      .catch(() => {});
+      .then(cats => setCategories(cats.length > 0 ? cats : STATIC_CATEGORIES))
+      .catch(() => setCategories(STATIC_CATEGORIES));
   }, []);
 
   const fetchProducts = useCallback(async () => {
@@ -52,10 +63,13 @@ const Shop: React.FC = () => {
       const apiFiltered = apiProds.filter(a => !localProds.some(l => l.id === a.id));
       let merged = [...localProds, ...apiFiltered];
 
-      // Apply filters to local products too
+      // Apply filters to the merged list (covers local products the API doesn't know about)
       if (params.search) {
         const q = params.search.toLowerCase();
         merged = merged.filter(p => p.name.toLowerCase().includes(q));
+      }
+      if (selectedCategories.length > 0) {
+        merged = merged.filter(p => p.category && selectedCategories.includes(p.category.slug));
       }
       if (params.available) merged = merged.filter(p => p.available);
       if (params.min_price) merged = merged.filter(p => p.price >= (params.min_price ?? 0));
@@ -88,8 +102,28 @@ const Shop: React.FC = () => {
   return (
     <div className="shop-page">
       <div className="shop-hero">
-        <h1>Our Fish Collection</h1>
-        <p>Browse our premium selection of Discus and tropical fish</p>
+        {/* Animated bubbles */}
+        <div className="shop-hero__bubbles" aria-hidden>
+          <span /><span /><span /><span /><span /><span /><span /><span />
+        </div>
+        <div className="shop-hero__content">
+          <span className="shop-hero__tag">🐠 Premium Aquarium Fish</span>
+          <h1>Our Fish Collection</h1>
+          <p>Browse our premium selection of Discus and tropical fish</p>
+        </div>
+        <div className="shop-hero__wave" aria-hidden>
+          <svg viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0,30 C240,60 480,0 720,30 C960,60 1200,0 1440,30 L1440,60 L0,60 Z" fill="var(--light-bg)" />
+          </svg>
+        </div>
+      </div>
+
+      {/* Stats strip */}
+      <div className="shop-stats">
+        <div className="shop-stat"><span>🐡</span><p>Premium Species</p></div>
+        <div className="shop-stat"><span>✅</span><p>Health Guaranteed</p></div>
+        <div className="shop-stat"><span>📦</span><p>Safe Packaging</p></div>
+        <div className="shop-stat"><span>🚚</span><p>Fast Delivery</p></div>
       </div>
 
       <div className="shop-layout">

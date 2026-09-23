@@ -47,7 +47,7 @@ const ProductDetail: React.FC = () => {
     ? (product.image.startsWith('http') || product.image.startsWith('data:'))
       ? product.image
       : `http://localhost:8000${product.image}`
-    : '/placeholder-fish.jpg';
+    : '/placeholder-fish.svg';
 
   if (loading) {
     return (
@@ -94,7 +94,7 @@ const ProductDetail: React.FC = () => {
               alt={product.name}
               className="detail-image"
               onError={(e) => {
-                (e.target as HTMLImageElement).src = '/placeholder-fish.jpg';
+                (e.target as HTMLImageElement).src = '/placeholder-fish.svg';
               }}
             />
           </div>

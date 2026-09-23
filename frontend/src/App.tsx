@@ -33,12 +33,23 @@ const NotFound: React.FC = () => (
   </div>
 );
 
+const getCustomerSessionId = (): string => {
+  let sid = sessionStorage.getItem('egf_customer_session');
+  if (!sid) {
+    sid = `s${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`;
+    sessionStorage.setItem('egf_customer_session', sid);
+  }
+  return sid;
+};
+
 const App: React.FC = () => {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
+  // Each browser tab / session gets a unique conversation with the owner
+  const customerSessionId = React.useMemo(getCustomerSessionId, []);
 
   return (
-    <ChatProvider>
+    <ChatProvider sessionId={customerSessionId}>
       <div className={`page-wrapper${isAdmin ? ' page-wrapper--admin' : ''}`}>
         <NavBar />
         <main className={`page-content${isAdmin ? ' page-content--admin' : ''}`}>

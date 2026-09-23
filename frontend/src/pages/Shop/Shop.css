@@ -4,40 +4,129 @@
 }
 
 .shop-hero {
-  background: linear-gradient(180deg, #020c18 0%, #0a2540 55%, #0c4a6e 100%);
-  padding: 3rem 2rem;
+  background: linear-gradient(160deg, #006994 0%, #0096c7 35%, #00b4d8 65%, #00c9a7 100%);
+  padding: 4.5rem 2rem 5.5rem;
   text-align: center;
   position: relative;
   overflow: hidden;
 }
 
-.shop-hero::after {
-  content: '';
+/* Animated floating bubbles */
+.shop-hero__bubbles {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(ellipse 350px 180px at 25% 65%, rgba(0, 201, 167, 0.07) 0%, transparent 70%),
-    radial-gradient(ellipse 250px 220px at 80% 25%, rgba(6, 182, 212, 0.06) 0%, transparent 70%);
   pointer-events: none;
+  z-index: 0;
 }
 
-.shop-hero h1 {
+.shop-hero__bubbles span {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.06);
+  animation: bubble-float linear infinite;
+}
+
+.shop-hero__bubbles span:nth-child(1) { width: 50px; height: 50px; left: 8%;  bottom: 10%; animation-duration: 9s;  animation-delay: 0s; }
+.shop-hero__bubbles span:nth-child(2) { width: 28px; height: 28px; left: 22%; bottom: 5%;  animation-duration: 7s;  animation-delay: 1.2s; }
+.shop-hero__bubbles span:nth-child(3) { width: 40px; height: 40px; left: 38%; bottom: 12%; animation-duration: 11s; animation-delay: 0.5s; }
+.shop-hero__bubbles span:nth-child(4) { width: 22px; height: 22px; left: 55%; bottom: 8%;  animation-duration: 8s;  animation-delay: 2s; }
+.shop-hero__bubbles span:nth-child(5) { width: 60px; height: 60px; left: 70%; bottom: 6%;  animation-duration: 10s; animation-delay: 0.8s; }
+.shop-hero__bubbles span:nth-child(6) { width: 32px; height: 32px; left: 84%; bottom: 15%; animation-duration: 6s;  animation-delay: 1.8s; }
+.shop-hero__bubbles span:nth-child(7) { width: 18px; height: 18px; left: 14%; bottom: 30%; animation-duration: 8.5s; animation-delay: 3s; }
+.shop-hero__bubbles span:nth-child(8) { width: 44px; height: 44px; left: 92%; bottom: 25%; animation-duration: 12s; animation-delay: 0.3s; }
+
+@keyframes bubble-float {
+  0%   { transform: translateY(0) scale(1);    opacity: 0; }
+  10%  { opacity: 0.8; }
+  90%  { opacity: 0.6; }
+  100% { transform: translateY(-280px) scale(1.08); opacity: 0; }
+}
+
+/* Hero content */
+.shop-hero__content {
   position: relative;
-  z-index: 1;
-  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  z-index: 2;
+}
+
+.shop-hero__tag {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 0.3rem 1rem;
+  border-radius: 50px;
+  margin-bottom: 1rem;
+  backdrop-filter: blur(4px);
+}
+
+.shop-hero__content h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
   font-weight: 800;
   color: #fff;
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.6rem;
   font-family: 'Georgia', serif;
-  text-shadow: 0 0 20px rgba(0, 201, 167, 0.2);
+  text-shadow: 0 0 30px rgba(0, 201, 167, 0.25);
+  line-height: 1.2;
 }
 
-.shop-hero p {
-  position: relative;
-  z-index: 1;
-  color: rgba(255, 255, 255, 0.55);
-  font-size: 1rem;
+.shop-hero__content p {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1.05rem;
   margin: 0;
+}
+
+/* Wave separator */
+.shop-hero__wave {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 52px;
+  z-index: 2;
+}
+
+.shop-hero__wave svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Stats strip */
+.shop-stats {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  background: #fff;
+  border-bottom: 1px solid rgba(0, 201, 167, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 201, 167, 0.07);
+}
+
+.shop-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1rem 2rem;
+  border-right: 1px solid rgba(0, 201, 167, 0.1);
+  flex: 1;
+  justify-content: center;
+}
+
+.shop-stat:last-child { border-right: none; }
+
+.shop-stat span {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.shop-stat p {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--dark);
+  margin: 0;
+  white-space: nowrap;
 }
 
 .shop-layout {
@@ -372,10 +461,25 @@
   .shop-sidebar.open {
     display: block;
   }
+
+  .shop-stats {
+    flex-wrap: wrap;
+  }
+
+  .shop-stat {
+    flex: 1 1 48%;
+    border-bottom: 1px solid rgba(0, 201, 167, 0.08);
+    padding: 0.8rem 1rem;
+  }
 }
 
 @media (max-width: 480px) {
   .shop-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .shop-stat {
+    flex: 1 1 100%;
   }
 }

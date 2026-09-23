@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { getCategories } from '../../services/api';
+import type { Category } from '../../types';
 import {
   getLocalProducts,
   addLocalProduct,
@@ -8,10 +9,21 @@ import {
   toggleLocalAvailable,
   deleteLocalProduct,
 } from '../../services/localProductStore';
-import type { Product, Category } from '../../types';
+import type { Product } from '../../types';
 import './AdminProducts.css';
 
 const ADMIN_PASSWORD = 'fishowner2024';
+
+const STATIC_CATEGORIES: Category[] = [
+  { id: 101, name: 'Pterophyllum scalare',      slug: 'pterophyllum-scalare' },
+  { id: 102, name: 'Poecilia sp',               slug: 'poecilia-sp' },
+  { id: 103, name: 'Puntigrus tetrazona',        slug: 'puntigrus-tetrazona' },
+  { id: 104, name: 'Astronotus ocellatus',       slug: 'astronotus-ocellatus' },
+  { id: 105, name: 'Amatitlania nigrofasciata',  slug: 'amatitlania-nigrofasciata' },
+  { id: 106, name: 'Various genus and species',  slug: 'various' },
+  { id: 107, name: 'Carassias auratus',          slug: 'carassias-auratus' },
+  { id: 108, name: 'Betta splendens',            slug: 'betta-splendens' },
+];
 
 const emptyForm = {
   name: '',
@@ -63,7 +75,9 @@ const AdminProducts: React.FC = () => {
   useEffect(() => {
     if (!authed) return;
     setProducts(getLocalProducts());
-    getCategories().then(setCategories).catch(() => {});
+    getCategories()
+      .then(cats => setCategories(cats.length > 0 ? cats : STATIC_CATEGORIES))
+      .catch(() => setCategories(STATIC_CATEGORIES));
     setLoading(false);
   }, [authed]);
 
@@ -100,7 +114,9 @@ const AdminProducts: React.FC = () => {
     });
     setImageFile(null);
     setImagePreview(p.image
-      ? p.image.startsWith('http') ? p.image : `http://localhost:8000${p.image}`
+      ? (p.image.startsWith('http') || p.image.startsWith('data:'))
+        ? p.image
+        : `http://localhost:8000${p.image}`
       : '');
     setError('');
     setShowForm(true);
@@ -158,7 +174,7 @@ const AdminProducts: React.FC = () => {
   });
 
   const getImgSrc = (p: Product) => {
-    if (!p.image) return '/placeholder-fish.jpg';
+    if (!p.image) return '/placeholder-fish.svg';
     return (p.image.startsWith('http') || p.image.startsWith('data:')) ? p.image : `http://localhost:8000${p.image}`;
   };
 
@@ -282,7 +298,7 @@ const AdminProducts: React.FC = () => {
                   <img
                     src={getImgSrc(p)}
                     alt={p.name}
-                    onError={e => { (e.target as HTMLImageElement).src = '/placeholder-fish.jpg'; }}
+                    onError={e => { (e.target as HTMLImageElement).src = '/placeholder-fish.svg'; }}
                   />
                   {!p.available && <span className="ap-card__out-badge">Out of Stock</span>}
                 </div>
