@@ -872,6 +872,9 @@
 .admin-chat__no-selection span { font-size: 3.5rem; }
 .admin-chat__no-selection p { font-size: 1rem; }
 
+/* Hide mobile nav on desktop */
+.ap-mobile-nav { display: none; }
+
 /* ── Responsive ───────────────────────────────────────────── */
 @media (max-width: 768px) {
   .admin-chat__sidebar {
