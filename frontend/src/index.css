@@ -1,0 +1,118 @@
+/* CSS Custom Properties — Aquarium Theme */
+:root {
+  --primary: #00c9a7;
+  --primary-dark: #00a887;
+  --dark: #031d2e;
+  --ocean-mid: #0a2540;
+  --ocean: #0c3d5c;
+  --light-bg: #f0fdf9;
+  --card-shadow: 0 2px 12px rgba(0, 201, 167, 0.1);
+  --border-radius: 12px;
+  --font-sans: 'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --navbar-h: 90px; /* top bar ~52px + nav row ~38px */
+}
+
+/* Reset & Base */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--light-bg);
+  color: var(--dark);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  line-height: 1.2;
+}
+
+/* Images */
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* Inputs */
+input, textarea, select, button {
+  font-family: inherit;
+}
+
+/* Links */
+a {
+  color: inherit;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #d0f0ec;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #7ed8c8;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #5cc8b8;
+}
+
+/* Utility: screen-reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Page wrapper for sticky footer */
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Admin layout: lock to viewport height so flex children fill correctly */
+.page-wrapper--admin {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.page-content {
+  flex: 1;
+}
+
+.page-content--admin {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
