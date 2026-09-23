@@ -555,4 +555,28 @@
 @media (max-width: 768px) {
   .ap-sidebar { display: none; }
   .ap-form__row { grid-template-columns: 1fr; }
+
+  .ap-header { position: static; }  /* un-sticky on mobile to save space */
+  .ap-filters { position: static; top: auto; }
+
+  .ap-grid {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .ap-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ap-card__actions {
+    flex-wrap: wrap;
+  }
+
+  .ap-modal {
+    margin: 0.5rem;
+    max-height: calc(100vh - 1rem);
+  }
 }

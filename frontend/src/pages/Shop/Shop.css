@@ -619,4 +619,26 @@
   .shop-stat {
     flex: 1 1 100%;
   }
+
+  /* Hero tweaks for small phones */
+  .shop-hero {
+    padding: 1.25rem 1rem 3rem;
+  }
+
+  .shop-hero__pills {
+    gap: 0.3rem;
+  }
+
+  .shop-hero__pills span {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.6rem;
+  }
+
+  /* Reduce fish count visually — hide some on small screens */
+  .shop-fish--4,
+  .shop-fish--5,
+  .shop-fish--6,
+  .shop-fish--7 {
+    display: none;
+  }
 }
