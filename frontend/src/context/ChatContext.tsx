@@ -39,7 +39,7 @@ interface ChatCtx {
 const ChatContext = createContext<ChatCtx | null>(null);
 const TAB_ID = Math.random().toString(36).slice(2);
 
-export const ChatProvider: React.FC<{ children: React.ReactNode; sessionId: string }> = ({ children, sessionId }) => {
+export const ChatProvider: React.FC<{ children: React.ReactNode; sessionId: string; customerName?: string }> = ({ children, sessionId, customerName }) => {
   const [messages, setMessages] = useState<ChatMsg[]>(() => getSessionMsgs(sessionId));
   const bcRef = useRef<BroadcastChannel | null>(null);
 
@@ -75,6 +75,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; sessionId: stri
       sync(n);
       if (payload.sender === 'customer') {
         upsertSession(sessionId, {
+          name: customerName,
           lastMessage: payload.text ?? '[media]',
           lastAt: new Date().toISOString(),
           unread: n.filter(m => m.sender === 'customer' && !m.read).length,

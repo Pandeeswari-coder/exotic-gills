@@ -56,6 +56,11 @@ const AdminChat: React.FC = () => {
     setSessions(getSessions());
   }, []);
 
+  const sessionLabel = (sid: string) => {
+    const s = sessions.find(x => x.id === sid);
+    return s?.name ?? `Customer #${sid.slice(-4)}`;
+  };
+
   /* ── Messages for selected session ── */
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const bcRef = useRef<BroadcastChannel | null>(null);
@@ -378,7 +383,7 @@ const AdminChat: React.FC = () => {
               >
                 <div className="admin-chat__conv-avatar">👤</div>
                 <div className="admin-chat__conv-info">
-                  <strong>Customer #{s.id.slice(-4)}</strong>
+                  <strong>{sessionLabel(s.id)}</strong>
                   <p>{s.lastMessage || 'Started a chat'}</p>
                 </div>
                 <div className="admin-chat__conv-meta">
@@ -424,7 +429,7 @@ const AdminChat: React.FC = () => {
                 Back to Site
               </button>
               <div className="admin-chat__main-header-info">
-                <strong>Customer #{selectedSid.slice(-4)}</strong>
+                <strong>{sessionLabel(selectedSid)}</strong>
                 <span>{messages.filter(m => m.sender === 'customer').length} customer messages</span>
               </div>
             </div>
@@ -445,7 +450,7 @@ const AdminChat: React.FC = () => {
                   </div>
                   <div className="admin-msg__wrap">
                     <span className="admin-msg__label">
-                      {msg.sender === 'owner' ? 'You (Owner)' : `Customer #${selectedSid.slice(-4)}`}
+                      {msg.sender === 'owner' ? 'You (Owner)' : sessionLabel(selectedSid)}
                     </span>
 
                     {msg.type === 'text' && msg.text && (

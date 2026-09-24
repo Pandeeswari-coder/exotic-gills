@@ -1,5 +1,6 @@
 import React, { Suspense, lazy, useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
+import { useAuth } from './context/AuthContext';
 
 const ScrollToTop: React.FC = () => {
   const { pathname } = useLocation();
@@ -39,7 +40,7 @@ const NotFound: React.FC = () => (
   </div>
 );
 
-const getCustomerSessionId = (): string => {
+const getAnonymousSessionId = (): string => {
   let sid = sessionStorage.getItem('egf_customer_session');
   if (!sid) {
     sid = `s${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`;
@@ -50,13 +51,18 @@ const getCustomerSessionId = (): string => {
 
 const App: React.FC = () => {
   const location = useLocation();
+  const { user } = useAuth();
   const isAdmin = location.pathname.startsWith('/admin');
   const isAdminChat = location.pathname === '/admin'; // only chat needs the viewport lock
-  // Each browser tab / session gets a unique conversation with the owner
-  const customerSessionId = React.useMemo(getCustomerSessionId, []);
+  // Use the logged-in user's name+id as session so admin sees their real name.
+  // Fall back to anonymous random ID for guests.
+  const customerSessionId = React.useMemo(
+    () => user ? `user-${user.id}` : getAnonymousSessionId(),
+    [user]
+  );
 
   return (
-    <ChatProvider sessionId={customerSessionId}>
+    <ChatProvider sessionId={customerSessionId} customerName={user?.name}>
       <ScrollToTop />
       <div className={`page-wrapper${isAdminChat ? ' page-wrapper--admin' : isAdmin ? ' page-wrapper--admin-content' : ''}`}>
         <NavBar />

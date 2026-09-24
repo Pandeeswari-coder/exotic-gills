@@ -4,6 +4,7 @@ export const syncChannelName = (sid: string) => `egf_chat_sync_${sid}`;
 
 export interface SessionMeta {
   id: string;
+  name?: string;
   startedAt: string;
   lastMessage: string;
   lastAt: string;
