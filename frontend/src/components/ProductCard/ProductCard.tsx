@@ -44,13 +44,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           ♡
         </button>
 
-        {/* Quick-add slides up on hover when available */}
-        {product.available && (
-          <div className="product-card__quick-add" onClick={handleAddToCart}>
-            + Add to Cart
-          </div>
-        )}
-
         {/* Sold-out overlay */}
         {!product.available && (
           <div className="product-card__out-overlay">

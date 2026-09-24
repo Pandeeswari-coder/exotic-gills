@@ -558,6 +558,8 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
+  overflow: visible;
+  padding-bottom: 0.5rem;
 }
 
 .skeleton-card {
