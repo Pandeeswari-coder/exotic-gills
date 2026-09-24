@@ -102,15 +102,20 @@ const Shop: React.FC = () => {
   return (
     <div className="shop-page">
       <div className="shop-hero">
-        {/* Swimming fish scene */}
-        <div className="shop-hero__fish-scene" aria-hidden>
-          <span className="shop-fish shop-fish--1">🐠</span>
-          <span className="shop-fish shop-fish--2">🐟</span>
-          <span className="shop-fish shop-fish--3">🐡</span>
-          <span className="shop-fish shop-fish--4">🐠</span>
-          <span className="shop-fish shop-fish--5">🐟</span>
-          <span className="shop-fish shop-fish--6">🐡</span>
-          <span className="shop-fish shop-fish--7">🐠</span>
+        {/* Rising bubbles */}
+        <div className="shop-hero__bubbles" aria-hidden>
+          <span className="shop-bubble shop-bubble--1" />
+          <span className="shop-bubble shop-bubble--2" />
+          <span className="shop-bubble shop-bubble--3" />
+          <span className="shop-bubble shop-bubble--4" />
+          <span className="shop-bubble shop-bubble--5" />
+          <span className="shop-bubble shop-bubble--6" />
+          <span className="shop-bubble shop-bubble--7" />
+          <span className="shop-bubble shop-bubble--8" />
+          <span className="shop-bubble shop-bubble--9" />
+          <span className="shop-bubble shop-bubble--10" />
+          <span className="shop-bubble shop-bubble--11" />
+          <span className="shop-bubble shop-bubble--12" />
         </div>
         {/* Seaweed / coral decorations */}
         <div className="shop-hero__decor" aria-hidden>

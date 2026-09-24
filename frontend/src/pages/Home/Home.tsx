@@ -36,6 +36,16 @@ const Home: React.FC = () => {
             SHOP NOW
           </Link>
         </div>
+        {/* Swimming fish */}
+        <div className="hero__fish-scene" aria-hidden>
+          <span className="hero-fish hero-fish--1">🐠</span>
+          <span className="hero-fish hero-fish--2">🐟</span>
+          <span className="hero-fish hero-fish--3">🐡</span>
+          <span className="hero-fish hero-fish--4">🐠</span>
+          <span className="hero-fish hero-fish--5">🐟</span>
+          <span className="hero-fish hero-fish--6">🐡</span>
+          <span className="hero-fish hero-fish--7">🐠</span>
+        </div>
         <div className="hero__scroll-hint">
           <span>Scroll to explore</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

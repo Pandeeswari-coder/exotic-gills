@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useChat } from '../../context/ChatContext';
@@ -72,7 +73,7 @@ const ChatBot: React.FC = () => {
   const resolveProducts = (ids: number[]) =>
     ids.map(id => products.find(p => p.id === id)).filter(Boolean) as Product[];
 
-  return (
+  return createPortal(
     <>
       {/* Floating trigger */}
       <button className="chatbot-trigger" onClick={() => setOpen(o => !o)} aria-label="Chat with us">
@@ -270,7 +271,7 @@ const ChatBot: React.FC = () => {
         </div>
       )}
     </>
-  );
+  , document.body);
 };
 
 export default ChatBot;

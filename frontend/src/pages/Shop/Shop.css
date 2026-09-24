@@ -37,44 +37,41 @@
   100% { background-position-y: 38px; }
 }
 
-/* ── Swimming fish ────────────────────────────────────────── */
-.shop-hero__fish-scene {
+/* ── Rising bubbles ───────────────────────────────────────── */
+.shop-hero__bubbles {
   position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 2;
+  overflow: hidden;
 }
 
-.shop-fish {
+.shop-bubble {
   position: absolute;
-  line-height: 1;
-  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.2));
-  will-change: transform;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.28), rgba(180,240,255,0.04));
+  border: 1px solid rgba(255,255,255,0.2);
 }
 
-/* Swim left → right */
-@keyframes swim-r {
-  0%   { transform: translateX(-140px) scaleX(1);  opacity: 0; }
-  6%   { opacity: 1; }
-  94%  { opacity: 1; }
-  100% { transform: translateX(calc(100vw + 140px)) scaleX(1); opacity: 0; }
+@keyframes bubble-rise {
+  0%   { transform: translateY(0) translateX(0);        opacity: 0; }
+  8%   { opacity: 0.75; }
+  88%  { opacity: 0.45; }
+  100% { transform: translateY(-320px) translateX(14px); opacity: 0; }
 }
 
-/* Swim right → left (flipped) */
-@keyframes swim-l {
-  0%   { transform: translateX(calc(100vw + 140px)) scaleX(-1); opacity: 0; }
-  6%   { opacity: 1; }
-  94%  { opacity: 1; }
-  100% { transform: translateX(-140px) scaleX(-1); opacity: 0; }
-}
-
-.shop-fish--1 { top: 22%; font-size: 2rem;   animation: swim-r 12s linear infinite; animation-delay: 0s;   }
-.shop-fish--2 { top: 50%; font-size: 1.5rem; animation: swim-l 15s linear infinite; animation-delay: 2.5s; }
-.shop-fish--3 { top: 72%; font-size: 1.8rem; animation: swim-r 10s linear infinite; animation-delay: 5s;   }
-.shop-fish--4 { top: 35%; font-size: 1.3rem; animation: swim-l 13s linear infinite; animation-delay: 1s;   }
-.shop-fish--5 { top: 60%; font-size: 2.2rem; animation: swim-r 17s linear infinite; animation-delay: 8s;   }
-.shop-fish--6 { top: 18%; font-size: 1.6rem; animation: swim-l 11s linear infinite; animation-delay: 4s;   }
-.shop-fish--7 { top: 45%; font-size: 1.1rem; animation: swim-r 14s linear infinite; animation-delay: 6.5s; }
+.shop-bubble--1  { bottom: -5%;  left: 7%;  width: 18px; height: 18px; animation: bubble-rise 5s   ease-in infinite; animation-delay: 0s;   }
+.shop-bubble--2  { bottom: -8%;  left: 21%; width: 10px; height: 10px; animation: bubble-rise 7s   ease-in infinite; animation-delay: 1s;   }
+.shop-bubble--3  { bottom: -4%;  left: 37%; width: 24px; height: 24px; animation: bubble-rise 6s   ease-in infinite; animation-delay: 2.5s; }
+.shop-bubble--4  { bottom: -6%;  left: 54%; width: 14px; height: 14px; animation: bubble-rise 8s   ease-in infinite; animation-delay: 0.5s; }
+.shop-bubble--5  { bottom: -3%;  left: 69%; width: 20px; height: 20px; animation: bubble-rise 5.5s ease-in infinite; animation-delay: 3.5s; }
+.shop-bubble--6  { bottom: -7%;  left: 84%; width: 12px; height: 12px; animation: bubble-rise 6.5s ease-in infinite; animation-delay: 1.5s; }
+.shop-bubble--7  { bottom: -2%;  left: 14%; width: 30px; height: 30px; animation: bubble-rise 9s   ease-in infinite; animation-delay: 4s;   }
+.shop-bubble--8  { bottom: -4%;  left: 46%; width:  8px; height:  8px; animation: bubble-rise 4.5s ease-in infinite; animation-delay: 2s;   }
+.shop-bubble--9  { bottom: -5%;  left: 61%; width: 22px; height: 22px; animation: bubble-rise 7.5s ease-in infinite; animation-delay: 0.8s; }
+.shop-bubble--10 { bottom: -3%;  left: 30%; width: 16px; height: 16px; animation: bubble-rise 5.8s ease-in infinite; animation-delay: 3s;   }
+.shop-bubble--11 { bottom: -6%;  left: 78%; width: 26px; height: 26px; animation: bubble-rise 8.5s ease-in infinite; animation-delay: 1.8s; }
+.shop-bubble--12 { bottom: -4%;  left: 91%; width: 11px; height: 11px; animation: bubble-rise 6.2s ease-in infinite; animation-delay: 4.5s; }
 
 /* ── Seaweed / coral decorations ────────────────────────── */
 .shop-hero__decor {
