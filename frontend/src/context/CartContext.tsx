@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { CartItem, Product } from '../types';
 import { getLocalProducts } from '../services/localProductStore';
+import { useAuth } from './AuthContext';
 
 interface CartContextType {
   items: CartItem[];
@@ -14,36 +15,45 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-const CART_STORAGE_KEY = 'aquafin_cart';
+const cartKey = (userId?: string) =>
+  userId ? `aquafin_cart_${userId}` : 'aquafin_cart_guest';
 
-/* Sync cart items with latest product data from local store.
-   Removes out-of-stock items and updates image/price to current values. */
 const syncWithStore = (items: CartItem[]): CartItem[] => {
   const localProds = getLocalProducts();
   return items
     .map(item => {
       const current = localProds.find(p => p.id === item.product.id);
-      if (!current) return item; // API product — keep as-is
-      if (!current.available) return null; // out of stock — remove
-      return { ...item, product: current }; // refresh image/price
+      if (!current) return item;
+      if (!current.available) return null;
+      return { ...item, product: current };
     })
     .filter(Boolean) as CartItem[];
 };
 
+const loadCart = (userId?: string): CartItem[] => {
+  try {
+    const stored = localStorage.getItem(cartKey(userId));
+    const parsed: CartItem[] = stored ? JSON.parse(stored) : [];
+    return syncWithStore(parsed);
+  } catch {
+    return [];
+  }
+};
+
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [items, setItems] = useState<CartItem[]>(() => {
-    try {
-      const stored = localStorage.getItem(CART_STORAGE_KEY);
-      const parsed: CartItem[] = stored ? JSON.parse(stored) : [];
-      return syncWithStore(parsed);
-    } catch {
-      return [];
-    }
-  });
+  const { user } = useAuth();
+  const userId = user?.id;
+
+  const [items, setItems] = useState<CartItem[]>(() => loadCart(userId));
+
+  // Reload cart whenever the logged-in user changes (login / logout)
+  useEffect(() => {
+    setItems(loadCart(userId));
+  }, [userId]);
 
   useEffect(() => {
-    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
-  }, [items]);
+    localStorage.setItem(cartKey(userId), JSON.stringify(items));
+  }, [items, userId]);
 
   const addToCart = (product: Product, quantity = 1) => {
     setItems((prev) => {
@@ -77,7 +87,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const clearCart = () => {
     setItems([]);
-    localStorage.removeItem(CART_STORAGE_KEY);
+    localStorage.removeItem(cartKey(userId));
   };
 
   const total = items.reduce(
