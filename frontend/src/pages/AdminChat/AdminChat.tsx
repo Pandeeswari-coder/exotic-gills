@@ -154,6 +154,31 @@ const AdminChat: React.FC = () => {
     }
   }, [loadHistory, token, loadSessions]);
 
+  /* ── Clear messages in session ── */
+  const clearChat = useCallback(async () => {
+    if (!selectedSid || !token) return;
+    if (!window.confirm('Clear all messages in this conversation?')) return;
+    await fetch(`${API_BASE}/chat/messages/${selectedSid}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setMessages([]);
+    loadSessions();
+  }, [selectedSid, token, loadSessions]);
+
+  /* ── Delete whole session ── */
+  const deleteSession = useCallback(async (sid: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!token) return;
+    if (!window.confirm('Delete this conversation and all its messages?')) return;
+    await fetch(`${API_BASE}/chat/session/${sid}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setSessions(prev => prev.filter(s => s.id !== sid));
+    if (selectedSid === sid) { setSelectedSid(null); setMessages([]); }
+  }, [token, selectedSid]);
+
   /* ── Edit ── */
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
@@ -398,6 +423,16 @@ const AdminChat: React.FC = () => {
                 <div className="admin-chat__conv-meta">
                   <span className="admin-chat__conv-time">{fmtSessionTime(s.last_at)}</span>
                   {s.unread > 0 && <span className="admin-chat__unread-badge">{s.unread}</span>}
+                  <button
+                    className="admin-chat__conv-delete"
+                    onClick={e => deleteSession(s.id, e)}
+                    title="Delete conversation"
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" />
+                      <path d="M10 11v6M14 11v6M9 6V4h6v2" />
+                    </svg>
+                  </button>
                 </div>
               </div>
             ))
@@ -432,6 +467,13 @@ const AdminChat: React.FC = () => {
                 <strong>{sessionLabel(selectedSid)}</strong>
                 <span>{messages.filter(m => m.sender === 'customer').length} customer messages</span>
               </div>
+              <button className="admin-chat__clear-btn" onClick={clearChat} title="Clear all messages">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" />
+                  <path d="M10 11v6M14 11v6M9 6V4h6v2" />
+                </svg>
+                Clear Chat
+              </button>
             </div>
 
             <div className="admin-chat__messages" ref={messagesRef} onScroll={handleMessagesScroll}>

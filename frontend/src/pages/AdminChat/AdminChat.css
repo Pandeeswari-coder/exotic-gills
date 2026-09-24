@@ -300,6 +300,49 @@
   border-color: var(--primary);
 }
 
+.admin-chat__clear-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-left: auto;
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: rgba(239, 68, 68, 0.7);
+  font-size: 0.75rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.admin-chat__clear-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border-color: #ef4444;
+}
+
+.admin-chat__conv-delete {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.25);
+  padding: 2px 4px;
+  border-radius: 4px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, background 0.2s;
+  flex-shrink: 0;
+}
+.admin-chat__conv-item:hover .admin-chat__conv-delete {
+  display: flex;
+}
+.admin-chat__conv-delete:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.12);
+}
+
 .admin-chat__main-header-info {
   flex: 1;
 }

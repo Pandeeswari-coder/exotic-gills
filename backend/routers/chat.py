@@ -209,3 +209,25 @@ async def mark_read(session_id: str, _: User = Depends(get_current_admin)):
         session.unread = 0
         await session.save()
     return {"ok": True}
+
+
+@router.delete("/messages/{session_id}", status_code=200)
+async def clear_messages(session_id: str, _: User = Depends(get_current_admin)):
+    """Delete all messages in a session but keep the session record."""
+    await ChatMessage.find(ChatMessage.session_id == session_id).delete()
+    session = await ChatSession.find_one(ChatSession.session_id == session_id)
+    if session:
+        session.last_message = ""
+        session.unread = 0
+        await session.save()
+    return {"ok": True}
+
+
+@router.delete("/session/{session_id}", status_code=200)
+async def delete_session(session_id: str, _: User = Depends(get_current_admin)):
+    """Delete a session and all its messages."""
+    await ChatMessage.find(ChatMessage.session_id == session_id).delete()
+    session = await ChatSession.find_one(ChatSession.session_id == session_id)
+    if session:
+        await session.delete()
+    return {"ok": True}
