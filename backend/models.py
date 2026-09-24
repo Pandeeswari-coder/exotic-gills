@@ -9,11 +9,15 @@ class CategoryEmbedded(BaseModel):
     id: str
     name: str
     slug: str
+    parent_id: Optional[str] = None
+    parent_slug: Optional[str] = None
+    parent_name: Optional[str] = None
 
 
 class Category(Document):
     name: str
     slug: str
+    parent_id: Optional[str] = None  # None = main category
 
     class Settings:
         name = "categories"

@@ -9,14 +9,36 @@ from schemas import CategoryCreate, CategoryResponse, CategoryUpdate
 router = APIRouter(prefix="/categories", tags=["categories"])
 
 
-def cat_to_response(c: Category) -> CategoryResponse:
-    return CategoryResponse(id=str(c.id), name=c.name, slug=c.slug)
+def cat_to_response(c: Category, subcategories: list[CategoryResponse] | None = None) -> CategoryResponse:
+    return CategoryResponse(
+        id=str(c.id),
+        name=c.name,
+        slug=c.slug,
+        parent_id=c.parent_id,
+        subcategories=subcategories or [],
+    )
 
 
 @router.get("/", response_model=List[CategoryResponse])
 async def list_categories():
-    cats = await Category.find().sort("+name").to_list()
-    return [cat_to_response(c) for c in cats]
+    all_cats = await Category.find().sort("+name").to_list()
+
+    # Build id → doc map
+    by_id: dict[str, Category] = {str(c.id): c for c in all_cats}
+
+    # Separate main and sub
+    mains = [c for c in all_cats if not c.parent_id]
+    subs: dict[str, list[Category]] = {}
+    for c in all_cats:
+        if c.parent_id:
+            subs.setdefault(c.parent_id, []).append(c)
+
+    result = []
+    for m in mains:
+        mid = str(m.id)
+        sub_responses = [cat_to_response(s) for s in subs.get(mid, [])]
+        result.append(cat_to_response(m, sub_responses))
+    return result
 
 
 @router.get("/{category_id}", response_model=CategoryResponse)
@@ -29,12 +51,16 @@ async def get_category(category_id: str):
 
 @router.post("/", response_model=CategoryResponse, status_code=201)
 async def create_category(data: CategoryCreate, _=Depends(get_current_admin)):
-    if await Category.find_one({"name": data.name}):
-        raise HTTPException(status_code=400, detail="Category name already exists")
     if await Category.find_one({"slug": data.slug}):
         raise HTTPException(status_code=400, detail="Category slug already exists")
 
-    cat = Category(name=data.name, slug=data.slug)
+    # Validate parent exists if given
+    if data.parent_id:
+        parent = await Category.get(data.parent_id)
+        if not parent:
+            raise HTTPException(status_code=404, detail="Parent category not found")
+
+    cat = Category(name=data.name, slug=data.slug, parent_id=data.parent_id)
     await cat.insert()
     return cat_to_response(cat)
 
@@ -58,3 +84,38 @@ async def delete_category(category_id: str, _=Depends(get_current_admin)):
     if not cat:
         raise HTTPException(status_code=404, detail="Category not found")
     await cat.delete()
+
+
+SEED_TREE = [
+    ("Fish", "fish", [
+        ("Cichlids", "cichlids"),
+        ("Stingray", "stingray"),
+        ("Arowana", "arowana"),
+        ("Plecos", "plecos"),
+    ]),
+    ("Plants", "plants", [
+        ("Ferns", "ferns"),
+        ("Anubias", "anubias"),
+    ]),
+    ("Driftwoods", "driftwoods", []),
+    ("Rocks", "rocks", []),
+    ("Aquarium Filters", "aquarium-filters", []),
+]
+
+
+@router.post("/seed", status_code=201)
+async def seed_categories(_=Depends(get_current_admin)):
+    created = []
+    for main_name, main_slug, subs in SEED_TREE:
+        existing = await Category.find_one({"slug": main_slug})
+        if not existing:
+            existing = Category(name=main_name, slug=main_slug)
+            await existing.insert()
+            created.append(main_slug)
+        parent_id = str(existing.id)
+        for sub_name, sub_slug in subs:
+            if not await Category.find_one({"slug": sub_slug}):
+                sub = Category(name=sub_name, slug=sub_slug, parent_id=parent_id)
+                await sub.insert()
+                created.append(sub_slug)
+    return {"created": created}

@@ -12,14 +12,19 @@ import type { Category, Product } from '../../types';
 import './AdminProducts.css';
 
 const STATIC_CATEGORIES: Category[] = [
-  { id: '101', name: 'Pterophyllum scalare',      slug: 'pterophyllum-scalare' },
-  { id: '102', name: 'Poecilia sp',               slug: 'poecilia-sp' },
-  { id: '103', name: 'Puntigrus tetrazona',        slug: 'puntigrus-tetrazona' },
-  { id: '104', name: 'Astronotus ocellatus',       slug: 'astronotus-ocellatus' },
-  { id: '105', name: 'Amatitlania nigrofasciata',  slug: 'amatitlania-nigrofasciata' },
-  { id: '106', name: 'Various genus and species',  slug: 'various' },
-  { id: '107', name: 'Carassias auratus',          slug: 'carassias-auratus' },
-  { id: '108', name: 'Betta splendens',            slug: 'betta-splendens' },
+  { id: '1', name: 'Fish',             slug: 'fish',             subcategories: [
+    { id: '1a', name: 'Cichlids', slug: 'cichlids' },
+    { id: '1b', name: 'Stingray', slug: 'stingray' },
+    { id: '1c', name: 'Arowana',  slug: 'arowana'  },
+    { id: '1d', name: 'Plecos',   slug: 'plecos'   },
+  ]},
+  { id: '2', name: 'Plants',           slug: 'plants',           subcategories: [
+    { id: '2a', name: 'Ferns',   slug: 'ferns'   },
+    { id: '2b', name: 'Anubias', slug: 'anubias' },
+  ]},
+  { id: '3', name: 'Driftwoods',       slug: 'driftwoods',       subcategories: [] },
+  { id: '4', name: 'Rocks',            slug: 'rocks',            subcategories: [] },
+  { id: '5', name: 'Aquarium Filters', slug: 'aquarium-filters', subcategories: [] },
 ];
 
 const emptyForm = {
@@ -419,9 +424,17 @@ const AdminProducts: React.FC = () => {
                     onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
                   >
                     <option value="">Select category</option>
-                    {categories.map(c => (
-                      <option key={c.id} value={c.slug}>{c.name}</option>
-                    ))}
+                    {categories.map(c =>
+                      (c.subcategories?.length ?? 0) > 0 ? (
+                        <optgroup key={c.id} label={c.name}>
+                          {c.subcategories!.map(sub => (
+                            <option key={sub.id} value={sub.slug}>{sub.name}</option>
+                          ))}
+                        </optgroup>
+                      ) : (
+                        <option key={c.id} value={c.slug}>{c.name}</option>
+                      )
+                    )}
                   </select>
                 </div>
               </div>

@@ -2,7 +2,8 @@ export interface Category {
   id: string;
   name: string;
   slug: string;
-  description?: string;
+  parent_id?: string | null;
+  subcategories?: Category[];
 }
 
 export interface Product {

@@ -49,6 +49,7 @@ class AuthResponse(BaseModel):
 class CategoryCreate(BaseModel):
     name: str = Field(min_length=1, max_length=100)
     slug: str = Field(min_length=1, max_length=100)
+    parent_id: Optional[str] = None
 
     @field_validator("slug")
     @classmethod
@@ -59,6 +60,7 @@ class CategoryCreate(BaseModel):
 class CategoryUpdate(BaseModel):
     name: Optional[str] = Field(default=None, min_length=1, max_length=100)
     slug: Optional[str] = Field(default=None, min_length=1, max_length=100)
+    parent_id: Optional[str] = None
 
     @field_validator("slug")
     @classmethod
@@ -70,6 +72,10 @@ class CategoryResponse(BaseModel):
     id: str
     name: str
     slug: str
+    parent_id: Optional[str] = None
+    subcategories: List["CategoryResponse"] = []
+
+CategoryResponse.model_rebuild()
 
 
 # ─── Product ──────────────────────────────────────────────────────────────────

@@ -52,7 +52,25 @@ async def list_products(
     if available is not None:
         query["is_available"] = available
     if category:
-        query["category.slug"] = category
+        # If it's a parent category slug, match all subcategory slugs under it too
+        parent_cat = await Category.find_one({"slug": category, "parent_id": None})
+        if parent_cat:
+            child_slugs = [
+                c.slug for c in await Category.find({"parent_id": str(parent_cat.id)}).to_list()
+            ]
+            if child_slugs:
+                query["$or"] = [
+                    {"category.slug": category},
+                    {"category.parent_slug": category},
+                    {"category.slug": {"$in": child_slugs}},
+                ]
+            else:
+                query["category.slug"] = category
+        else:
+            query["$or"] = [
+                {"category.slug": category},
+                {"category.parent_slug": category},
+            ]
     if search:
         query["$or"] = [
             {"name": {"$regex": search, "$options": "i"}},
@@ -107,7 +125,17 @@ async def create_product(
     if category_slug:
         cat = await Category.find_one({"slug": category_slug})
         if cat:
-            cat_embedded = CategoryEmbedded(id=str(cat.id), name=cat.name, slug=cat.slug)
+            parent_slug = None
+            parent_name = None
+            if cat.parent_id:
+                parent = await Category.get(cat.parent_id)
+                if parent:
+                    parent_slug = parent.slug
+                    parent_name = parent.name
+            cat_embedded = CategoryEmbedded(
+                id=str(cat.id), name=cat.name, slug=cat.slug,
+                parent_id=cat.parent_id, parent_slug=parent_slug, parent_name=parent_name,
+            )
 
     product = Product(
         name=name,
@@ -159,7 +187,20 @@ async def update_product(
 
     if category_slug is not None:
         cat = await Category.find_one({"slug": category_slug})
-        product.category = CategoryEmbedded(id=str(cat.id), name=cat.name, slug=cat.slug) if cat else None
+        if cat:
+            parent_slug = None
+            parent_name = None
+            if cat.parent_id:
+                parent = await Category.get(cat.parent_id)
+                if parent:
+                    parent_slug = parent.slug
+                    parent_name = parent.name
+            product.category = CategoryEmbedded(
+                id=str(cat.id), name=cat.name, slug=cat.slug,
+                parent_id=cat.parent_id, parent_slug=parent_slug, parent_name=parent_name,
+            )
+        else:
+            product.category = None
 
     await product.save()
     return product_to_response(product)

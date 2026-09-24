@@ -6,14 +6,19 @@ import ProductCard from '../../components/ProductCard/ProductCard';
 import './Shop.css';
 
 const STATIC_CATEGORIES: Category[] = [
-  { id: '101', name: 'Pterophyllum scalare',      slug: 'pterophyllum-scalare' },
-  { id: '102', name: 'Poecilia sp',               slug: 'poecilia-sp' },
-  { id: '103', name: 'Puntigrus tetrazona',        slug: 'puntigrus-tetrazona' },
-  { id: '104', name: 'Astronotus ocellatus',       slug: 'astronotus-ocellatus' },
-  { id: '105', name: 'Amatitlania nigrofasciata',  slug: 'amatitlania-nigrofasciata' },
-  { id: '106', name: 'Various genus and species',  slug: 'various' },
-  { id: '107', name: 'Carassias auratus',          slug: 'carassias-auratus' },
-  { id: '108', name: 'Betta splendens',            slug: 'betta-splendens' },
+  { id: '1', name: 'Fish',              slug: 'fish',              subcategories: [
+    { id: '1a', name: 'Cichlids',  slug: 'cichlids' },
+    { id: '1b', name: 'Stingray',  slug: 'stingray' },
+    { id: '1c', name: 'Arowana',   slug: 'arowana' },
+    { id: '1d', name: 'Plecos',    slug: 'plecos' },
+  ]},
+  { id: '2', name: 'Plants',            slug: 'plants',            subcategories: [
+    { id: '2a', name: 'Ferns',    slug: 'ferns' },
+    { id: '2b', name: 'Anubias',  slug: 'anubias' },
+  ]},
+  { id: '3', name: 'Driftwoods',        slug: 'driftwoods',        subcategories: [] },
+  { id: '4', name: 'Rocks',             slug: 'rocks',             subcategories: [] },
+  { id: '5', name: 'Aquarium Filters',  slug: 'aquarium-filters',  subcategories: [] },
 ];
 
 const Shop: React.FC = () => {
@@ -23,6 +28,7 @@ const Shop: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [spotlight, setSpotlight] = useState({ x: 50, y: 50 });
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -149,18 +155,18 @@ const Shop: React.FC = () => {
             <span className="shop-hero__title-line2">Ocean's Finest</span>
           </h1>
           <p className="shop-hero__sub">
-            Premium live Discus, Bettas &amp; tropical fish — <br className="shop-hero__br" />
+            Premium fish, aquatic plants, driftwoods, rocks &amp; filters — <br className="shop-hero__br" />
             sourced from trusted breeders, delivered to your door.
           </p>
 
           {/* Interactive category cards */}
           <div className="shop-hero__categories">
             {[
-              { emoji: '🐠', name: 'Discus',   slug: 'pterophyllum-scalare', desc: 'Award-winning varieties' },
-              { emoji: '🦈', name: 'Bettas',   slug: 'betta-splendens',      desc: 'Flowing fin splendors' },
-              { emoji: '🐟', name: 'Cichlids', slug: 'astronotus-ocellatus', desc: 'Bold & colourful' },
-              { emoji: '🐡', name: 'Goldfish', slug: 'carassias-auratus',    desc: 'Classic beauties' },
-              { emoji: '🌊', name: 'Guppies',  slug: 'poecilia-sp',          desc: 'Colourful nano fish' },
+              { emoji: '🐠', name: 'Fish',              slug: 'fish',             desc: 'Cichlids, Arowana & more' },
+              { emoji: '🌿', name: 'Plants',            slug: 'plants',           desc: 'Ferns, Anubias & more' },
+              { emoji: '🪵', name: 'Driftwoods',        slug: 'driftwoods',       desc: 'Natural aquascape wood' },
+              { emoji: '🪨', name: 'Rocks',             slug: 'rocks',            desc: 'Stones & hardscape' },
+              { emoji: '⚙️', name: 'Aquarium Filters',  slug: 'aquarium-filters', desc: 'Clean & clear water' },
             ].map(cat => (
               <Link key={cat.slug} to={`/shop?category=${cat.slug}`} className="shop-cat-card">
                 <span className="shop-cat-card__icon">{cat.emoji}</span>
@@ -172,7 +178,7 @@ const Shop: React.FC = () => {
           </div>
 
           <a href="#shop-main" className="shop-hero__cta">
-            Explore All Fish
+            Explore All Products
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
             </svg>
@@ -211,16 +217,51 @@ const Shop: React.FC = () => {
             {categories.length === 0 ? (
               <p className="no-categories">No categories found</p>
             ) : (
-              categories.map((cat) => (
-                <label key={cat.id} className="filter-checkbox">
-                  <input
-                    type="checkbox"
-                    checked={selectedCategories.includes(cat.slug)}
-                    onChange={() => handleCategoryToggle(cat.slug)}
-                  />
-                  <span>{cat.name}</span>
-                </label>
-              ))
+              categories.map((cat) => {
+                const hasSubs = (cat.subcategories?.length ?? 0) > 0;
+                const isExpanded = expandedCategories.has(cat.slug);
+                return (
+                  <div key={cat.id} className="filter-category-group">
+                    <div className="filter-category-main">
+                      <label className="filter-checkbox">
+                        <input
+                          type="checkbox"
+                          checked={selectedCategories.includes(cat.slug)}
+                          onChange={() => handleCategoryToggle(cat.slug)}
+                        />
+                        <span>{cat.name}</span>
+                      </label>
+                      {hasSubs && (
+                        <button
+                          className="filter-category-expand"
+                          onClick={() => setExpandedCategories(prev => {
+                            const next = new Set(prev);
+                            next.has(cat.slug) ? next.delete(cat.slug) : next.add(cat.slug);
+                            return next;
+                          })}
+                          aria-label={isExpanded ? 'Collapse' : 'Expand'}
+                        >
+                          {isExpanded ? '▾' : '▸'}
+                        </button>
+                      )}
+                    </div>
+                    {hasSubs && isExpanded && (
+                      <div className="filter-subcategories">
+                        {cat.subcategories!.map(sub => (
+                          <label key={sub.id} className="filter-checkbox filter-checkbox--sub">
+                            <input
+                              type="checkbox"
+                              checked={selectedCategories.includes(sub.slug)}
+                              onChange={() => handleCategoryToggle(sub.slug)}
+                            />
+                            <span>{sub.name}</span>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })
             )}
           </div>
 

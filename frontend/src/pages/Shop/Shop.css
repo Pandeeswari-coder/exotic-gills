@@ -441,6 +441,42 @@
   margin: 0;
 }
 
+.filter-category-group {
+  margin-bottom: 0.15rem;
+}
+
+.filter-category-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.filter-category-main .filter-checkbox {
+  flex: 1;
+}
+
+.filter-category-expand {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #5a8c85;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.3rem;
+  line-height: 1;
+}
+
+.filter-subcategories {
+  padding-left: 1.4rem;
+  border-left: 2px solid rgba(0, 201, 167, 0.2);
+  margin: 0.15rem 0 0.15rem 0.4rem;
+}
+
+.filter-checkbox--sub {
+  font-size: 0.85rem;
+  color: #4b5563;
+  padding: 0.2rem 0;
+}
+
 /* Price inputs */
 .price-inputs {
   display: flex;
