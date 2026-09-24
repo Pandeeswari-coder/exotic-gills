@@ -140,6 +140,10 @@ async def customer_ws(
         while True:
             data = await ws.receive_json()
 
+            # Ignore heartbeat pings
+            if data.get("type") == "ping":
+                continue
+
             # Edit existing message
             if data.get("type") == "edit":
                 mid = data.get("message_id")
@@ -211,6 +215,10 @@ async def admin_ws(ws: WebSocket, token: str = Query(...)):
             data = await ws.receive_json()
             session_id = data.get("session_id")
             if not session_id:
+                continue
+
+            # Ignore heartbeat pings
+            if data.get("type") == "ping":
                 continue
 
             # Edit existing message

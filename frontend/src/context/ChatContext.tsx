@@ -56,6 +56,7 @@ export const ChatProvider: React.FC<{
   const [connected, setConnected] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const heartbeatTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   // Keep customerName in a ref so changing it doesn't re-trigger the connect effect
   const customerNameRef = useRef(customerName);
   useEffect(() => { customerNameRef.current = customerName; }, [customerName]);
@@ -71,7 +72,19 @@ export const ChatProvider: React.FC<{
     const ws = new WebSocket(`${WS_BASE}/chat/ws/customer/${sessionId}${params}`);
     wsRef.current = ws;
 
-    ws.onopen = () => setConnected(true);
+    ws.onopen = () => {
+      setConnected(true);
+      // Reload history to catch any messages missed during disconnection
+      fetch(`${API_BASE}/chat/history/${sessionId}`)
+        .then(r => r.json())
+        .then((raw: Record<string, unknown>[]) => setMessages(raw.map(fromServer)))
+        .catch(() => {});
+      // Heartbeat: keep connection alive every 25s (prevents Render idle timeout)
+      if (heartbeatTimer.current) clearInterval(heartbeatTimer.current);
+      heartbeatTimer.current = setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'ping' }));
+      }, 25000);
+    };
 
     ws.onmessage = (e) => {
       const raw = JSON.parse(e.data);
@@ -89,6 +102,7 @@ export const ChatProvider: React.FC<{
 
     ws.onclose = () => {
       setConnected(false);
+      if (heartbeatTimer.current) { clearInterval(heartbeatTimer.current); heartbeatTimer.current = null; }
       reconnectTimer.current = setTimeout(connect, 3000);
     };
 
@@ -107,6 +121,7 @@ export const ChatProvider: React.FC<{
 
     return () => {
       if (reconnectTimer.current) clearTimeout(reconnectTimer.current);
+      if (heartbeatTimer.current) clearInterval(heartbeatTimer.current);
       if (wsRef.current) {
         wsRef.current.onclose = null;
         wsRef.current.close();

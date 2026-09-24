@@ -110,6 +110,7 @@ const AdminChat: React.FC = () => {
   /* ── Admin WebSocket ── */
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const heartbeatTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const sessionsRef = useRef<SessionMeta[]>([]);
   useEffect(() => { sessionsRef.current = sessions; }, [sessions]);
   const selectedSidRef = useRef<string | null>(null);
@@ -170,7 +171,18 @@ const AdminChat: React.FC = () => {
       }
     };
 
+    ws.onopen = () => {
+      // Reload history for selected session to catch missed messages
+      if (selectedSidRef.current) loadHistory(selectedSidRef.current);
+      // Heartbeat: keep connection alive every 25s (prevents Render idle timeout)
+      if (heartbeatTimer.current) clearInterval(heartbeatTimer.current);
+      heartbeatTimer.current = setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'ping' }));
+      }, 25000);
+    };
+
     ws.onclose = () => {
+      if (heartbeatTimer.current) { clearInterval(heartbeatTimer.current); heartbeatTimer.current = null; }
       reconnectTimer.current = setTimeout(connectAdminWs, 3000);
     };
     ws.onerror = () => ws.close();
@@ -222,6 +234,7 @@ const AdminChat: React.FC = () => {
     connectAdminWs();
     return () => {
       if (reconnectTimer.current) clearTimeout(reconnectTimer.current);
+      if (heartbeatTimer.current) clearInterval(heartbeatTimer.current);
       if (wsRef.current) { wsRef.current.onclose = null; wsRef.current.close(); }
     };
   }, [authed, loadSessions, connectAdminWs]);
