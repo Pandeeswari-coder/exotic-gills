@@ -110,7 +110,7 @@ def _msg_out(msg: ChatMessage) -> dict:
         "media_url": msg.media_url,
         "video_url": msg.video_url,
         "product_ids": msg.product_ids,
-        "timestamp": msg.timestamp.isoformat(),
+        "timestamp": msg.timestamp.isoformat() + "Z",
         "read": msg.read,
     }
 
@@ -263,9 +263,9 @@ async def list_sessions(_: User = Depends(get_current_admin)):
             "id": s.session_id,
             "name": s.customer_name,
             "last_message": s.last_message,
-            "last_at": s.last_at.isoformat(),
+            "last_at": s.last_at.isoformat() + "Z",
             "unread": s.unread,
-            "started_at": s.started_at.isoformat(),
+            "started_at": s.started_at.isoformat() + "Z",
         }
         for s in sessions
     ]
