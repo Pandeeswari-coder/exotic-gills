@@ -53,6 +53,11 @@ const NavBar: React.FC = () => {
           {isAuthenticated ? (
             <div className="navbar-user-menu">
               <span className="navbar-username">Hi, {user?.name?.split(' ')[0]}</span>
+              {user?.is_admin && !isAdmin && (
+                <Link to="/admin" className="navbar-admin-btn" title="Admin Panel">
+                  Admin Panel
+                </Link>
+              )}
               <button className="navbar-icon-btn" onClick={handleLogout} title="Logout">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />

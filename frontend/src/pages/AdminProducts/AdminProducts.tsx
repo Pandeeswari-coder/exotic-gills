@@ -65,6 +65,7 @@ const AdminProducts: React.FC = () => {
   const [form, setForm]           = useState(emptyForm);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
+  const [triedSave, setTriedSave] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   /* ── Search / filter ── */
@@ -119,6 +120,7 @@ const AdminProducts: React.FC = () => {
     setImageFile(null);
     setImagePreview('');
     setError('');
+    setTriedSave(false);
     setShowForm(true);
   };
 
@@ -140,12 +142,14 @@ const AdminProducts: React.FC = () => {
         : `http://localhost:8000${p.image}`
       : '');
     setError('');
+    setTriedSave(false);
     setShowForm(true);
   };
 
   /* ── Save (create or update) via API ── */
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    setTriedSave(true);
     if (!form.name.trim() || !form.price || !form.stock) {
       setError('Name, price and stock are required.');
       return;
@@ -441,7 +445,7 @@ const AdminProducts: React.FC = () => {
                     value={form.category}
                     onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
                     required
-                    style={!form.category ? { borderColor: '#f87171' } : undefined}
+                    style={triedSave && !form.category ? { borderColor: '#f87171' } : undefined}
                   >
                     <option value="">— Select category —</option>
                     {/* If editing and current slug isn't in the new list, show it so the
@@ -473,7 +477,7 @@ const AdminProducts: React.FC = () => {
                       )
                     )}
                   </select>
-                  {!form.category && (
+                  {triedSave && !form.category && (
                     <p style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '0.3rem' }}>
                       Category is required — please select one to save.
                     </p>
