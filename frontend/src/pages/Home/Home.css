@@ -77,6 +77,16 @@
     drop-shadow(0 0 24px rgba(0, 188, 212, 0.4))
     drop-shadow(0 8px 32px rgba(0,0,0,0.7));
   animation: hero-fish-float 5s ease-in-out infinite;
+  transition: filter 0.4s ease;
+  cursor: pointer;
+}
+
+.hero__visual:hover {
+  filter:
+    drop-shadow(0 0 100px rgba(0, 229, 255, 0.95))
+    drop-shadow(0 0 50px rgba(0, 188, 212, 0.85))
+    drop-shadow(0 0 20px rgba(255, 255, 255, 0.3))
+    drop-shadow(0 8px 32px rgba(0,0,0,0.7));
 }
 
 @keyframes hero-fish-float {
@@ -392,6 +402,30 @@
   .loading-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ── Rising bubbles ──────────────────────────────────── */
+.hero__bubbles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bubble {
+  position: absolute;
+  bottom: -40px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 32%, rgba(255,255,255,0.65), rgba(0,229,255,0.1));
+  border: 1px solid rgba(255,255,255,0.28);
+  animation: bubble-rise var(--dur, 9s) ease-in var(--delay, 0s) infinite;
+}
+
+@keyframes bubble-rise {
+  0%   { transform: translateY(0) translateX(0); opacity: 0; }
+  8%   { opacity: 0.75; }
+  85%  { opacity: 0.55; }
+  100% { transform: translateY(-105vh) translateX(var(--drift, 15px)); opacity: 0; }
 }
 
 /* ── SVG fish swimming in hero background ──────────────── */

@@ -5,6 +5,24 @@ import { getProducts } from '../../services/api';
 import ProductCard from '../../components/ProductCard/ProductCard';
 import './Home.css';
 
+const BUBBLES = [
+  { left: '4%',  size: '7px',  dur: '7s',  delay: '0s',   drift: '12px'  },
+  { left: '9%',  size: '13px', dur: '10s', delay: '3s',   drift: '-8px'  },
+  { left: '16%', size: '5px',  dur: '8s',  delay: '1s',   drift: '18px'  },
+  { left: '22%', size: '10px', dur: '12s', delay: '6s',   drift: '-15px' },
+  { left: '30%', size: '6px',  dur: '9s',  delay: '0.5s', drift: '10px'  },
+  { left: '38%', size: '16px', dur: '11s', delay: '4s',   drift: '-20px' },
+  { left: '45%', size: '8px',  dur: '7.5s',delay: '2s',   drift: '14px'  },
+  { left: '52%', size: '12px', dur: '13s', delay: '7s',   drift: '-12px' },
+  { left: '59%', size: '5px',  dur: '8.5s',delay: '1.5s', drift: '20px'  },
+  { left: '66%', size: '18px', dur: '10s', delay: '5s',   drift: '-10px' },
+  { left: '73%', size: '7px',  dur: '9s',  delay: '3.5s', drift: '8px'   },
+  { left: '80%', size: '11px', dur: '11s', delay: '0s',   drift: '-18px' },
+  { left: '86%', size: '9px',  dur: '7s',  delay: '8s',   drift: '16px'  },
+  { left: '92%', size: '14px', dur: '12s', delay: '2.5s', drift: '-14px' },
+  { left: '97%', size: '6px',  dur: '9.5s',delay: '6s',   drift: '10px'  },
+];
+
 const Home: React.FC = () => {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -27,6 +45,24 @@ const Home: React.FC = () => {
     <div className="home">
       {/* Hero Section */}
       <section className="hero">
+        {/* Rising bubbles */}
+        <div className="hero__bubbles" aria-hidden>
+          {BUBBLES.map((b, i) => (
+            <span
+              key={i}
+              className="bubble"
+              style={{
+                left: b.left,
+                width: b.size,
+                height: b.size,
+                '--dur': b.dur,
+                '--delay': b.delay,
+                '--drift': b.drift,
+              } as React.CSSProperties}
+            />
+          ))}
+        </div>
+
         {/* Background fish – rendered first so they sit behind everything */}
         <div className="hero__fish-scene" aria-hidden>
           <span className="hero-fish hero-fish--1">
@@ -69,6 +105,35 @@ const Home: React.FC = () => {
                 <circle cx="93" cy="22" r="6" fill="white"/>
                 <circle cx="94" cy="22" r="4" fill="#111"/>
                 <circle cx="95.5" cy="20.5" r="1.5" fill="white"/>
+              </g>
+            </svg>
+          </span>
+          {/* Arowana-style elongated fish */}
+          <span className="hero-fish hero-fish--4">
+            <svg viewBox="0 0 130 38" width="90" height="26" xmlns="http://www.w3.org/2000/svg">
+              <g opacity="0.48">
+                <polygon points="14,19 0,6 0,32" fill="#4CAF50"/>
+                <ellipse cx="72" cy="19" rx="58" ry="13" fill="#388E3C"/>
+                <path d="M20,10 Q72,2 124,10" stroke="#A5D6A7" strokeWidth="2.5" fill="none" opacity="0.8"/>
+                <path d="M20,28 Q72,36 124,28" stroke="#A5D6A7" strokeWidth="1.5" fill="none" opacity="0.5"/>
+                <circle cx="121" cy="15" r="5" fill="white"/>
+                <circle cx="122" cy="15" r="3.5" fill="#1A2E1A"/>
+                <circle cx="123" cy="14" r="1.2" fill="white"/>
+              </g>
+            </svg>
+          </span>
+          {/* Small bright tropical fish */}
+          <span className="hero-fish hero-fish--5">
+            <svg viewBox="0 0 68 42" width="48" height="30" xmlns="http://www.w3.org/2000/svg">
+              <g opacity="0.52">
+                <polygon points="12,21 0,7 0,35" fill="#FF6F00"/>
+                <ellipse cx="38" cy="21" rx="28" ry="16" fill="#FF8F00"/>
+                <rect x="22" y="7" width="5" height="28" rx="2" fill="white" opacity="0.9"/>
+                <rect x="38" y="8" width="4" height="26" rx="2" fill="white" opacity="0.85"/>
+                <ellipse cx="57" cy="21" rx="10" ry="14" fill="#E65100"/>
+                <circle cx="61" cy="16" r="5" fill="white"/>
+                <circle cx="62" cy="16" r="3" fill="#111"/>
+                <circle cx="63" cy="15" r="1" fill="white"/>
               </g>
             </svg>
           </span>
