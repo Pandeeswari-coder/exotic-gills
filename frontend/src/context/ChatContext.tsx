@@ -55,6 +55,9 @@ export const ChatProvider: React.FC<{
   const [connected, setConnected] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Keep customerName in a ref so changing it doesn't re-trigger the connect effect
+  const customerNameRef = useRef(customerName);
+  useEffect(() => { customerNameRef.current = customerName; }, [customerName]);
 
   const connect = useCallback(() => {
     if (wsRef.current) {
@@ -62,7 +65,8 @@ export const ChatProvider: React.FC<{
       wsRef.current.close();
     }
 
-    const params = customerName ? `?customer_name=${encodeURIComponent(customerName)}` : '';
+    const name = customerNameRef.current;
+    const params = name ? `?customer_name=${encodeURIComponent(name)}` : '';
     const ws = new WebSocket(`${WS_BASE}/chat/ws/customer/${sessionId}${params}`);
     wsRef.current = ws;
 
@@ -83,7 +87,7 @@ export const ChatProvider: React.FC<{
     };
 
     ws.onerror = () => ws.close();
-  }, [sessionId, customerName]);
+  }, [sessionId]);
 
   // Load history then connect WS
   useEffect(() => {
