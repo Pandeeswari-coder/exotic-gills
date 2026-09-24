@@ -1,13 +1,44 @@
+import json
+import os
 from datetime import datetime
 from typing import Dict, List, Optional
 
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends, Query, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Body, Depends, Query, WebSocket, WebSocketDisconnect
+from pydantic import BaseModel
 
 from auth import get_current_admin
-from models import ChatMessage, ChatSession, User
+from models import ChatMessage, ChatSession, PushSubscription, User
 
 router = APIRouter(prefix="/chat", tags=["chat"])
+
+VAPID_PRIVATE_KEY = os.getenv("VAPID_PRIVATE_KEY", "")
+VAPID_PUBLIC_KEY  = os.getenv("VAPID_PUBLIC_KEY", "")
+VAPID_EMAIL       = os.getenv("VAPID_EMAIL", "mailto:admin@exoticgills.com")
+
+
+async def _send_push(title: str, body: str, url: str = "/admin") -> None:
+    """Fire-and-forget push to all stored admin subscriptions."""
+    if not VAPID_PRIVATE_KEY:
+        return
+    try:
+        from pywebpush import webpush, WebPushException
+    except ImportError:
+        return
+    subs = await PushSubscription.find().to_list()
+    for sub in subs:
+        try:
+            webpush(
+                subscription_info={
+                    "endpoint": sub.endpoint,
+                    "keys": {"p256dh": sub.p256dh, "auth": sub.auth},
+                },
+                data=json.dumps({"title": title, "body": body, "url": url}),
+                vapid_private_key=VAPID_PRIVATE_KEY,
+                vapid_claims={"sub": VAPID_EMAIL},
+            )
+        except Exception:
+            pass  # stale subscription — ignore
 
 
 # ── WebSocket connection manager ──────────────────────────────────────────────
@@ -107,6 +138,11 @@ async def customer_ws(
             await session.save()
 
             await manager.broadcast(session_id, _msg_out(msg))
+
+            # Push notification to admin mobile/desktop devices
+            sender_label = session.customer_name or f"Customer #{session_id[-4:]}"
+            push_body = msg.text or ("📷 Sent an image" if msg.type == "image" else "🎬 Sent a video" if msg.type == "video" else "💬 New message")
+            await _send_push(title=sender_label, body=push_body)
     except WebSocketDisconnect:
         manager.disconnect_customer(session_id, ws)
 
@@ -208,6 +244,33 @@ async def mark_read(session_id: str, _: User = Depends(get_current_admin)):
     if session:
         session.unread = 0
         await session.save()
+    return {"ok": True}
+
+
+@router.get("/vapid-public-key")
+async def get_vapid_public_key():
+    return {"publicKey": VAPID_PUBLIC_KEY}
+
+
+class PushSubBody(BaseModel):
+    endpoint: str
+    p256dh: str
+    auth: str
+
+
+@router.post("/push-subscribe", status_code=201)
+async def push_subscribe(body: PushSubBody, _: User = Depends(get_current_admin)):
+    existing = await PushSubscription.find_one({"endpoint": body.endpoint})
+    if not existing:
+        await PushSubscription(endpoint=body.endpoint, p256dh=body.p256dh, auth=body.auth).insert()
+    return {"ok": True}
+
+
+@router.delete("/push-unsubscribe", status_code=200)
+async def push_unsubscribe(body: PushSubBody, _: User = Depends(get_current_admin)):
+    sub = await PushSubscription.find_one({"endpoint": body.endpoint})
+    if sub:
+        await sub.delete()
     return {"ok": True}
 
 

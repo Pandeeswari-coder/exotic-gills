@@ -45,6 +45,13 @@ function fromServer(raw: Record<string, unknown>): ChatMsg {
   };
 }
 
+function urlBase64ToUint8Array(base64String: string): Uint8Array {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(base64);
+  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+}
+
 const AdminChat: React.FC = () => {
   const navigate = useNavigate();
   const { user, token, login } = useAuth();
@@ -153,13 +160,45 @@ const AdminChat: React.FC = () => {
     ws.onerror = () => ws.close();
   }, [token, loadSessions, loadHistory]);
 
-  // Request notification permission once admin is authenticated
+  // Register service worker + subscribe to Web Push once admin is authenticated
   useEffect(() => {
-    if (!authed) return;
-    if ('Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission();
-    }
-  }, [authed]);
+    if (!authed || !token) return;
+
+    const setupPush = async () => {
+      if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+
+      // Fetch VAPID public key
+      const keyRes = await fetch(`${API_BASE}/chat/vapid-public-key`);
+      const { publicKey } = await keyRes.json();
+      if (!publicKey) return; // VAPID not configured on server
+
+      // Register SW
+      const reg = await navigator.serviceWorker.register('/sw.js');
+
+      // Request permission
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') return;
+
+      // Subscribe to push
+      const sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(publicKey),
+      });
+
+      const json = sub.toJSON();
+      await fetch(`${API_BASE}/chat/push-subscribe`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          endpoint: json.endpoint,
+          p256dh: (json.keys as Record<string, string>).p256dh,
+          auth: (json.keys as Record<string, string>).auth,
+        }),
+      });
+    };
+
+    setupPush().catch(() => {});
+  }, [authed, token]);
 
   useEffect(() => {
     if (!authed) return;

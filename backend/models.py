@@ -95,3 +95,14 @@ class ChatSession(Document):
 
     class Settings:
         name = "chat_sessions"
+
+
+class PushSubscription(Document):
+    """Stores Web Push subscriptions for admin devices."""
+    endpoint: str
+    p256dh: str
+    auth: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+    class Settings:
+        name = "push_subscriptions"
