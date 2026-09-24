@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import type { Product, Category, ProductQueryParams } from '../../types';
 import { getProducts, getCategories } from '../../services/api';
 import { getLocalProducts } from '../../services/localProductStore';
@@ -24,6 +24,15 @@ const Shop: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [spotlight, setSpotlight] = useState({ x: 50, y: 50 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setSpotlight({
+      x: ((e.clientX - rect.left) / rect.width) * 100,
+      y: ((e.clientY - rect.top) / rect.height) * 100,
+    });
+  };
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>(() => {
     const cat = searchParams.get('category');
@@ -101,7 +110,10 @@ const Shop: React.FC = () => {
 
   return (
     <div className="shop-page">
-      <div className="shop-hero">
+      <div
+        className="shop-hero"
+        onMouseMove={handleMouseMove}
+      >
         {/* Rising bubbles */}
         <div className="shop-hero__bubbles" aria-hidden>
           <span className="shop-bubble shop-bubble--1" />
@@ -117,6 +129,16 @@ const Shop: React.FC = () => {
           <span className="shop-bubble shop-bubble--11" />
           <span className="shop-bubble shop-bubble--12" />
         </div>
+
+        {/* Mouse-tracking spotlight */}
+        <div
+          className="shop-hero__spotlight"
+          style={{
+            background: `radial-gradient(circle 420px at ${spotlight.x}% ${spotlight.y}%, rgba(0,229,255,0.16) 0%, rgba(0,188,212,0.07) 40%, transparent 68%)`
+          }}
+          aria-hidden
+        />
+
         {/* Seaweed / coral decorations */}
         <div className="shop-hero__decor" aria-hidden>
           <span className="shop-seaweed shop-seaweed--l1">🌿</span>
@@ -124,6 +146,7 @@ const Shop: React.FC = () => {
           <span className="shop-seaweed shop-seaweed--r1">🌿</span>
           <span className="shop-seaweed shop-seaweed--r2">🪸</span>
         </div>
+
         <div className="shop-hero__content">
           <p className="shop-hero__eyebrow">✦ &nbsp;Hand-Picked · Rare · Exotic&nbsp; ✦</p>
           <h1 className="shop-hero__title">
@@ -134,20 +157,33 @@ const Shop: React.FC = () => {
             Premium live Discus, Bettas &amp; tropical fish — <br className="shop-hero__br" />
             sourced from trusted breeders, delivered to your door.
           </p>
-          <div className="shop-hero__pills">
-            <span>🐠 Discus</span>
-            <span>🐡 Puffers</span>
-            <span>🐟 Cichlids</span>
-            <span>🦭 Bettas</span>
-            <span>🐙 Goldfish</span>
+
+          {/* Interactive category cards */}
+          <div className="shop-hero__categories">
+            {[
+              { emoji: '🐠', name: 'Discus',   slug: 'pterophyllum-scalare', desc: 'Award-winning varieties' },
+              { emoji: '🦈', name: 'Bettas',   slug: 'betta-splendens',      desc: 'Flowing fin splendors' },
+              { emoji: '🐟', name: 'Cichlids', slug: 'astronotus-ocellatus', desc: 'Bold & colourful' },
+              { emoji: '🐡', name: 'Goldfish', slug: 'carassias-auratus',    desc: 'Classic beauties' },
+              { emoji: '🌊', name: 'Guppies',  slug: 'poecilia-sp',          desc: 'Colourful nano fish' },
+            ].map(cat => (
+              <Link key={cat.slug} to={`/shop?category=${cat.slug}`} className="shop-cat-card">
+                <span className="shop-cat-card__icon">{cat.emoji}</span>
+                <span className="shop-cat-card__name">{cat.name}</span>
+                <span className="shop-cat-card__desc">{cat.desc}</span>
+                <span className="shop-cat-card__arrow">→</span>
+              </Link>
+            ))}
           </div>
+
           <a href="#shop-main" className="shop-hero__cta">
-            Explore Collection
+            Explore All Fish
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
             </svg>
           </a>
         </div>
+
         <div className="shop-hero__wave" aria-hidden>
           <svg viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M0,30 C240,60 480,0 720,30 C960,60 1200,0 1440,30 L1440,60 L0,60 Z" fill="var(--light-bg)" />

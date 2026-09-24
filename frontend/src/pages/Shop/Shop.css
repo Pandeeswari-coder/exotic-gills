@@ -162,13 +162,84 @@
 .shop-hero__br { display: none; }
 @media (min-width: 640px) { .shop-hero__br { display: inline; } }
 
-/* Species pills */
-.shop-hero__pills {
+/* Mouse-tracking spotlight */
+.shop-hero__spotlight {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  transition: background 0.05s linear;
+}
+
+/* Interactive species category cards */
+.shop-hero__categories {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.45rem;
-  margin-top: 0.25rem;
+  gap: 0.65rem;
+  margin: 0.5rem 0 1.25rem;
+}
+
+.shop-cat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.85rem 1.1rem;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: white;
+  text-decoration: none;
+  min-width: 100px;
+  transition: transform 0.25s cubic-bezier(.34,1.56,.64,1), background 0.22s, border-color 0.22s, box-shadow 0.22s;
+}
+
+.shop-cat-card:hover {
+  transform: translateY(-8px) scale(1.06);
+  background: rgba(0,229,255,0.14);
+  border-color: rgba(0,229,255,0.55);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.35), 0 0 28px rgba(0,229,255,0.3);
+  color: white;
+}
+
+.shop-cat-card__icon {
+  font-size: 2rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+}
+
+.shop-cat-card__name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.shop-cat-card__desc {
+  font-size: 0.68rem;
+  color: rgba(200,240,255,0.55);
+  text-align: center;
+  line-height: 1.3;
+}
+
+.shop-cat-card__arrow {
+  font-size: 0.85rem;
+  margin-top: 0.1rem;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.shop-cat-card:hover .shop-cat-card__arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Species pills (legacy, hidden now) */
+.shop-hero__pills {
+  display: none;
 }
 
 .shop-hero__pills span {
@@ -622,14 +693,18 @@
     padding: 1.25rem 1rem 3rem;
   }
 
-  .shop-hero__pills {
-    gap: 0.3rem;
+  .shop-hero__categories {
+    gap: 0.4rem;
   }
 
-  .shop-hero__pills span {
-    font-size: 0.7rem;
-    padding: 0.25rem 0.6rem;
+  .shop-cat-card {
+    min-width: 80px;
+    padding: 0.65rem 0.8rem;
   }
+
+  .shop-cat-card__icon { font-size: 1.6rem; }
+  .shop-cat-card__name { font-size: 0.75rem; }
+  .shop-cat-card__desc { display: none; }
 
   /* Reduce fish count visually — hide some on small screens */
   .shop-fish--4,
