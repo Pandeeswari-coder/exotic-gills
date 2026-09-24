@@ -1,5 +1,22 @@
 import os
+import sys
+import types
 from contextlib import asynccontextmanager
+
+# razorpay 1.4.x uses pkg_resources which is not bundled with Python 3.11+ venvs.
+# Inject a minimal shim so the import succeeds; actual version lookup still works
+# via importlib.metadata.
+try:
+    import pkg_resources  # noqa: F401 — already available, nothing to do
+except ImportError:
+    import importlib.metadata as _meta
+    _pkg = types.ModuleType("pkg_resources")
+    def _require(name: str):
+        class _Dist:
+            version = _meta.version(name)
+        return [_Dist()]
+    _pkg.require = _require  # type: ignore[attr-defined]
+    sys.modules["pkg_resources"] = _pkg
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
