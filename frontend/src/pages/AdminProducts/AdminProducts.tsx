@@ -150,6 +150,10 @@ const AdminProducts: React.FC = () => {
       setError('Name, price and stock are required.');
       return;
     }
+    if (!form.category) {
+      setError('Please select a category.');
+      return;
+    }
     setSaving(true);
     setError('');
     try {
@@ -432,12 +436,31 @@ const AdminProducts: React.FC = () => {
                   />
                 </div>
                 <div className="ap-form__field">
-                  <label>Category</label>
+                  <label>Category *</label>
                   <select
                     value={form.category}
                     onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
+                    required
+                    style={!form.category ? { borderColor: '#f87171' } : undefined}
                   >
-                    <option value="">Select category</option>
+                    <option value="">— Select category —</option>
+                    {/* If editing and current slug isn't in the new list, show it so the
+                        value renders correctly; admin still must pick a valid one to save */}
+                    {(() => {
+                      const allSlugs = categories.flatMap(c =>
+                        (c.subcategories?.length ?? 0) > 0
+                          ? c.subcategories!.map(s => s.slug)
+                          : [c.slug]
+                      );
+                      if (form.category && !allSlugs.includes(form.category)) {
+                        return (
+                          <option key="__legacy__" value={form.category} disabled>
+                            ⚠ Current: {form.category} (please update)
+                          </option>
+                        );
+                      }
+                      return null;
+                    })()}
                     {categories.map(c =>
                       (c.subcategories?.length ?? 0) > 0 ? (
                         <optgroup key={c.id} label={c.name}>
@@ -450,6 +473,11 @@ const AdminProducts: React.FC = () => {
                       )
                     )}
                   </select>
+                  {!form.category && (
+                    <p style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '0.3rem' }}>
+                      Category is required — please select one to save.
+                    </p>
+                  )}
                 </div>
               </div>
 
