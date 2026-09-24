@@ -16,20 +16,20 @@
   position: absolute;
   inset: 0;
   background: url('https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1600&q=80') center / cover no-repeat;
-  opacity: 0.52;
-  filter: saturate(1.6) brightness(0.72) hue-rotate(-10deg);
+  opacity: 0.72;
+  filter: saturate(1.4) brightness(0.92) hue-rotate(-10deg);
   z-index: 0;
 }
 
-/* Dark gradient overlay for readability */
+/* Gradient overlay for readability */
 .hero::after {
   content: '';
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, rgba(1,10,20,0.72) 0%, rgba(1,10,20,0.35) 55%, rgba(1,10,20,0.18) 100%),
-    radial-gradient(ellipse 500px 300px at 15% 70%, rgba(0,201,167,0.12) 0%, transparent 70%),
-    radial-gradient(ellipse 300px 400px at 85% 25%, rgba(6,182,212,0.1) 0%, transparent 70%);
+    linear-gradient(90deg, rgba(1,10,20,0.52) 0%, rgba(1,10,20,0.22) 55%, rgba(1,10,20,0.08) 100%),
+    radial-gradient(ellipse 500px 300px at 15% 70%, rgba(0,201,167,0.14) 0%, transparent 70%),
+    radial-gradient(ellipse 300px 400px at 85% 25%, rgba(6,182,212,0.12) 0%, transparent 70%);
   animation: caustics 8s ease-in-out infinite alternate;
   pointer-events: none;
   z-index: 1;
