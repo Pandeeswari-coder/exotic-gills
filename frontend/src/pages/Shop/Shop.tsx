@@ -75,11 +75,27 @@ const Shop: React.FC = () => {
   }, [searchParams]);
 
   useEffect(() => {
+    const KNOWN_SLUGS = new Set([
+      'fish', 'plants', 'driftwoods', 'rocks', 'aquarium-filters',
+      'cichlids', 'stingray', 'arowana', 'plecos',
+      'ferns', 'anubias',
+      'japonica-woods', 'spiral-woods',
+      'seiyur-rock', 'dragon-stone',
+      'sponge-filter', 'canister-filter', 'top-filter', 'hang-on-filter',
+    ]);
     getCategories()
       .then(cats => {
-        // Use API data only if it contains the new hierarchical categories
         const hasNewStructure = cats.some(c => ['fish', 'plants', 'driftwoods', 'rocks', 'aquarium-filters'].includes(c.slug));
-        setCategories(hasNewStructure ? cats : STATIC_CATEGORIES);
+        if (!hasNewStructure) { setCategories(STATIC_CATEGORIES); return; }
+        // Strip old flat categories; keep only those with at least one subcategory
+        const filtered = cats
+          .filter(c => KNOWN_SLUGS.has(c.slug))
+          .map(c => ({
+            ...c,
+            subcategories: (c.subcategories ?? []).filter(s => KNOWN_SLUGS.has(s.slug)),
+          }))
+          .filter(c => (c.subcategories ?? []).length > 0);
+        setCategories(filtered.length > 0 ? filtered : STATIC_CATEGORIES);
       })
       .catch(() => setCategories(STATIC_CATEGORIES));
   }, []);
