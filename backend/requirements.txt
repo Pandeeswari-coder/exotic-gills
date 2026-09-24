@@ -1,5 +1,6 @@
 setuptools>=68.0.0
 pywebpush==2.0.0
+twilio==9.3.6
 fastapi==0.111.0
 uvicorn[standard]==0.29.0
 motor==3.7.1

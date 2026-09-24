@@ -16,6 +16,25 @@ VAPID_PRIVATE_KEY = os.getenv("VAPID_PRIVATE_KEY", "")
 VAPID_PUBLIC_KEY  = os.getenv("VAPID_PUBLIC_KEY", "")
 VAPID_EMAIL       = os.getenv("VAPID_EMAIL", "mailto:admin@exoticgills.com")
 
+TWILIO_ACCOUNT_SID  = os.getenv("TWILIO_ACCOUNT_SID", "")
+TWILIO_AUTH_TOKEN   = os.getenv("TWILIO_AUTH_TOKEN", "")
+TWILIO_WA_FROM      = os.getenv("TWILIO_WHATSAPP_FROM", "whatsapp:+14155238886")  # Twilio sandbox default
+ADMIN_WA_NUMBER     = os.getenv("ADMIN_WHATSAPP_NUMBER", "")  # e.g. whatsapp:+919876543210
+
+
+async def _send_whatsapp(sender_name: str, message_body: str) -> None:
+    """Send WhatsApp message to admin via Twilio."""
+    if not (TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN and ADMIN_WA_NUMBER):
+        return
+    try:
+        from twilio.rest import Client
+        client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+        to = ADMIN_WA_NUMBER if ADMIN_WA_NUMBER.startswith("whatsapp:") else f"whatsapp:{ADMIN_WA_NUMBER}"
+        body = f"🐠 *Exotic Gills & Fins*\nNew message from *{sender_name}*:\n\n{message_body}"
+        client.messages.create(from_=TWILIO_WA_FROM, to=to, body=body)
+    except Exception:
+        pass  # don't let notification failures break the chat
+
 
 async def _send_push(title: str, body: str, url: str = "/admin") -> None:
     """Fire-and-forget push to all stored admin subscriptions."""
@@ -139,10 +158,11 @@ async def customer_ws(
 
             await manager.broadcast(session_id, _msg_out(msg))
 
-            # Push notification to admin mobile/desktop devices
+            # Notify admin — Web Push (browser) + WhatsApp
             sender_label = session.customer_name or f"Customer #{session_id[-4:]}"
             push_body = msg.text or ("📷 Sent an image" if msg.type == "image" else "🎬 Sent a video" if msg.type == "video" else "💬 New message")
             await _send_push(title=sender_label, body=push_body)
+            await _send_whatsapp(sender_name=sender_label, message_body=push_body)
     except WebSocketDisconnect:
         manager.disconnect_customer(session_id, ws)
 
