@@ -95,8 +95,8 @@ const Home: React.FC = () => {
         {/* Background fish – rendered first so they sit behind everything */}
         <div className="hero__fish-scene" aria-hidden>
           <span className="hero-fish hero-fish--1">
-            <svg viewBox="0 0 100 58" width="70" height="41" xmlns="http://www.w3.org/2000/svg">
-              <g opacity="0.55">
+            <svg viewBox="0 0 100 58" width="90" height="52" xmlns="http://www.w3.org/2000/svg">
+              <g opacity="0.80">
                 <polygon points="16,29 1,6 1,52" fill="#E8500A"/>
                 <ellipse cx="58" cy="29" rx="40" ry="22" fill="#F4641E"/>
                 <path d="M30,8 Q50,-3 73,8" fill="#D94010"/>
@@ -110,8 +110,8 @@ const Home: React.FC = () => {
             </svg>
           </span>
           <span className="hero-fish hero-fish--2">
-            <svg viewBox="0 0 75 35" width="52" height="24" xmlns="http://www.w3.org/2000/svg">
-              <g opacity="0.5">
+            <svg viewBox="0 0 75 35" width="68" height="32" xmlns="http://www.w3.org/2000/svg">
+              <g opacity="0.75">
                 <polygon points="10,17 0,5 0,29" fill="#1565C0"/>
                 <ellipse cx="42" cy="17" rx="32" ry="12" fill="#1565C0"/>
                 <ellipse cx="42" cy="22" rx="24" ry="8" fill="#E53935" opacity="0.75"/>
@@ -123,8 +123,8 @@ const Home: React.FC = () => {
             </svg>
           </span>
           <span className="hero-fish hero-fish--3">
-            <svg viewBox="0 0 100 58" width="60" height="35" xmlns="http://www.w3.org/2000/svg">
-              <g opacity="0.45">
+            <svg viewBox="0 0 100 58" width="75" height="44" xmlns="http://www.w3.org/2000/svg">
+              <g opacity="0.72">
                 <polygon points="16,29 1,6 1,52" fill="#E8500A"/>
                 <ellipse cx="58" cy="29" rx="40" ry="22" fill="#F4641E"/>
                 <path d="M30,8 Q50,-3 73,8" fill="#D94010"/>

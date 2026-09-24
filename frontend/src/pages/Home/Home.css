@@ -6,44 +6,38 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background:
-    radial-gradient(ellipse 900px 700px at 70% 30%, #004d99 0%, transparent 55%),
-    radial-gradient(ellipse 700px 550px at 8%  72%, #002966 0%, transparent 55%),
-    radial-gradient(ellipse 800px 340px at 48% -4%, #0052a3 0%, transparent 50%),
-    radial-gradient(ellipse 600px 650px at 94% 84%, #001a3d 0%, transparent 55%),
-    linear-gradient(180deg, #000d1c 0%, #001428 22%, #001e3c 52%, #002d58 82%, #001830 100%);
+  background: linear-gradient(180deg, #010a14 0%, #051a2e 50%, #072540 100%);
   overflow: hidden;
 }
 
-/* Floating caustic light pools */
+/* Ocean wave photo background */
 .hero::before {
   content: '';
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(ellipse 340px 240px at 25% 35%, rgba(0,190,255,0.10) 0%, transparent 100%),
-    radial-gradient(ellipse 280px 210px at 70% 55%, rgba(0,160,255,0.08) 0%, transparent 100%),
-    radial-gradient(ellipse 240px 170px at 50% 80%, rgba(0,130,220,0.07) 0%, transparent 100%),
-    radial-gradient(ellipse 200px 150px at 12% 88%, rgba(0,100,200,0.06) 0%, transparent 100%);
-  animation: caustics 9s ease-in-out infinite alternate;
+  background: url('https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1600&q=80') center / cover no-repeat;
+  opacity: 0.72;
+  filter: saturate(1.4) brightness(0.92) hue-rotate(-10deg);
   z-index: 0;
 }
 
-/* Dark left gradient for text readability */
+/* Overlay for readability + depth */
 .hero::after {
   content: '';
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, rgba(0,5,18,0.60) 0%, rgba(0,5,18,0.28) 50%, transparent 80%),
-    linear-gradient(180deg, rgba(0,10,30,0.28) 0%, transparent 35%, rgba(0,5,20,0.45) 92%);
+    linear-gradient(90deg, rgba(1,10,20,0.62) 0%, rgba(1,10,20,0.30) 50%, rgba(1,10,20,0.12) 100%),
+    radial-gradient(ellipse 500px 300px at 15% 70%, rgba(0,201,167,0.10) 0%, transparent 70%),
+    radial-gradient(ellipse 300px 400px at 85% 25%, rgba(6,182,212,0.08) 0%, transparent 70%);
+  animation: caustics 8s ease-in-out infinite alternate;
   pointer-events: none;
   z-index: 1;
 }
 
 @keyframes caustics {
-  0%   { opacity: 0.5; transform: scale(1) translateY(0); }
-  100% { opacity: 1;   transform: scale(1.1) translateY(-14px); }
+  0%   { opacity: 0.8; transform: scale(1) translateY(0); }
+  100% { opacity: 1;   transform: scale(1.04) translateY(-8px); }
 }
 
 /* Subtle shimmer overlay */
@@ -494,9 +488,9 @@
   position: absolute;
   bottom: -40px;
   border-radius: 50%;
-  background: radial-gradient(circle at 32% 32%, rgba(180, 240, 255, 0.75), rgba(0, 200, 255, 0.08));
-  border: 1px solid rgba(0, 210, 255, 0.4);
-  box-shadow: 0 0 6px rgba(0, 200, 255, 0.15) inset;
+  background: radial-gradient(circle at 32% 32%, rgba(220, 248, 255, 0.85), rgba(0, 210, 255, 0.10));
+  border: 1px solid rgba(120, 230, 255, 0.55);
+  box-shadow: 0 0 8px rgba(0, 210, 255, 0.25) inset;
   animation: bubble-rise var(--dur, 9s) ease-in var(--delay, 0s) infinite;
 }
 
@@ -518,7 +512,7 @@
 .hero-fish {
   position: absolute;
   line-height: 0;
-  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.5));
+  filter: drop-shadow(0 0 12px rgba(0,200,255,0.4)) drop-shadow(0 4px 16px rgba(0,0,0,0.5));
   will-change: transform;
 }
 
