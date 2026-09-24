@@ -89,70 +89,84 @@ const Home: React.FC = () => {
 
           {/* Large discus fish illustration */}
           <div className="hero__visual" aria-hidden>
-            <svg viewBox="0 0 300 280" xmlns="http://www.w3.org/2000/svg">
+            <svg viewBox="0 0 320 300" xmlns="http://www.w3.org/2000/svg">
               <defs>
-                <radialGradient id="dg-body" cx="38%" cy="38%" r="65%">
-                  <stop offset="0%" stopColor="#26C6DA"/>
-                  <stop offset="30%" stopColor="#00ACC1"/>
-                  <stop offset="65%" stopColor="#00838F"/>
-                  <stop offset="100%" stopColor="#006064"/>
-                </radialGradient>
-                <radialGradient id="dg-eye" cx="30%" cy="30%" r="70%">
-                  <stop offset="0%" stopColor="#FF7043"/>
+                {/* Blue-teal center fading to orange-red at edges — classic red turquoise discus */}
+                <radialGradient id="dg-body" cx="42%" cy="42%" r="58%">
+                  <stop offset="0%"   stopColor="#00E5FF"/>
+                  <stop offset="28%"  stopColor="#0097A7"/>
+                  <stop offset="62%"  stopColor="#006064"/>
                   <stop offset="100%" stopColor="#BF360C"/>
                 </radialGradient>
+                {/* Fins: orange base fading to dark teal tip */}
+                <linearGradient id="dg-fin" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%"   stopColor="#E64A19" stopOpacity="0.92"/>
+                  <stop offset="100%" stopColor="#004D40" stopOpacity="0.85"/>
+                </linearGradient>
+                {/* Eye iris: bright amber center → deep red edge */}
+                <radialGradient id="dg-eye" cx="38%" cy="35%" r="62%">
+                  <stop offset="0%"   stopColor="#FFD54F"/>
+                  <stop offset="45%"  stopColor="#E53935"/>
+                  <stop offset="100%" stopColor="#8B0000"/>
+                </radialGradient>
+                {/* Soft glow halo around fish */}
                 <radialGradient id="dg-glow" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#00E5FF" stopOpacity="0.18"/>
+                  <stop offset="0%"   stopColor="#00E5FF" stopOpacity="0.2"/>
                   <stop offset="100%" stopColor="#00E5FF" stopOpacity="0"/>
                 </radialGradient>
               </defs>
 
-              {/* Outer glow halo */}
-              <ellipse cx="155" cy="140" rx="130" ry="130" fill="url(#dg-glow)"/>
+              {/* Ambient glow */}
+              <ellipse cx="162" cy="152" rx="148" ry="144" fill="url(#dg-glow)"/>
 
-              {/* Tail fin */}
-              <path d="M48,140 L8,88 L4,140 L8,192 Z" fill="#004D40" opacity="0.9"/>
+              {/* Tail fin — forked, realistic */}
+              <path d="M50,152 L6,96 L2,152 L6,208 Z" fill="url(#dg-fin)"/>
 
-              {/* Dorsal fin */}
-              <path d="M76,36 Q152,6 228,36 Q240,58 228,68 Q152,46 76,68 Z" fill="#004D40" opacity="0.88"/>
+              {/* Dorsal fin (long, tall) */}
+              <path d="M80,42 Q162,8 244,42 Q258,66 242,76 Q162,54 80,76 Z" fill="url(#dg-fin)"/>
 
-              {/* Anal fin */}
-              <path d="M76,242 Q152,270 228,242 Q240,220 228,210 Q152,230 76,210 Z" fill="#004D40" opacity="0.88"/>
+              {/* Anal fin (bottom, symmetrical) */}
+              <path d="M80,260 Q162,292 244,260 Q258,236 242,226 Q162,248 80,226 Z" fill="url(#dg-fin)"/>
 
-              {/* Body */}
-              <ellipse cx="155" cy="140" rx="108" ry="112" fill="url(#dg-body)"/>
+              {/* Main body disc */}
+              <ellipse cx="164" cy="152" rx="116" ry="120" fill="url(#dg-body)"/>
 
               {/* Pectoral fin */}
-              <ellipse cx="148" cy="168" rx="52" ry="16" fill="#00838F" transform="rotate(18 148 168)" opacity="0.7"/>
+              <ellipse cx="158" cy="184" rx="60" ry="17" fill="#00838F" transform="rotate(20 158 184)" opacity="0.6"/>
 
-              {/* Vertical stripes */}
-              <line x1="84" y1="40" x2="80" y2="240" stroke="#004D40" strokeWidth="5" opacity="0.3"/>
-              <line x1="103" y1="29" x2="99" y2="251" stroke="#004D40" strokeWidth="4.5" opacity="0.26"/>
-              <line x1="123" y1="24" x2="121" y2="256" stroke="#004D40" strokeWidth="4" opacity="0.24"/>
-              <line x1="144" y1="22" x2="144" y2="258" stroke="#004D40" strokeWidth="4" opacity="0.22"/>
-              <line x1="166" y1="24" x2="166" y2="256" stroke="#004D40" strokeWidth="4" opacity="0.2"/>
-              <line x1="187" y1="27" x2="186" y2="253" stroke="#004D40" strokeWidth="3.5" opacity="0.18"/>
-              <line x1="207" y1="34" x2="206" y2="246" stroke="#004D40" strokeWidth="3" opacity="0.16"/>
-              <line x1="224" y1="44" x2="224" y2="236" stroke="#004D40" strokeWidth="2.5" opacity="0.14"/>
+              {/* Vertical stripes (9 stripes — characteristic of discus) */}
+              <line x1="90"  y1="46"  x2="86"  y2="258" stroke="#003D33" strokeWidth="5.5" opacity="0.35"/>
+              <line x1="110" y1="33"  x2="106" y2="271" stroke="#003D33" strokeWidth="5"   opacity="0.3"/>
+              <line x1="130" y1="27"  x2="128" y2="277" stroke="#003D33" strokeWidth="4.5" opacity="0.27"/>
+              <line x1="152" y1="24"  x2="152" y2="280" stroke="#003D33" strokeWidth="4.5" opacity="0.25"/>
+              <line x1="174" y1="26"  x2="174" y2="278" stroke="#003D33" strokeWidth="4"   opacity="0.23"/>
+              <line x1="196" y1="30"  x2="195" y2="274" stroke="#003D33" strokeWidth="3.5" opacity="0.2"/>
+              <line x1="216" y1="38"  x2="215" y2="266" stroke="#003D33" strokeWidth="3"   opacity="0.18"/>
+              <line x1="233" y1="50"  x2="233" y2="254" stroke="#003D33" strokeWidth="2.5" opacity="0.15"/>
 
-              {/* Iridescent wave lines */}
-              <path d="M66,98 Q120,88 182,98 Q222,94 256,108" stroke="rgba(0,229,255,0.4)" strokeWidth="2.5" fill="none"/>
-              <path d="M63,118 Q120,108 186,118 Q226,114 258,128" stroke="rgba(0,229,255,0.32)" strokeWidth="2" fill="none"/>
-              <path d="M63,140 Q124,132 186,140 Q226,136 257,148" stroke="rgba(0,229,255,0.26)" strokeWidth="2" fill="none"/>
-              <path d="M66,162 Q124,154 184,162 Q224,158 254,170" stroke="rgba(0,229,255,0.22)" strokeWidth="1.5" fill="none"/>
-              <path d="M72,182 Q128,175 183,182 Q222,179 250,188" stroke="rgba(0,229,255,0.18)" strokeWidth="1.5" fill="none"/>
+              {/* Iridescent horizontal shimmers */}
+              <path d="M72,110 Q132,98 196,108 Q236,104 272,118"  stroke="rgba(0,229,255,0.5)"  strokeWidth="2.5" fill="none"/>
+              <path d="M68,132 Q132,120 200,130 Q240,126 274,140"  stroke="rgba(0,229,255,0.42)" strokeWidth="2"   fill="none"/>
+              <path d="M68,154 Q134,144 200,152 Q240,148 272,162"  stroke="rgba(0,229,255,0.34)" strokeWidth="2"   fill="none"/>
+              <path d="M72,176 Q134,166 199,174 Q238,170 268,182"  stroke="rgba(0,229,255,0.28)" strokeWidth="1.5" fill="none"/>
+              <path d="M78,196 Q136,188 197,194 Q235,191 263,200"  stroke="rgba(0,229,255,0.22)" strokeWidth="1.5" fill="none"/>
 
-              {/* Body highlight */}
-              <ellipse cx="118" cy="104" rx="48" ry="32" fill="rgba(0,229,255,0.07)"/>
+              {/* Highlight on upper body */}
+              <ellipse cx="130" cy="114" rx="55" ry="36" fill="rgba(0,229,255,0.09)"/>
 
-              {/* Eye */}
-              <circle cx="229" cy="126" r="22" fill="url(#dg-eye)"/>
-              <circle cx="229" cy="126" r="14" fill="#0D0D0D"/>
-              <circle cx="223" cy="120" r="5" fill="white" opacity="0.9"/>
-              <circle cx="233" cy="131" r="2" fill="white" opacity="0.5"/>
+              {/* Eye — dark socket ring */}
+              <circle cx="242" cy="136" r="27" fill="rgba(0,10,20,0.55)"/>
+              {/* Eye — vivid iris */}
+              <circle cx="242" cy="136" r="22" fill="url(#dg-eye)"/>
+              {/* Eye — dark pupil */}
+              <circle cx="242" cy="136" r="11" fill="#080808"/>
+              {/* Eye — bright primary highlight (top-left) */}
+              <circle cx="235" cy="129" r="5" fill="white" opacity="0.95"/>
+              {/* Eye — tiny secondary highlight (bottom-right) */}
+              <circle cx="247" cy="142" r="2.2" fill="white" opacity="0.45"/>
 
               {/* Mouth */}
-              <path d="M263,136 Q270,140 263,144" stroke="#333" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+              <path d="M280,148 Q288,152 280,156" stroke="#222" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
             </svg>
           </div>
         </div>
