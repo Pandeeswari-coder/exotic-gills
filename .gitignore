@@ -6,6 +6,9 @@ frontend/.env.local
 frontend/.env.production
 
 # Backend
+backend/**/__pycache__
+backend/**/*.pyc
+backend/**/*.pyo
 backend/__pycache__
 backend/*.pyc
 backend/*.pyo
