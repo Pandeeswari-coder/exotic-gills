@@ -6,44 +6,147 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(180deg, #010a14 0%, #051a2e 50%, #072540 100%);
+  background:
+    radial-gradient(ellipse 900px 700px at 70% 30%, #004d99 0%, transparent 55%),
+    radial-gradient(ellipse 700px 550px at 8%  72%, #002966 0%, transparent 55%),
+    radial-gradient(ellipse 800px 340px at 48% -4%, #0052a3 0%, transparent 50%),
+    radial-gradient(ellipse 600px 650px at 94% 84%, #001a3d 0%, transparent 55%),
+    linear-gradient(180deg, #000d1c 0%, #001428 22%, #001e3c 52%, #002d58 82%, #001830 100%);
   overflow: hidden;
 }
 
-/* Aquarium photo background */
+/* Floating caustic light pools */
 .hero::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: url('https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1600&q=80') center / cover no-repeat;
-  opacity: 0.72;
-  filter: saturate(1.4) brightness(0.92) hue-rotate(-10deg);
+  background:
+    radial-gradient(ellipse 340px 240px at 25% 35%, rgba(0,190,255,0.10) 0%, transparent 100%),
+    radial-gradient(ellipse 280px 210px at 70% 55%, rgba(0,160,255,0.08) 0%, transparent 100%),
+    radial-gradient(ellipse 240px 170px at 50% 80%, rgba(0,130,220,0.07) 0%, transparent 100%),
+    radial-gradient(ellipse 200px 150px at 12% 88%, rgba(0,100,200,0.06) 0%, transparent 100%);
+  animation: caustics 9s ease-in-out infinite alternate;
   z-index: 0;
 }
 
-/* Gradient overlay for readability */
+/* Dark left gradient for text readability */
 .hero::after {
   content: '';
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, rgba(1,10,20,0.52) 0%, rgba(1,10,20,0.22) 55%, rgba(1,10,20,0.08) 100%),
-    radial-gradient(ellipse 500px 300px at 15% 70%, rgba(0,201,167,0.14) 0%, transparent 70%),
-    radial-gradient(ellipse 300px 400px at 85% 25%, rgba(6,182,212,0.12) 0%, transparent 70%);
-  animation: caustics 8s ease-in-out infinite alternate;
+    linear-gradient(90deg, rgba(0,5,18,0.60) 0%, rgba(0,5,18,0.28) 50%, transparent 80%),
+    linear-gradient(180deg, rgba(0,10,30,0.28) 0%, transparent 35%, rgba(0,5,20,0.45) 92%);
   pointer-events: none;
   z-index: 1;
 }
 
 @keyframes caustics {
-  0%   { opacity: 0.8; transform: scale(1) translateY(0); }
-  100% { opacity: 1;   transform: scale(1.04) translateY(-8px); }
+  0%   { opacity: 0.5; transform: scale(1) translateY(0); }
+  100% { opacity: 1;   transform: scale(1.1) translateY(-14px); }
 }
 
+/* Subtle shimmer overlay */
 .hero__overlay {
   position: absolute;
   inset: 0;
+  pointer-events: none;
   z-index: 1;
+}
+
+/* God rays */
+.hero__rays {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+  background: conic-gradient(
+    from 66deg at 55% -12%,
+    transparent           0deg,
+    rgba(0,170,255,0.09)  4deg,
+    transparent           9deg,
+    transparent          18deg,
+    rgba(0,140,240,0.07) 22deg,
+    transparent          27deg,
+    transparent          35deg,
+    rgba(0,190,255,0.10) 39deg,
+    transparent          44deg,
+    transparent          52deg,
+    rgba(50,150,255,0.07) 56deg,
+    transparent          61deg
+  );
+  animation: ray-sway 18s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes ray-sway {
+  0%   { opacity: 0.4; transform: rotate(-5deg) scaleX(0.93); }
+  100% { opacity: 0.9; transform: rotate(4deg)  scaleX(1.07); }
+}
+
+/* Large hero fish — float + hover glow */
+.hero__visual-parallax {
+  flex-shrink: 0;
+  will-change: transform;
+}
+
+.hero__visual {
+  width: 360px;
+  height: 336px;
+  filter:
+    drop-shadow(0 0 60px rgba(0,229,255,0.65))
+    drop-shadow(0 0 28px rgba(0,188,212,0.45))
+    drop-shadow(0 8px 32px rgba(0,0,0,0.7));
+  animation: hero-fish-float 5s ease-in-out infinite;
+  transition: filter 0.4s ease;
+  cursor: pointer;
+}
+
+.hero__visual:hover {
+  filter:
+    drop-shadow(0 0 110px rgba(0,229,255,1))
+    drop-shadow(0 0 55px rgba(0,188,212,0.9))
+    drop-shadow(0 0 22px rgba(255,255,255,0.35))
+    drop-shadow(0 8px 32px rgba(0,0,0,0.7));
+}
+
+@keyframes hero-fish-float {
+  0%, 100% { transform: translateY(0)    rotate(0deg); }
+  50%       { transform: translateY(-22px) rotate(2deg); }
+}
+
+/* ── Seafloor with seaweed ─────────────────────────────── */
+.hero__seafloor {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 180px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.seaweed {
+  position: absolute;
+  bottom: 0;
+  transform-origin: bottom center;
+  animation: sway var(--dur, 3.5s) ease-in-out var(--delay, 0s) infinite alternate;
+  filter: drop-shadow(0 0 6px rgba(0,180,100,0.3));
+}
+
+@keyframes sway {
+  0%   { transform: rotate(var(--from, -8deg)); }
+  100% { transform: rotate(var(--to,   8deg)); }
+}
+
+.hero__seafloor-sand {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30px;
+  background: linear-gradient(180deg, transparent 0%, rgba(0,20,40,0.6) 100%);
 }
 
 /* Two-column hero layout */
@@ -67,32 +170,6 @@
   text-align: left;
 }
 
-/* Large discus fish illustration on the right */
-.hero__visual {
-  flex-shrink: 0;
-  width: 360px;
-  height: 336px;
-  filter:
-    drop-shadow(0 0 60px rgba(0, 229, 255, 0.6))
-    drop-shadow(0 0 24px rgba(0, 188, 212, 0.4))
-    drop-shadow(0 8px 32px rgba(0,0,0,0.7));
-  animation: hero-fish-float 5s ease-in-out infinite;
-  transition: filter 0.4s ease;
-  cursor: pointer;
-}
-
-.hero__visual:hover {
-  filter:
-    drop-shadow(0 0 100px rgba(0, 229, 255, 0.95))
-    drop-shadow(0 0 50px rgba(0, 188, 212, 0.85))
-    drop-shadow(0 0 20px rgba(255, 255, 255, 0.3))
-    drop-shadow(0 8px 32px rgba(0,0,0,0.7));
-}
-
-@keyframes hero-fish-float {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50%       { transform: translateY(-20px) rotate(1.5deg); }
-}
 
 .hero__eyebrow {
   font-size: 0.9rem;
@@ -381,6 +458,10 @@
   }
 }
 
+@media (max-width: 480px) {
+  .hero__visual-parallax { display: none; }
+}
+
 @media (max-width: 768px) {
   .about-teaser__inner {
     grid-template-columns: 1fr;
@@ -392,9 +473,6 @@
   }
 }
 
-@media (max-width: 480px) {
-  .hero__visual { display: none; }
-}
 
 @media (max-width: 480px) {
   .features-bar__inner,
@@ -416,8 +494,9 @@
   position: absolute;
   bottom: -40px;
   border-radius: 50%;
-  background: radial-gradient(circle at 32% 32%, rgba(255,255,255,0.65), rgba(0,229,255,0.1));
-  border: 1px solid rgba(255,255,255,0.28);
+  background: radial-gradient(circle at 32% 32%, rgba(180, 240, 255, 0.75), rgba(0, 200, 255, 0.08));
+  border: 1px solid rgba(0, 210, 255, 0.4);
+  box-shadow: 0 0 6px rgba(0, 200, 255, 0.15) inset;
   animation: bubble-rise var(--dur, 9s) ease-in var(--delay, 0s) infinite;
 }
 

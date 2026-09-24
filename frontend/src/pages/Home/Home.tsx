@@ -1,9 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Product } from '../../types';
 import { getProducts } from '../../services/api';
 import ProductCard from '../../components/ProductCard/ProductCard';
 import './Home.css';
+
+const SEAWEED = [
+  { left: '3%',   h: 150, dur: '3.4s', delay: '0s',   from: '-8deg',  to: '7deg',  color: '#1a7a3c', w: 22 },
+  { left: '7%',   h: 100, dur: '2.8s', delay: '0.6s', from: '-11deg', to: '5deg',  color: '#25964a', w: 16 },
+  { left: '11%',  h: 175, dur: '4.1s', delay: '1.1s', from: '-7deg',  to: '10deg', color: '#14622e', w: 20 },
+  { left: '15%',  h: 115, dur: '3.0s', delay: '0.3s', from: '-9deg',  to: '6deg',  color: '#1e7a40', w: 18 },
+  { left: '20%',  h: 85,  dur: '2.6s', delay: '1.6s', from: '-12deg', to: '8deg',  color: '#2a8a4e', w: 14 },
+  { left: '72%',  h: 130, dur: '3.8s', delay: '0.8s', from: '-6deg',  to: '10deg', color: '#1a7a3c', w: 20 },
+  { left: '77%',  h: 165, dur: '3.1s', delay: '0s',   from: '-9deg',  to: '7deg',  color: '#25964a', w: 22 },
+  { left: '82%',  h: 95,  dur: '4.3s', delay: '1.3s', from: '-8deg',  to: '9deg',  color: '#14622e', w: 16 },
+  { left: '87%',  h: 145, dur: '3.5s', delay: '0.4s', from: '-5deg',  to: '11deg', color: '#1e7a40', w: 20 },
+  { left: '92%',  h: 80,  dur: '2.7s', delay: '1.9s', from: '-10deg', to: '7deg',  color: '#2a8a4e', w: 14 },
+];
 
 const BUBBLES = [
   { left: '4%',  size: '7px',  dur: '7s',  delay: '0s',   drift: '12px'  },
@@ -26,6 +39,15 @@ const BUBBLES = [
 const Home: React.FC = () => {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mouse, setMouse] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMouse({
+      x: (e.clientX - rect.left) / rect.width - 0.5,
+      y: (e.clientY - rect.top) / rect.height - 0.5,
+    });
+  }, []);
 
   useEffect(() => {
     const fetchFeatured = async () => {
@@ -44,7 +66,14 @@ const Home: React.FC = () => {
   return (
     <div className="home">
       {/* Hero Section */}
-      <section className="hero">
+      <section className="hero" onMouseMove={handleMouseMove} onMouseLeave={() => setMouse({ x: 0, y: 0 })}>
+        {/* God rays — shift slightly with mouse */}
+        <div
+          className="hero__rays"
+          aria-hidden
+          style={{ transform: `translate(${mouse.x * -12}px, ${mouse.y * 6}px)`, transition: 'transform 0.6s ease-out' }}
+        />
+
         {/* Rising bubbles */}
         <div className="hero__bubbles" aria-hidden>
           {BUBBLES.map((b, i) => (
@@ -152,88 +181,96 @@ const Home: React.FC = () => {
             </Link>
           </div>
 
-          {/* Large discus fish illustration */}
-          <div className="hero__visual" aria-hidden>
-            <svg viewBox="0 0 320 300" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                {/* Blue-teal center fading to orange-red at edges — classic red turquoise discus */}
-                <radialGradient id="dg-body" cx="42%" cy="42%" r="58%">
-                  <stop offset="0%"   stopColor="#00E5FF"/>
-                  <stop offset="28%"  stopColor="#0097A7"/>
-                  <stop offset="62%"  stopColor="#006064"/>
-                  <stop offset="100%" stopColor="#BF360C"/>
-                </radialGradient>
-                {/* Fins: orange base fading to dark teal tip */}
-                <linearGradient id="dg-fin" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%"   stopColor="#E64A19" stopOpacity="0.92"/>
-                  <stop offset="100%" stopColor="#004D40" stopOpacity="0.85"/>
-                </linearGradient>
-                {/* Eye iris: bright amber center → deep red edge */}
-                <radialGradient id="dg-eye" cx="38%" cy="35%" r="62%">
-                  <stop offset="0%"   stopColor="#FFD54F"/>
-                  <stop offset="45%"  stopColor="#E53935"/>
-                  <stop offset="100%" stopColor="#8B0000"/>
-                </radialGradient>
-                {/* Soft glow halo around fish */}
-                <radialGradient id="dg-glow" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%"   stopColor="#00E5FF" stopOpacity="0.2"/>
-                  <stop offset="100%" stopColor="#00E5FF" stopOpacity="0"/>
-                </radialGradient>
-              </defs>
-
-              {/* Ambient glow */}
-              <ellipse cx="162" cy="152" rx="148" ry="144" fill="url(#dg-glow)"/>
-
-              {/* Tail fin — forked, realistic */}
-              <path d="M50,152 L6,96 L2,152 L6,208 Z" fill="url(#dg-fin)"/>
-
-              {/* Dorsal fin (long, tall) */}
-              <path d="M80,42 Q162,8 244,42 Q258,66 242,76 Q162,54 80,76 Z" fill="url(#dg-fin)"/>
-
-              {/* Anal fin (bottom, symmetrical) */}
-              <path d="M80,260 Q162,292 244,260 Q258,236 242,226 Q162,248 80,226 Z" fill="url(#dg-fin)"/>
-
-              {/* Main body disc */}
-              <ellipse cx="164" cy="152" rx="116" ry="120" fill="url(#dg-body)"/>
-
-              {/* Pectoral fin */}
-              <ellipse cx="158" cy="184" rx="60" ry="17" fill="#00838F" transform="rotate(20 158 184)" opacity="0.6"/>
-
-              {/* Vertical stripes (9 stripes — characteristic of discus) */}
-              <line x1="90"  y1="46"  x2="86"  y2="258" stroke="#003D33" strokeWidth="5.5" opacity="0.35"/>
-              <line x1="110" y1="33"  x2="106" y2="271" stroke="#003D33" strokeWidth="5"   opacity="0.3"/>
-              <line x1="130" y1="27"  x2="128" y2="277" stroke="#003D33" strokeWidth="4.5" opacity="0.27"/>
-              <line x1="152" y1="24"  x2="152" y2="280" stroke="#003D33" strokeWidth="4.5" opacity="0.25"/>
-              <line x1="174" y1="26"  x2="174" y2="278" stroke="#003D33" strokeWidth="4"   opacity="0.23"/>
-              <line x1="196" y1="30"  x2="195" y2="274" stroke="#003D33" strokeWidth="3.5" opacity="0.2"/>
-              <line x1="216" y1="38"  x2="215" y2="266" stroke="#003D33" strokeWidth="3"   opacity="0.18"/>
-              <line x1="233" y1="50"  x2="233" y2="254" stroke="#003D33" strokeWidth="2.5" opacity="0.15"/>
-
-              {/* Iridescent horizontal shimmers */}
-              <path d="M72,110 Q132,98 196,108 Q236,104 272,118"  stroke="rgba(0,229,255,0.5)"  strokeWidth="2.5" fill="none"/>
-              <path d="M68,132 Q132,120 200,130 Q240,126 274,140"  stroke="rgba(0,229,255,0.42)" strokeWidth="2"   fill="none"/>
-              <path d="M68,154 Q134,144 200,152 Q240,148 272,162"  stroke="rgba(0,229,255,0.34)" strokeWidth="2"   fill="none"/>
-              <path d="M72,176 Q134,166 199,174 Q238,170 268,182"  stroke="rgba(0,229,255,0.28)" strokeWidth="1.5" fill="none"/>
-              <path d="M78,196 Q136,188 197,194 Q235,191 263,200"  stroke="rgba(0,229,255,0.22)" strokeWidth="1.5" fill="none"/>
-
-              {/* Highlight on upper body */}
-              <ellipse cx="130" cy="114" rx="55" ry="36" fill="rgba(0,229,255,0.09)"/>
-
-              {/* Eye — dark socket ring */}
-              <circle cx="242" cy="136" r="27" fill="rgba(0,10,20,0.55)"/>
-              {/* Eye — vivid iris */}
-              <circle cx="242" cy="136" r="22" fill="url(#dg-eye)"/>
-              {/* Eye — dark pupil */}
-              <circle cx="242" cy="136" r="11" fill="#080808"/>
-              {/* Eye — bright primary highlight (top-left) */}
-              <circle cx="235" cy="129" r="5" fill="white" opacity="0.95"/>
-              {/* Eye — tiny secondary highlight (bottom-right) */}
-              <circle cx="247" cy="142" r="2.2" fill="white" opacity="0.45"/>
-
-              {/* Mouth */}
-              <path d="M280,148 Q288,152 280,156" stroke="#222" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-            </svg>
+          {/* Discus fish — floats and follows mouse */}
+          <div
+            className="hero__visual-parallax"
+            style={{
+              transform: `translate(${mouse.x * 22}px, ${mouse.y * -16}px) rotate(${mouse.x * 2}deg)`,
+              transition: 'transform 0.18s ease-out',
+            }}
+            aria-hidden
+          >
+            <div className="hero__visual">
+              <svg viewBox="0 0 320 300" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <radialGradient id="dg-body" cx="42%" cy="42%" r="58%">
+                    <stop offset="0%"   stopColor="#00E5FF"/>
+                    <stop offset="28%"  stopColor="#0097A7"/>
+                    <stop offset="62%"  stopColor="#006064"/>
+                    <stop offset="100%" stopColor="#BF360C"/>
+                  </radialGradient>
+                  <linearGradient id="dg-fin" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%"   stopColor="#E64A19" stopOpacity="0.92"/>
+                    <stop offset="100%" stopColor="#004D40" stopOpacity="0.85"/>
+                  </linearGradient>
+                  <radialGradient id="dg-eye" cx="38%" cy="35%" r="62%">
+                    <stop offset="0%"   stopColor="#FFD54F"/>
+                    <stop offset="45%"  stopColor="#E53935"/>
+                    <stop offset="100%" stopColor="#8B0000"/>
+                  </radialGradient>
+                  <radialGradient id="dg-glow" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%"   stopColor="#00E5FF" stopOpacity="0.22"/>
+                    <stop offset="100%" stopColor="#00E5FF" stopOpacity="0"/>
+                  </radialGradient>
+                </defs>
+                <ellipse cx="162" cy="152" rx="148" ry="144" fill="url(#dg-glow)"/>
+                <path d="M50,152 L6,96 L2,152 L6,208 Z" fill="url(#dg-fin)"/>
+                <path d="M80,42 Q162,8 244,42 Q258,66 242,76 Q162,54 80,76 Z" fill="url(#dg-fin)"/>
+                <path d="M80,260 Q162,292 244,260 Q258,236 242,226 Q162,248 80,226 Z" fill="url(#dg-fin)"/>
+                <ellipse cx="164" cy="152" rx="116" ry="120" fill="url(#dg-body)"/>
+                <ellipse cx="158" cy="184" rx="60" ry="17" fill="#00838F" transform="rotate(20 158 184)" opacity="0.6"/>
+                <line x1="90"  y1="46"  x2="86"  y2="258" stroke="#003D33" strokeWidth="5.5" opacity="0.35"/>
+                <line x1="110" y1="33"  x2="106" y2="271" stroke="#003D33" strokeWidth="5"   opacity="0.3"/>
+                <line x1="130" y1="27"  x2="128" y2="277" stroke="#003D33" strokeWidth="4.5" opacity="0.27"/>
+                <line x1="152" y1="24"  x2="152" y2="280" stroke="#003D33" strokeWidth="4.5" opacity="0.25"/>
+                <line x1="174" y1="26"  x2="174" y2="278" stroke="#003D33" strokeWidth="4"   opacity="0.23"/>
+                <line x1="196" y1="30"  x2="195" y2="274" stroke="#003D33" strokeWidth="3.5" opacity="0.2"/>
+                <line x1="216" y1="38"  x2="215" y2="266" stroke="#003D33" strokeWidth="3"   opacity="0.18"/>
+                <line x1="233" y1="50"  x2="233" y2="254" stroke="#003D33" strokeWidth="2.5" opacity="0.15"/>
+                <path d="M72,110 Q132,98 196,108 Q236,104 272,118"  stroke="rgba(0,229,255,0.5)"  strokeWidth="2.5" fill="none"/>
+                <path d="M68,132 Q132,120 200,130 Q240,126 274,140"  stroke="rgba(0,229,255,0.42)" strokeWidth="2"   fill="none"/>
+                <path d="M68,154 Q134,144 200,152 Q240,148 272,162"  stroke="rgba(0,229,255,0.34)" strokeWidth="2"   fill="none"/>
+                <path d="M72,176 Q134,166 199,174 Q238,170 268,182"  stroke="rgba(0,229,255,0.28)" strokeWidth="1.5" fill="none"/>
+                <path d="M78,196 Q136,188 197,194 Q235,191 263,200"  stroke="rgba(0,229,255,0.22)" strokeWidth="1.5" fill="none"/>
+                <ellipse cx="130" cy="114" rx="55" ry="36" fill="rgba(0,229,255,0.09)"/>
+                <circle cx="242" cy="136" r="27" fill="rgba(0,10,20,0.55)"/>
+                <circle cx="242" cy="136" r="22" fill="url(#dg-eye)"/>
+                <circle cx="242" cy="136" r="11" fill="#080808"/>
+                <circle cx="235" cy="129" r="5"  fill="white" opacity="0.95"/>
+                <circle cx="247" cy="142" r="2.2" fill="white" opacity="0.45"/>
+                <path d="M280,148 Q288,152 280,156" stroke="#222" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+              </svg>
+            </div>
           </div>
+        </div>
+
+        {/* Animated seaweed on the seafloor */}
+        <div className="hero__seafloor" aria-hidden>
+          {SEAWEED.map((s, i) => (
+            <div
+              key={i}
+              className="seaweed"
+              style={{
+                left: s.left,
+                '--dur': s.dur,
+                '--delay': s.delay,
+                '--from': s.from,
+                '--to': s.to,
+              } as React.CSSProperties}
+            >
+              <svg viewBox="0 0 30 200" width={s.w} height={s.h} xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+                <path
+                  d={`M15,200 C4,165 26,125 13,90 C0,55 22,28 15,0`}
+                  stroke={s.color} strokeWidth="5" fill="none" strokeLinecap="round"
+                />
+                <path
+                  d={`M15,200 C24,168 10,130 20,95 C30,60 16,32 15,0`}
+                  stroke={s.color} strokeWidth="3" fill="none" strokeLinecap="round" opacity="0.55"
+                />
+              </svg>
+            </div>
+          ))}
+          <div className="hero__seafloor-sand" />
         </div>
 
         <div className="hero__scroll-hint">
