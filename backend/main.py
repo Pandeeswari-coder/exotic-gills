@@ -11,11 +11,21 @@ try:
 except ImportError:
     import importlib.metadata as _meta
     _pkg = types.ModuleType("pkg_resources")
+
+    class _DistributionNotFound(Exception):
+        pass
+
+    class _VersionConflict(Exception):
+        pass
+
     def _require(name: str):
         class _Dist:
             version = _meta.version(name)
         return [_Dist()]
+
     _pkg.require = _require  # type: ignore[attr-defined]
+    _pkg.DistributionNotFound = _DistributionNotFound  # type: ignore[attr-defined]
+    _pkg.VersionConflict = _VersionConflict  # type: ignore[attr-defined]
     sys.modules["pkg_resources"] = _pkg
 
 from dotenv import load_dotenv
