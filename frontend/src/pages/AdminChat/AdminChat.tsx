@@ -103,6 +103,8 @@ const AdminChat: React.FC = () => {
   /* ── Admin WebSocket ── */
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const sessionsRef = useRef<SessionMeta[]>([]);
+  useEffect(() => { sessionsRef.current = sessions; }, [sessions]);
 
   const connectAdminWs = useCallback(() => {
     if (!token) return;
@@ -122,13 +124,42 @@ const AdminChat: React.FC = () => {
       });
       // Refresh session list to update unread counts / last message
       loadSessions();
+
+      // Browser notification for incoming customer messages
+      if (msg.sender === 'customer' && 'Notification' in window && Notification.permission === 'granted') {
+        const sid = (raw.session_id as string) ?? '';
+        const senderName = sessionsRef.current.find(s => s.id === sid)?.name ?? `Customer #${sid.slice(-4)}`;
+        const body = msg.type === 'text' && msg.text
+          ? msg.text
+          : msg.type === 'image' ? '📷 Sent an image'
+          : msg.type === 'video' ? '🎬 Sent a video'
+          : '💬 New message';
+        const n = new Notification(`${senderName}`, {
+          body,
+          icon: '/fish-icon.png',
+          tag: sid,         // collapses multiple messages from same session
+        });
+        n.onclick = () => {
+          window.focus();
+          setSelectedSid(sid);
+          loadHistory(sid);
+        };
+      }
     };
 
     ws.onclose = () => {
       reconnectTimer.current = setTimeout(connectAdminWs, 3000);
     };
     ws.onerror = () => ws.close();
-  }, [token, loadSessions]);
+  }, [token, loadSessions, loadHistory]);
+
+  // Request notification permission once admin is authenticated
+  useEffect(() => {
+    if (!authed) return;
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }, [authed]);
 
   useEffect(() => {
     if (!authed) return;
