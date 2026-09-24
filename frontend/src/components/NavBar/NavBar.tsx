@@ -75,7 +75,7 @@ const NavBar: React.FC = () => {
             </Link>
           )}
 
-          {!isAdmin && (
+          {!isAdmin && !user?.is_admin && (
             <Link to="/cart" className="navbar-cart-btn" title="Cart">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="9" cy="21" r="1" />
