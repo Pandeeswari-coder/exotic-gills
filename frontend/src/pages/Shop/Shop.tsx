@@ -94,8 +94,8 @@ const Shop: React.FC = () => {
         available: availableOnly || undefined,
       };
 
-      if (selectedCategories.length === 1) {
-        params.category = selectedCategories[0];
+      if (selectedCategories.length > 0) {
+        params.category = selectedCategories.join(',');
       }
 
       const prods = await getProducts(params);
@@ -368,7 +368,7 @@ const Shop: React.FC = () => {
           ) : products.length === 0 ? (
             <div className="shop-empty">
               <span className="empty-icon">&#x1F41F;</span>
-              <h3>No fish found</h3>
+              <h3>No products found</h3>
               <p>Try adjusting your filters or search terms.</p>
               <button className="btn-outline-dark" onClick={handleClearFilters}>
                 Clear Filters

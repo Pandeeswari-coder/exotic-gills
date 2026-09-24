@@ -52,30 +52,38 @@ async def list_products(
     if available is not None:
         query["is_available"] = available
     if category:
-        # If it's a parent category slug, match all subcategory slugs under it too
-        parent_cat = await Category.find_one({"slug": category, "parent_id": None})
-        if parent_cat:
-            child_slugs = [
-                c.slug for c in await Category.find({"parent_id": str(parent_cat.id)}).to_list()
-            ]
-            if child_slugs:
-                query["$or"] = [
-                    {"category.slug": category},
-                    {"category.parent_slug": category},
-                    {"category.slug": {"$in": child_slugs}},
+        # category may be comma-separated (e.g. "fish,plants,rocks")
+        requested_slugs = [s.strip() for s in category.split(",") if s.strip()]
+        # Expand each slug: if it's a parent, also collect its children
+        all_slugs: set[str] = set()
+        all_parent_slugs: set[str] = set()
+        for slug in requested_slugs:
+            parent_cat = await Category.find_one({"slug": slug, "parent_id": None})
+            if parent_cat:
+                all_parent_slugs.add(slug)
+                child_slugs = [
+                    c.slug for c in await Category.find({"parent_id": str(parent_cat.id)}).to_list()
                 ]
+                all_slugs.update(child_slugs)
+                all_slugs.add(slug)
             else:
-                query["category.slug"] = category
-        else:
-            query["$or"] = [
-                {"category.slug": category},
-                {"category.parent_slug": category},
-            ]
+                all_slugs.add(slug)
+        cat_conditions = [
+            {"category.slug": {"$in": list(all_slugs)}},
+        ]
+        if all_parent_slugs:
+            cat_conditions.append({"category.parent_slug": {"$in": list(all_parent_slugs)}})
+        query["$or"] = cat_conditions
     if search:
-        query["$or"] = [
+        search_cond = {"$or": [
             {"name": {"$regex": search, "$options": "i"}},
             {"description": {"$regex": search, "$options": "i"}},
-        ]
+        ]}
+        if "$or" in query:
+            # Combine category $or and search $or using $and
+            query = {"$and": [{"$or": query.pop("$or")}, search_cond], **query}
+        else:
+            query.update(search_cond)
 
     total = await Product.find(query).count()
     offset = (page - 1) * page_size
