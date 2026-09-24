@@ -39,9 +39,9 @@ const Register: React.FC = () => {
 
     setLoading(true);
     try {
-      await apiRegister({ name: form.name, email: form.email, password: form.password });
-      await login(form.email, form.password);
-      navigate('/');
+      await apiRegister({ full_name: form.name, email: form.email, password: form.password });
+      const loggedInUser = await login(form.email, form.password);
+      navigate(loggedInUser.is_admin ? '/admin/products' : '/');
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: { detail?: string; email?: string[] } } };
       const msg =

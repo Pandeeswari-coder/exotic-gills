@@ -1,12 +1,12 @@
 export interface Category {
-  id: number;
+  id: string;
   name: string;
   slug: string;
   description?: string;
 }
 
 export interface Product {
-  id: number;
+  id: string;
   name: string;
   slug: string;
   description: string;
@@ -19,14 +19,15 @@ export interface Product {
 }
 
 export interface User {
-  id: number;
+  id: string;
   name: string;
   email: string;
+  is_admin?: boolean;
 }
 
 export interface AuthResponse {
-  access: string;
-  refresh: string;
+  access_token: string;
+  token_type: string;
   user: User;
 }
 
@@ -36,21 +37,27 @@ export interface CartItem {
 }
 
 export interface OrderItem {
-  product_id: number;
+  product_id: string;
   quantity: number;
 }
 
 export interface Order {
-  id: number;
-  user: User;
-  items: OrderItem[];
-  total: number;
+  id: string;
+  user_id: string;
+  items: OrderItemDetail[];
+  total_amount: number;
   status: string;
-  shipping_name: string;
-  shipping_address: string;
-  shipping_phone: string;
   razorpay_order_id?: string;
+  razorpay_payment_id?: string;
   created_at: string;
+}
+
+export interface OrderItemDetail {
+  product_id: string;
+  product_name: string;
+  quantity: number;
+  price: number;
+  image_url?: string;
 }
 
 export interface ShippingInfo {
@@ -88,4 +95,6 @@ export interface ProductQueryParams {
   max_price?: number;
   available?: boolean;
   search?: string;
+  page?: number;
+  page_size?: number;
 }

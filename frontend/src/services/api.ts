@@ -7,11 +7,10 @@ import type {
   OrderItem,
   ProductQueryParams,
   RazorpayResponse,
-  ShippingInfo,
 } from '../types';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8000',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -37,69 +36,69 @@ api.interceptors.response.use(
 );
 
 export const getProducts = async (params?: ProductQueryParams): Promise<Product[]> => {
-  const response = await api.get('/products/', { params });
-  return response.data;
+  const response = await api.get('/products', { params });
+  // Backend returns paginated { items, total, page, ... } — extract items array
+  return response.data?.items ?? response.data;
 };
 
 export const getProduct = async (id: number | string): Promise<Product> => {
-  const response = await api.get(`/products/${id}/`);
+  const response = await api.get(`/products/${id}`);
   return response.data;
 };
 
 export const getCategories = async (): Promise<Category[]> => {
-  const response = await api.get('/categories/');
+  const response = await api.get('/categories');
   return response.data;
 };
 
 export const login = async (email: string, password: string): Promise<AuthResponse> => {
-  const response = await api.post('/auth/login/', { email, password });
+  const response = await api.post('/auth/login', { email, password });
   return response.data;
 };
 
 export const register = async (data: {
-  name: string;
+  full_name: string;
   email: string;
   password: string;
 }): Promise<AuthResponse> => {
-  const response = await api.post('/auth/register/', data);
+  const response = await api.post('/auth/register', data);
   return response.data;
 };
 
 export const createOrder = async (
   items: OrderItem[],
-  shipping: ShippingInfo
-): Promise<Order> => {
-  const response = await api.post('/orders/create/', { items, ...shipping });
+): Promise<{ razorpay_order_id: string; amount: number; currency: string; order_id: string; key_id: string }> => {
+  const response = await api.post('/orders/create', { items });
   return response.data;
 };
 
-export const verifyPayment = async (data: RazorpayResponse & { order_id: number }): Promise<{ success: boolean }> => {
-  const response = await api.post('/orders/verify/', data);
+export const verifyPayment = async (data: RazorpayResponse & { order_id: string }): Promise<Order> => {
+  const response = await api.post('/orders/verify', data);
   return response.data;
 };
 
 export const getMyOrders = async (): Promise<Order[]> => {
-  const response = await api.get('/orders/my/');
+  const response = await api.get('/orders/my-orders');
   return response.data;
 };
 
 /* ── Admin product management ── */
 export const createProduct = async (data: FormData): Promise<Product> => {
-  const response = await api.post('/products/', data, {
+  const response = await api.post('/products', data, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
   return response.data;
 };
 
-export const updateProduct = async (id: number, data: FormData): Promise<Product> => {
-  const response = await api.patch(`/products/${id}/`, data, {
+export const updateProduct = async (id: string, data: FormData): Promise<Product> => {
+  const response = await api.patch(`/products/${id}`, data, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
   return response.data;
 };
 
-export const deleteProduct = async (id: number): Promise<void> => {
-  await api.delete(`/products/${id}/`);
+export const deleteProduct = async (id: string): Promise<void> => {
+  await api.delete(`/products/${id}`);
 };
 
 export default api;

@@ -20,8 +20,9 @@ const Login: React.FC = () => {
     setError('');
     setLoading(true);
     try {
-      await login(email, password);
-      navigate(redirect, { replace: true });
+      const loggedInUser = await login(email, password);
+      const dest = loggedInUser.is_admin ? '/admin/products' : redirect;
+      navigate(dest, { replace: true });
     } catch {
       setError('Invalid email or password. Please try again.');
     } finally {

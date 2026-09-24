@@ -1,59 +1,71 @@
+import base64
 import math
-from typing import List, Optional
+import re
+import uuid
+from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import func, or_, select
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
 
 from auth import get_current_admin
-from database import get_db
-from models import Category, Product, User
-from schemas import ProductCreate, ProductListResponse, ProductResponse, ProductUpdate
+from models import Category, CategoryEmbedded, Product
+from schemas import CategoryResponse, ProductListResponse, ProductResponse
 
 router = APIRouter(prefix="/products", tags=["products"])
+
+
+def slugify(name: str) -> str:
+    s = name.lower().strip()
+    s = re.sub(r"[^\w\s-]", "", s)
+    s = re.sub(r"[\s_-]+", "-", s)
+    return s.strip("-")
+
+
+def product_to_response(p: Product) -> ProductResponse:
+    return ProductResponse(
+        id=str(p.id),
+        name=p.name,
+        slug=p.slug,
+        description=p.description,
+        price=p.price,
+        stock=p.stock,
+        image=p.image_url,
+        category=CategoryResponse(
+            id=p.category.id,
+            name=p.category.name,
+            slug=p.category.slug,
+        ) if p.category else None,
+        available=p.is_available,
+        created_at=p.created_at,
+    )
 
 
 @router.get("/", response_model=ProductListResponse)
 async def list_products(
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=12, ge=1, le=100),
-    category_id: Optional[int] = Query(default=None),
+    category: Optional[str] = Query(default=None),
     search: Optional[str] = Query(default=None),
-    available_only: bool = Query(default=True),
-    db: AsyncSession = Depends(get_db),
+    available: Optional[bool] = Query(default=None),
 ):
-    query = select(Product).options(selectinload(Product.category))
+    query: dict = {}
 
-    if available_only:
-        query = query.where(Product.is_available == True)
-
-    if category_id is not None:
-        query = query.where(Product.category_id == category_id)
-
+    if available is not None:
+        query["is_available"] = available
+    if category:
+        query["category.slug"] = category
     if search:
-        term = f"%{search.lower()}%"
-        query = query.where(
-            or_(
-                func.lower(Product.name).like(term),
-                func.lower(Product.description).like(term),
-            )
-        )
+        query["$or"] = [
+            {"name": {"$regex": search, "$options": "i"}},
+            {"description": {"$regex": search, "$options": "i"}},
+        ]
 
-    count_query = select(func.count()).select_from(query.subquery())
-    total_result = await db.execute(count_query)
-    total = total_result.scalar_one()
-
+    total = await Product.find(query).count()
     offset = (page - 1) * page_size
-    query = query.order_by(Product.created_at.desc()).offset(offset).limit(page_size)
-
-    result = await db.execute(query)
-    products = result.scalars().all()
-
+    prods = await Product.find(query).sort("-created_at").skip(offset).limit(page_size).to_list()
     total_pages = math.ceil(total / page_size) if total > 0 else 1
 
     return ProductListResponse(
-        items=products,
+        items=[product_to_response(p) for p in prods],
         total=total,
         page=page,
         page_size=page_size,
@@ -62,89 +74,100 @@ async def list_products(
 
 
 @router.get("/{product_id}", response_model=ProductResponse)
-async def get_product(product_id: int, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(
-        select(Product).options(selectinload(Product.category)).where(Product.id == product_id)
-    )
-    product = result.scalar_one_or_none()
+async def get_product(product_id: str):
+    product = await Product.get(product_id)
     if not product:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
-    return product
+        raise HTTPException(status_code=404, detail="Product not found")
+    return product_to_response(product)
 
 
-@router.post("/", response_model=ProductResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=ProductResponse, status_code=201)
 async def create_product(
-    data: ProductCreate,
-    db: AsyncSession = Depends(get_db),
-    _: User = Depends(get_current_admin),
+    name: str = Form(...),
+    description: Optional[str] = Form(None),
+    price: float = Form(...),
+    stock: int = Form(0),
+    category_slug: Optional[str] = Form(None),
+    is_available: bool = Form(True),
+    image: Optional[UploadFile] = File(None),
+    _=Depends(get_current_admin),
 ):
-    existing = await db.execute(select(Product).where(Product.slug == data.slug))
-    if existing.scalar_one_or_none():
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Product slug already exists")
+    slug = slugify(name)
+    if await Product.find_one({"slug": slug}):
+        slug = f"{slug}-{uuid.uuid4().hex[:6]}"
 
-    if data.category_id is not None:
-        cat_result = await db.execute(select(Category).where(Category.id == data.category_id))
-        if not cat_result.scalar_one_or_none():
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
+    image_url: Optional[str] = None
+    if image and image.filename:
+        content = await image.read()
+        b64 = base64.b64encode(content).decode()
+        mime = image.content_type or "image/jpeg"
+        image_url = f"data:{mime};base64,{b64}"
 
-    product = Product(**data.model_dump())
-    db.add(product)
-    await db.commit()
-    await db.refresh(product)
+    cat_embedded: Optional[CategoryEmbedded] = None
+    if category_slug:
+        cat = await Category.find_one({"slug": category_slug})
+        if cat:
+            cat_embedded = CategoryEmbedded(id=str(cat.id), name=cat.name, slug=cat.slug)
 
-    result = await db.execute(
-        select(Product).options(selectinload(Product.category)).where(Product.id == product.id)
+    product = Product(
+        name=name,
+        slug=slug,
+        description=description,
+        price=price,
+        stock=stock,
+        image_url=image_url,
+        category=cat_embedded,
+        is_available=is_available,
     )
-    return result.scalar_one()
+    await product.insert()
+    return product_to_response(product)
 
 
 @router.put("/{product_id}", response_model=ProductResponse)
+@router.patch("/{product_id}", response_model=ProductResponse)
 async def update_product(
-    product_id: int,
-    data: ProductUpdate,
-    db: AsyncSession = Depends(get_db),
-    _: User = Depends(get_current_admin),
+    product_id: str,
+    name: Optional[str] = Form(None),
+    description: Optional[str] = Form(None),
+    price: Optional[float] = Form(None),
+    stock: Optional[int] = Form(None),
+    category_slug: Optional[str] = Form(None),
+    is_available: Optional[bool] = Form(None),
+    image: Optional[UploadFile] = File(None),
+    _=Depends(get_current_admin),
 ):
-    result = await db.execute(select(Product).where(Product.id == product_id))
-    product = result.scalar_one_or_none()
+    product = await Product.get(product_id)
     if not product:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
+        raise HTTPException(status_code=404, detail="Product not found")
 
-    update_data = data.model_dump(exclude_unset=True)
+    if name is not None:
+        product.name = name
+    if description is not None:
+        product.description = description
+    if price is not None:
+        product.price = price
+    if stock is not None:
+        product.stock = stock
+    if is_available is not None:
+        product.is_available = is_available
 
-    if "slug" in update_data:
-        existing = await db.execute(
-            select(Product).where(Product.slug == update_data["slug"], Product.id != product_id)
-        )
-        if existing.scalar_one_or_none():
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Product slug already exists")
+    if image and image.filename:
+        content = await image.read()
+        b64 = base64.b64encode(content).decode()
+        mime = image.content_type or "image/jpeg"
+        product.image_url = f"data:{mime};base64,{b64}"
 
-    if "category_id" in update_data and update_data["category_id"] is not None:
-        cat_result = await db.execute(select(Category).where(Category.id == update_data["category_id"]))
-        if not cat_result.scalar_one_or_none():
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
+    if category_slug is not None:
+        cat = await Category.find_one({"slug": category_slug})
+        product.category = CategoryEmbedded(id=str(cat.id), name=cat.name, slug=cat.slug) if cat else None
 
-    for field, value in update_data.items():
-        setattr(product, field, value)
-
-    await db.commit()
-
-    refreshed = await db.execute(
-        select(Product).options(selectinload(Product.category)).where(Product.id == product_id)
-    )
-    return refreshed.scalar_one()
+    await product.save()
+    return product_to_response(product)
 
 
-@router.delete("/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_product(
-    product_id: int,
-    db: AsyncSession = Depends(get_db),
-    _: User = Depends(get_current_admin),
-):
-    result = await db.execute(select(Product).where(Product.id == product_id))
-    product = result.scalar_one_or_none()
+@router.delete("/{product_id}", status_code=204)
+async def delete_product(product_id: str, _=Depends(get_current_admin)):
+    product = await Product.get(product_id)
     if not product:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
-
-    await db.delete(product)
-    await db.commit()
+        raise HTTPException(status_code=404, detail="Product not found")
+    await product.delete()

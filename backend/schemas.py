@@ -1,17 +1,13 @@
 from datetime import datetime
 from typing import List, Optional
+
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
 
 # ─── Token ────────────────────────────────────────────────────────────────────
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-
 class TokenData(BaseModel):
-    user_id: Optional[int] = None
+    user_id: Optional[str] = None
 
 
 # ─── User ─────────────────────────────────────────────────────────────────────
@@ -33,13 +29,19 @@ class UserUpdate(BaseModel):
 
 
 class UserResponse(BaseModel):
-    id: int
+    id: str
     email: str
-    full_name: str
+    name: str
     is_admin: bool
     created_at: datetime
 
-    model_config = {"from_attributes": True}
+
+# ─── Auth ─────────────────────────────────────────────────────────────────────
+
+class AuthResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: UserResponse
 
 
 # ─── Category ─────────────────────────────────────────────────────────────────
@@ -50,7 +52,7 @@ class CategoryCreate(BaseModel):
 
     @field_validator("slug")
     @classmethod
-    def slug_must_be_lowercase(cls, v: str) -> str:
+    def slug_lowercase(cls, v: str) -> str:
         return v.lower().strip()
 
 
@@ -60,70 +62,29 @@ class CategoryUpdate(BaseModel):
 
     @field_validator("slug")
     @classmethod
-    def slug_must_be_lowercase(cls, v: Optional[str]) -> Optional[str]:
-        if v is not None:
-            return v.lower().strip()
-        return v
+    def slug_lowercase(cls, v: Optional[str]) -> Optional[str]:
+        return v.lower().strip() if v else v
 
 
 class CategoryResponse(BaseModel):
-    id: int
+    id: str
     name: str
     slug: str
-
-    model_config = {"from_attributes": True}
 
 
 # ─── Product ──────────────────────────────────────────────────────────────────
 
-class ProductCreate(BaseModel):
-    name: str = Field(min_length=1, max_length=255)
-    slug: str = Field(min_length=1, max_length=255)
-    description: Optional[str] = None
-    price: float = Field(gt=0)
-    stock: int = Field(ge=0, default=0)
-    image_url: Optional[str] = None
-    category_id: Optional[int] = None
-    is_available: bool = True
-
-    @field_validator("slug")
-    @classmethod
-    def slug_must_be_lowercase(cls, v: str) -> str:
-        return v.lower().strip()
-
-
-class ProductUpdate(BaseModel):
-    name: Optional[str] = Field(default=None, min_length=1, max_length=255)
-    slug: Optional[str] = Field(default=None, min_length=1, max_length=255)
-    description: Optional[str] = None
-    price: Optional[float] = Field(default=None, gt=0)
-    stock: Optional[int] = Field(default=None, ge=0)
-    image_url: Optional[str] = None
-    category_id: Optional[int] = None
-    is_available: Optional[bool] = None
-
-    @field_validator("slug")
-    @classmethod
-    def slug_must_be_lowercase(cls, v: Optional[str]) -> Optional[str]:
-        if v is not None:
-            return v.lower().strip()
-        return v
-
-
 class ProductResponse(BaseModel):
-    id: int
+    id: str
     name: str
     slug: str
     description: Optional[str]
     price: float
     stock: int
-    image_url: Optional[str]
-    category_id: Optional[int]
+    image: Optional[str]
     category: Optional[CategoryResponse]
-    is_available: bool
+    available: bool
     created_at: datetime
-
-    model_config = {"from_attributes": True}
 
 
 class ProductListResponse(BaseModel):
@@ -137,7 +98,7 @@ class ProductListResponse(BaseModel):
 # ─── Order ────────────────────────────────────────────────────────────────────
 
 class OrderItemCreate(BaseModel):
-    product_id: int
+    product_id: str
     quantity: int = Field(gt=0)
 
 
@@ -147,9 +108,9 @@ class OrderCreate(BaseModel):
 
 class RazorpayOrderResponse(BaseModel):
     razorpay_order_id: str
-    amount: int  # in paise
+    amount: int
     currency: str
-    order_id: int
+    order_id: str
     key_id: str
 
 
@@ -160,23 +121,19 @@ class PaymentVerify(BaseModel):
 
 
 class OrderItemResponse(BaseModel):
-    id: int
-    product_id: Optional[int]
+    product_id: str
+    product_name: str
     quantity: int
     price: float
-    product: Optional[ProductResponse]
-
-    model_config = {"from_attributes": True}
+    image_url: Optional[str] = None
 
 
 class OrderResponse(BaseModel):
-    id: int
-    user_id: int
+    id: str
+    user_id: str
     total_amount: float
     status: str
     razorpay_order_id: Optional[str]
     razorpay_payment_id: Optional[str]
     created_at: datetime
     items: List[OrderItemResponse]
-
-    model_config = {"from_attributes": True}

@@ -2,19 +2,18 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import type { Product, Category, ProductQueryParams } from '../../types';
 import { getProducts, getCategories } from '../../services/api';
-import { getLocalProducts } from '../../services/localProductStore';
 import ProductCard from '../../components/ProductCard/ProductCard';
 import './Shop.css';
 
 const STATIC_CATEGORIES: Category[] = [
-  { id: 101, name: 'Pterophyllum scalare',      slug: 'pterophyllum-scalare' },
-  { id: 102, name: 'Poecilia sp',               slug: 'poecilia-sp' },
-  { id: 103, name: 'Puntigrus tetrazona',        slug: 'puntigrus-tetrazona' },
-  { id: 104, name: 'Astronotus ocellatus',       slug: 'astronotus-ocellatus' },
-  { id: 105, name: 'Amatitlania nigrofasciata',  slug: 'amatitlania-nigrofasciata' },
-  { id: 106, name: 'Various genus and species',  slug: 'various' },
-  { id: 107, name: 'Carassias auratus',          slug: 'carassias-auratus' },
-  { id: 108, name: 'Betta splendens',            slug: 'betta-splendens' },
+  { id: '101', name: 'Pterophyllum scalare',      slug: 'pterophyllum-scalare' },
+  { id: '102', name: 'Poecilia sp',               slug: 'poecilia-sp' },
+  { id: '103', name: 'Puntigrus tetrazona',        slug: 'puntigrus-tetrazona' },
+  { id: '104', name: 'Astronotus ocellatus',       slug: 'astronotus-ocellatus' },
+  { id: '105', name: 'Amatitlania nigrofasciata',  slug: 'amatitlania-nigrofasciata' },
+  { id: '106', name: 'Various genus and species',  slug: 'various' },
+  { id: '107', name: 'Carassias auratus',          slug: 'carassias-auratus' },
+  { id: '108', name: 'Betta splendens',            slug: 'betta-splendens' },
 ];
 
 const Shop: React.FC = () => {
@@ -34,20 +33,21 @@ const Shop: React.FC = () => {
     });
   };
 
+  // All filter state — synced from URL in one effect, fetched in another
+  const [searchQuery, setSearchQuery]         = useState(searchParams.get('search') || '');
   const [selectedCategories, setSelectedCategories] = useState<string[]>(() => {
     const cat = searchParams.get('category');
     return cat ? [cat] : [];
   });
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
-  const [availableOnly, setAvailableOnly] = useState(
-    searchParams.get('available') === 'true'
-  );
+  const [priceRange, setPriceRange]           = useState<[number, number]>([0, 10000]);
+  const [availableOnly, setAvailableOnly]     = useState(false);
 
-  // When URL ?category= changes (e.g. clicking a hero category card), sync filter state
+  // Sync URL params → state (one place, one effect — prevents double-fetch race)
   useEffect(() => {
-    const cat = searchParams.get('category');
+    const cat    = searchParams.get('category');
+    const search = searchParams.get('search') || '';
     setSelectedCategories(cat ? [cat] : []);
-    // Scroll to product grid
+    setSearchQuery(search);
     if (cat) {
       setTimeout(() => {
         document.getElementById('shop-main')?.scrollIntoView({ behavior: 'smooth' });
@@ -61,12 +61,13 @@ const Shop: React.FC = () => {
       .catch(() => setCategories(STATIC_CATEGORIES));
   }, []);
 
+  // fetchProducts depends only on state — never on searchParams directly
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     setError('');
     try {
       const params: ProductQueryParams = {
-        search: searchParams.get('search') || undefined,
+        search: searchQuery || undefined,
         min_price: priceRange[0] > 0 ? priceRange[0] : undefined,
         max_price: priceRange[1] < 10000 ? priceRange[1] : undefined,
         available: availableOnly || undefined,
@@ -76,33 +77,14 @@ const Shop: React.FC = () => {
         params.category = selectedCategories[0];
       }
 
-      // Merge: local products first, then API products (skip duplicates by id)
-      const localProds = getLocalProducts();
-      let apiProds: Product[] = [];
-      try { apiProds = await getProducts(params); } catch { /* backend offline */ }
-
-      const apiFiltered = apiProds.filter(a => !localProds.some(l => l.id === a.id));
-      let merged = [...localProds, ...apiFiltered];
-
-      // Apply filters to the merged list (covers local products the API doesn't know about)
-      if (params.search) {
-        const q = params.search.toLowerCase();
-        merged = merged.filter(p => p.name.toLowerCase().includes(q));
-      }
-      if (selectedCategories.length > 0) {
-        merged = merged.filter(p => p.category && selectedCategories.includes(p.category.slug));
-      }
-      if (params.available) merged = merged.filter(p => p.available);
-      if (params.min_price) merged = merged.filter(p => p.price >= (params.min_price ?? 0));
-      if (params.max_price && params.max_price < 10000) merged = merged.filter(p => p.price <= params.max_price!);
-
-      setProducts(merged);
+      const prods = await getProducts(params);
+      setProducts(prods);
     } catch {
-      // local products still shown above
+      setError('Failed to load products. Please check your connection.');
     } finally {
       setLoading(false);
     }
-  }, [searchParams, selectedCategories, priceRange, availableOnly]);
+  }, [searchQuery, selectedCategories, priceRange, availableOnly]);
 
   useEffect(() => {
     fetchProducts();
@@ -116,6 +98,7 @@ const Shop: React.FC = () => {
 
   const handleClearFilters = () => {
     setSelectedCategories([]);
+    setSearchQuery('');
     setPriceRange([0, 10000]);
     setAvailableOnly(false);
   };

@@ -5,8 +5,8 @@ import { getLocalProducts } from '../services/localProductStore';
 interface CartContextType {
   items: CartItem[];
   addToCart: (product: Product, quantity?: number) => void;
-  removeFromCart: (productId: number) => void;
-  updateQty: (productId: number, quantity: number) => void;
+  removeFromCart: (productId: string) => void;
+  updateQty: (productId: string, quantity: number) => void;
   clearCart: () => void;
   total: number;
   itemCount: number;
@@ -59,11 +59,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   };
 
-  const removeFromCart = (productId: number) => {
+  const removeFromCart = (productId: string) => {
     setItems((prev) => prev.filter((item) => item.product.id !== productId));
   };
 
-  const updateQty = (productId: number, quantity: number) => {
+  const updateQty = (productId: string, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(productId);
       return;

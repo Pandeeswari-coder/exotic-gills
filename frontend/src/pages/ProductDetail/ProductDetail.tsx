@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import type { Product } from '../../types';
 import { getProduct } from '../../services/api';
-import { getLocalProduct } from '../../services/localProductStore';
 import { useCart } from '../../context/CartContext';
 import './ProductDetail.css';
 
@@ -20,10 +19,6 @@ const ProductDetail: React.FC = () => {
   useEffect(() => {
     if (!id) return;
     setLoading(true);
-    // Check local store first (covers admin-added products)
-    const local = getLocalProduct(id);
-    if (local) { setProduct(local); setLoading(false); return; }
-    // Fall back to API
     getProduct(id)
       .then(setProduct)
       .catch(() => setError('Product not found.'))

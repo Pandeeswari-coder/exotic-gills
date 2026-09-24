@@ -1,36 +1,14 @@
 import os
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
-from sqlalchemy.orm import DeclarativeBase
+from motor.motor_asyncio import AsyncIOMotorClient
+from beanie import init_beanie
 from dotenv import load_dotenv
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://user:password@localhost:5432/fish_ecom")
-
-engine = create_async_engine(
-    DATABASE_URL,
-    echo=False,
-    pool_pre_ping=True,
-    pool_size=5,
-    max_overflow=10,
-)
-
-AsyncSessionLocal = async_sessionmaker(
-    engine,
-    class_=AsyncSession,
-    expire_on_commit=False,
-    autocommit=False,
-    autoflush=False,
-)
+MONGODB_URL = os.getenv("MONGODB_URL", "mongodb://localhost:27017/fish_ecom")
 
 
-class Base(DeclarativeBase):
-    pass
-
-
-async def get_db():
-    async with AsyncSessionLocal() as session:
-        try:
-            yield session
-        finally:
-            await session.close()
+async def init_db(document_models: list) -> None:
+    client = AsyncIOMotorClient(MONGODB_URL)
+    db = client.get_default_database()
+    await init_beanie(database=db, document_models=document_models)

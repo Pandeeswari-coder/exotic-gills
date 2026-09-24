@@ -1,76 +1,66 @@
 from datetime import datetime
-from sqlalchemy import (
-    Boolean, Column, DateTime, Float, ForeignKey,
-    Integer, String, Text, func
-)
-from sqlalchemy.orm import relationship
-from database import Base
+from typing import List, Optional
+
+from beanie import Document
+from pydantic import BaseModel, Field
 
 
-class User(Base):
-    __tablename__ = "users"
-
-    id = Column(Integer, primary_key=True, index=True)
-    email = Column(String(255), unique=True, index=True, nullable=False)
-    hashed_password = Column(String(255), nullable=False)
-    full_name = Column(String(255), nullable=False)
-    is_admin = Column(Boolean, default=False, nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-
-    orders = relationship("Order", back_populates="user", lazy="select")
+class CategoryEmbedded(BaseModel):
+    id: str
+    name: str
+    slug: str
 
 
-class Category(Base):
-    __tablename__ = "categories"
+class Category(Document):
+    name: str
+    slug: str
 
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(100), unique=True, nullable=False)
-    slug = Column(String(100), unique=True, index=True, nullable=False)
-
-    products = relationship("Product", back_populates="category", lazy="select")
+    class Settings:
+        name = "categories"
 
 
-class Product(Base):
-    __tablename__ = "products"
+class Product(Document):
+    name: str
+    slug: str
+    description: Optional[str] = None
+    price: float
+    stock: int = 0
+    image_url: Optional[str] = None
+    category: Optional[CategoryEmbedded] = None
+    is_available: bool = True
+    created_at: datetime = Field(default_factory=datetime.utcnow)
 
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(255), nullable=False)
-    slug = Column(String(255), unique=True, index=True, nullable=False)
-    description = Column(Text, nullable=True)
-    price = Column(Float, nullable=False)
-    stock = Column(Integer, default=0, nullable=False)
-    image_url = Column(String(500), nullable=True)
-    category_id = Column(Integer, ForeignKey("categories.id", ondelete="SET NULL"), nullable=True)
-    is_available = Column(Boolean, default=True, nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-
-    category = relationship("Category", back_populates="products", lazy="select")
-    order_items = relationship("OrderItem", back_populates="product", lazy="select")
+    class Settings:
+        name = "products"
 
 
-class Order(Base):
-    __tablename__ = "orders"
+class User(Document):
+    email: str
+    hashed_password: str
+    full_name: str
+    is_admin: bool = False
+    created_at: datetime = Field(default_factory=datetime.utcnow)
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    total_amount = Column(Float, nullable=False)
-    status = Column(String(50), default="pending", nullable=False)
-    razorpay_order_id = Column(String(255), nullable=True, unique=True)
-    razorpay_payment_id = Column(String(255), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-
-    user = relationship("User", back_populates="orders", lazy="select")
-    items = relationship("OrderItem", back_populates="order", lazy="select", cascade="all, delete-orphan")
+    class Settings:
+        name = "users"
 
 
-class OrderItem(Base):
-    __tablename__ = "order_items"
+class OrderItemDoc(BaseModel):
+    product_id: str
+    product_name: str
+    quantity: int
+    price: float
+    image_url: Optional[str] = None
 
-    id = Column(Integer, primary_key=True, index=True)
-    order_id = Column(Integer, ForeignKey("orders.id", ondelete="CASCADE"), nullable=False)
-    product_id = Column(Integer, ForeignKey("products.id", ondelete="SET NULL"), nullable=True)
-    quantity = Column(Integer, nullable=False)
-    price = Column(Float, nullable=False)
 
-    order = relationship("Order", back_populates="items", lazy="select")
-    product = relationship("Product", back_populates="order_items", lazy="select")
+class Order(Document):
+    user_id: str
+    items: List[OrderItemDoc] = []
+    total_amount: float
+    status: str = "pending"
+    razorpay_order_id: Optional[str] = None
+    razorpay_payment_id: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+    class Settings:
+        name = "orders"

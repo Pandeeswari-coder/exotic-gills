@@ -1,28 +1,25 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { getCategories } from '../../services/api';
-import type { Category } from '../../types';
+import { useAuth } from '../../context/AuthContext';
 import {
-  getLocalProducts,
-  addLocalProduct,
-  updateLocalProduct,
-  toggleLocalAvailable,
-  deleteLocalProduct,
-} from '../../services/localProductStore';
-import type { Product } from '../../types';
+  getCategories,
+  getProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+} from '../../services/api';
+import type { Category, Product } from '../../types';
 import './AdminProducts.css';
 
-const ADMIN_PASSWORD = 'fishowner2024';
-
 const STATIC_CATEGORIES: Category[] = [
-  { id: 101, name: 'Pterophyllum scalare',      slug: 'pterophyllum-scalare' },
-  { id: 102, name: 'Poecilia sp',               slug: 'poecilia-sp' },
-  { id: 103, name: 'Puntigrus tetrazona',        slug: 'puntigrus-tetrazona' },
-  { id: 104, name: 'Astronotus ocellatus',       slug: 'astronotus-ocellatus' },
-  { id: 105, name: 'Amatitlania nigrofasciata',  slug: 'amatitlania-nigrofasciata' },
-  { id: 106, name: 'Various genus and species',  slug: 'various' },
-  { id: 107, name: 'Carassias auratus',          slug: 'carassias-auratus' },
-  { id: 108, name: 'Betta splendens',            slug: 'betta-splendens' },
+  { id: '101', name: 'Pterophyllum scalare',      slug: 'pterophyllum-scalare' },
+  { id: '102', name: 'Poecilia sp',               slug: 'poecilia-sp' },
+  { id: '103', name: 'Puntigrus tetrazona',        slug: 'puntigrus-tetrazona' },
+  { id: '104', name: 'Astronotus ocellatus',       slug: 'astronotus-ocellatus' },
+  { id: '105', name: 'Amatitlania nigrofasciata',  slug: 'amatitlania-nigrofasciata' },
+  { id: '106', name: 'Various genus and species',  slug: 'various' },
+  { id: '107', name: 'Carassias auratus',          slug: 'carassias-auratus' },
+  { id: '108', name: 'Betta splendens',            slug: 'betta-splendens' },
 ];
 
 const emptyForm = {
@@ -30,63 +27,63 @@ const emptyForm = {
   description: '',
   price: '',
   stock: '',
-  category: '',
+  category: '',   // stores category slug
   available: true,
 };
 
 const AdminProducts: React.FC = () => {
   const navigate = useNavigate();
-
-  /* ── Auth gate ── */
-  const [authed, setAuthed] = useState(() => sessionStorage.getItem('egf_admin') === '1');
-  const [pwInput, setPwInput] = useState('');
-  const [pwError, setPwError] = useState(false);
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (pwInput === ADMIN_PASSWORD) {
-      sessionStorage.setItem('egf_admin', '1');
-      setAuthed(true);
-    } else {
-      setPwError(true);
-    }
-  };
+  const { user, isAuthenticated } = useAuth();
 
   /* ── Data ── */
-  const [products, setProducts]   = useState<Product[]>([]);
+  const [products, setProducts]     = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading]     = useState(true);
-  const [saving, setSaving]       = useState(false);
-  const [error, setError]         = useState('');
-  const [success, setSuccess]     = useState('');
+  const [loading, setLoading]       = useState(true);
+  const [saving, setSaving]         = useState(false);
+  const [error, setError]           = useState('');
+  const [success, setSuccess]       = useState('');
 
   /* ── Form ── */
   const [showForm, setShowForm]   = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm]           = useState(emptyForm);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const fileRef = useRef<HTMLInputElement>(null);
 
   /* ── Search / filter ── */
-  const [search, setSearch]       = useState('');
+  const [search, setSearch]           = useState('');
   const [filterStock, setFilterStock] = useState<'all' | 'in' | 'out'>('all');
 
+  /* ── Redirect non-admins ── */
   useEffect(() => {
-    if (!authed) return;
-    setProducts(getLocalProducts());
+    if (!isAuthenticated) {
+      navigate('/login?redirect=/admin/products');
+    } else if (user && !user.is_admin) {
+      navigate('/');
+    }
+  }, [isAuthenticated, user, navigate]);
+
+  /* ── Load products and categories from API ── */
+  const fetchProducts = useCallback(async () => {
+    setLoading(true);
+    try {
+      const prods = await getProducts({ page_size: 100 });
+      setProducts(prods);
+    } catch {
+      setError('Failed to load products from server.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isAuthenticated || !user?.is_admin) return;
+    fetchProducts();
     getCategories()
       .then(cats => setCategories(cats.length > 0 ? cats : STATIC_CATEGORIES))
       .catch(() => setCategories(STATIC_CATEGORIES));
-    setLoading(false);
-
-    // Refresh product list whenever the admin tab regains focus
-    const onFocus = () => setProducts(getLocalProducts());
-    window.addEventListener('focus', onFocus);
-    return () => window.removeEventListener('focus', onFocus);
-  }, [authed]);
-
-  const refresh = () => setProducts(getLocalProducts());
+  }, [isAuthenticated, user, fetchProducts]);
 
   /* ── Image pick ── */
   const onImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -108,13 +105,13 @@ const AdminProducts: React.FC = () => {
 
   /* ── Open edit form ── */
   const openEdit = (p: Product) => {
-    setEditingId(p.id);
+    setEditingId(String(p.id));
     setForm({
       name: p.name,
-      description: p.description,
+      description: p.description || '',
       price: String(p.price),
       stock: String(p.stock),
-      category: String(p.category?.id ?? ''),
+      category: p.category?.slug ?? '',
       available: p.available,
     });
     setImageFile(null);
@@ -127,7 +124,7 @@ const AdminProducts: React.FC = () => {
     setShowForm(true);
   };
 
-  /* ── Save (create or update) ── */
+  /* ── Save (create or update) via API ── */
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name.trim() || !form.price || !form.stock) {
@@ -137,36 +134,60 @@ const AdminProducts: React.FC = () => {
     setSaving(true);
     setError('');
     try {
+      const fd = new FormData();
+      fd.append('name', form.name.trim());
+      fd.append('description', form.description.trim());
+      fd.append('price', form.price);
+      fd.append('stock', form.stock);
+      fd.append('is_available', String(form.available));
+      if (form.category) fd.append('category_slug', form.category);
+      if (imageFile) fd.append('image', imageFile);
+
       if (editingId) {
-        await updateLocalProduct(editingId, form, imageFile, imagePreview, categories);
+        await updateProduct(editingId, fd);
         setSuccess('Fish updated successfully!');
       } else {
-        await addLocalProduct(form, imageFile, imagePreview, categories);
+        await createProduct(fd);
         setSuccess('Fish added to shop!');
       }
-      refresh();
+      await fetchProducts();
       setShowForm(false);
-    } catch {
-      setError('Save failed. Please try again.');
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { detail?: string } } };
+      setError(axiosErr.response?.data?.detail || 'Save failed. Please try again.');
     } finally {
       setSaving(false);
       setTimeout(() => setSuccess(''), 3000);
     }
   };
 
-  /* ── Toggle available ── */
-  const toggleAvailable = (p: Product) => {
-    toggleLocalAvailable(p.id);
-    refresh();
+  /* ── Toggle available via API ── */
+  const toggleAvailable = async (p: Product) => {
+    try {
+      const fd = new FormData();
+      fd.append('is_available', String(!p.available));
+      await updateProduct(String(p.id), fd);
+      setProducts(prev =>
+        prev.map(x => x.id === p.id ? { ...x, available: !p.available } : x)
+      );
+    } catch {
+      setError('Failed to update availability.');
+      setTimeout(() => setError(''), 3000);
+    }
   };
 
-  /* ── Delete ── */
-  const handleDelete = (p: Product) => {
+  /* ── Delete via API ── */
+  const handleDelete = async (p: Product) => {
     if (!window.confirm(`Remove "${p.name}" from the shop permanently?`)) return;
-    deleteLocalProduct(p.id);
-    setProducts(prev => prev.filter(x => x.id !== p.id));
-    setSuccess(`"${p.name}" removed.`);
-    setTimeout(() => setSuccess(''), 3000);
+    try {
+      await deleteProduct(String(p.id));
+      setProducts(prev => prev.filter(x => x.id !== p.id));
+      setSuccess(`"${p.name}" removed.`);
+      setTimeout(() => setSuccess(''), 3000);
+    } catch {
+      setError('Failed to delete product.');
+      setTimeout(() => setError(''), 3000);
+    }
   };
 
   /* ── Filter ── */
@@ -183,30 +204,9 @@ const AdminProducts: React.FC = () => {
     return (p.image.startsWith('http') || p.image.startsWith('data:')) ? p.image : `http://localhost:8000${p.image}`;
   };
 
-  /* ── Password gate ── */
-  if (!authed) {
-    return (
-      <div className="admin-gate">
-        <div className="admin-gate__card">
-          <div className="admin-gate__icon">🐠</div>
-          <h2>Owner Admin Panel</h2>
-          <p>Enter your owner password to continue.</p>
-          <form onSubmit={handleLogin} className="admin-gate__form">
-            <input
-              type="password"
-              placeholder="Password"
-              value={pwInput}
-              onChange={e => { setPwInput(e.target.value); setPwError(false); }}
-              autoFocus
-              className={pwError ? 'admin-gate__input admin-gate__input--error' : 'admin-gate__input'}
-            />
-            {pwError && <p className="admin-gate__error">Incorrect password.</p>}
-            <button type="submit" className="admin-gate__btn">Enter Admin Panel</button>
-          </form>
-          <button className="admin-gate__back" onClick={() => navigate(-1)}>← Back to Site</button>
-        </div>
-      </div>
-    );
+  /* ── Auth guard (while redirecting) ── */
+  if (!isAuthenticated || (user && !user.is_admin)) {
+    return null;
   }
 
   /* ── Main UI ── */
@@ -239,13 +239,13 @@ const AdminProducts: React.FC = () => {
 
         <button
           className="ap-sidebar__exit"
-          onClick={() => { sessionStorage.removeItem('egf_admin'); navigate('/'); }}
+          onClick={() => navigate('/')}
         >
           ← Exit to Site
         </button>
       </aside>
 
-      {/* Mobile top nav — visible only on small screens */}
+      {/* Mobile top nav */}
       <div className="ap-mobile-nav">
         <Link to="/admin" className="ap-mobile-nav__link">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -261,7 +261,7 @@ const AdminProducts: React.FC = () => {
         </Link>
         <button
           className="ap-mobile-nav__exit"
-          onClick={() => { sessionStorage.removeItem('egf_admin'); navigate('/'); }}
+          onClick={() => navigate('/')}
         >
           ← Exit
         </button>
@@ -337,7 +337,6 @@ const AdminProducts: React.FC = () => {
                     <span className="ap-card__stock">Stock: {p.stock}</span>
                   </div>
                   <div className="ap-card__actions">
-                    {/* Stock toggle */}
                     <button
                       className={`ap-card__toggle ${p.available ? 'ap-card__toggle--in' : 'ap-card__toggle--out'}`}
                       onClick={() => toggleAvailable(p)}
@@ -345,14 +344,12 @@ const AdminProducts: React.FC = () => {
                     >
                       {p.available ? '✓ In Stock' : '✗ Out of Stock'}
                     </button>
-                    {/* Edit */}
                     <button className="ap-card__edit" onClick={() => openEdit(p)} title="Edit">
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
                         <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
                       </svg>
                     </button>
-                    {/* Delete */}
                     <button className="ap-card__delete" onClick={() => handleDelete(p)} title="Delete">
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" />
@@ -423,7 +420,7 @@ const AdminProducts: React.FC = () => {
                   >
                     <option value="">Select category</option>
                     {categories.map(c => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
+                      <option key={c.id} value={c.slug}>{c.name}</option>
                     ))}
                   </select>
                 </div>

@@ -1,42 +1,50 @@
+import os
 from contextlib import asynccontextmanager
 
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from database import Base, engine
+from database import init_db
+from models import Category, Order, Product, User
 from routers import auth, categories, orders, products, users
+
+load_dotenv()
+
+# Base origins always allowed
+_origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+# Add any extra origins from env (comma-separated)
+_extra = os.getenv("FRONTEND_URL", "")
+for _url in _extra.split(","):
+    _url = _url.strip()
+    if _url:
+        _origins.append(_url)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Create all tables on startup
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    await init_db([Category, Product, User, Order])
     yield
-    # Dispose engine on shutdown
-    await engine.dispose()
 
 
 app = FastAPI(
     title="Fish E-Commerce API",
-    description="Backend API for a fish e-commerce platform with Razorpay payments",
-    version="1.0.0",
+    description="Backend API for Exotic Gills and Fins — powered by MongoDB",
+    version="2.0.0",
     lifespan=lifespan,
 )
 
-# CORS – allow the React dev server and production origin
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ],
+    allow_origins=_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Routers
 app.include_router(auth.router)
 app.include_router(categories.router)
 app.include_router(products.router)

@@ -72,7 +72,7 @@ const Checkout: React.FC = () => {
         quantity: item.quantity,
       }));
 
-      const order = await createOrder(orderItems, shipping);
+      const order = await createOrder(orderItems);
 
       const scriptLoaded = await loadRazorpayScript();
       if (!scriptLoaded) {
@@ -82,9 +82,9 @@ const Checkout: React.FC = () => {
       }
 
       const options: RazorpayOptions = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_placeholder',
-        amount: Math.round(order.total * 100),
-        currency: 'USD',
+        key: order.key_id || import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_placeholder',
+        amount: order.amount,
+        currency: 'INR',
         name: 'Exotic Gills and Fins',
         description: 'Premium Fish Order',
         order_id: order.razorpay_order_id || '',
@@ -92,7 +92,7 @@ const Checkout: React.FC = () => {
           try {
             await verifyPayment({
               ...response,
-              order_id: order.id,
+              order_id: order.order_id,
             });
             clearCart();
             setSuccess(true);
