@@ -11,6 +11,12 @@
   transition: opacity 0.15s;
 }
 .chatbot-msg__bubble:hover .chatbot-msg__edit-btn { opacity: 1; }
+.chatbot-edit-wrap { display: flex; flex-direction: column; gap: 5px; }
+.chatbot-edit-input { width: 100%; padding: 5px 8px; border: 1px solid #26a69a; border-radius: 6px; font-size: 13px; outline: none; }
+.chatbot-edit-actions { display: flex; gap: 5px; }
+.chatbot-edit-actions button { padding: 2px 10px; border-radius: 5px; border: none; cursor: pointer; font-size: 11px; font-weight: 600; }
+.chatbot-edit-actions button:first-child { background: #26a69a; color: #fff; }
+.chatbot-edit-actions button:last-child { background: #eee; color: #555; }
 .chatbot-msg__edit-wrap { display: flex; flex-direction: column; gap: 5px; }
 .chatbot-msg__edit-input {
   width: 100%;

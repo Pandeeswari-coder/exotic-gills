@@ -112,6 +112,8 @@ const AdminChat: React.FC = () => {
   const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const sessionsRef = useRef<SessionMeta[]>([]);
   useEffect(() => { sessionsRef.current = sessions; }, [sessions]);
+  const selectedSidRef = useRef<string | null>(null);
+  useEffect(() => { selectedSidRef.current = selectedSid; }, [selectedSid]);
 
   const connectAdminWs = useCallback(() => {
     if (!token) return;
@@ -124,11 +126,25 @@ const AdminChat: React.FC = () => {
 
     ws.onmessage = (e) => {
       const raw = JSON.parse(e.data);
+
+      // Handle edits
+      if (raw.action === 'edit') {
+        const updated = fromServer(raw);
+        setMessages(prev => prev.map(m => m.id === updated.id ? { ...m, text: updated.text } : m));
+        return;
+      }
+
       const msg = fromServer(raw);
-      setMessages(prev => {
-        if (prev.some(m => m.id === msg.id)) return prev;
-        return [...prev, msg];
-      });
+      const incomingSid = raw.session_id as string;
+
+      // Only add to visible messages if it belongs to the selected session
+      if (incomingSid === selectedSidRef.current) {
+        setMessages(prev => {
+          if (prev.some(m => m.id === msg.id)) return prev;
+          return [...prev, msg];
+        });
+      }
+
       // Refresh session list to update unread counts / last message
       loadSessions();
 
@@ -571,19 +587,40 @@ const AdminChat: React.FC = () => {
                               value={editText}
                               onChange={e => setEditText(e.target.value)}
                               onKeyDown={e => {
-                                if (e.key === 'Enter' && editText.trim()) setEditingId(null);
+                                if (e.key === 'Enter' && editText.trim()) {
+                                  const ws = wsRef.current;
+                                  if (ws && ws.readyState === WebSocket.OPEN) {
+                                    ws.send(JSON.stringify({ type: 'edit', message_id: editingId, text: editText.trim(), session_id: selectedSid }));
+                                  }
+                                  setEditingId(null);
+                                }
                                 if (e.key === 'Escape') setEditingId(null);
                               }}
                               autoFocus
                             />
                             <div className="admin-msg__edit-actions">
-                              <button onClick={() => setEditingId(null)}>Done</button>
+                              <button onClick={() => {
+                                if (editText.trim()) {
+                                  const ws = wsRef.current;
+                                  if (ws && ws.readyState === WebSocket.OPEN) {
+                                    ws.send(JSON.stringify({ type: 'edit', message_id: editingId, text: editText.trim(), session_id: selectedSid }));
+                                  }
+                                }
+                                setEditingId(null);
+                              }}>Save</button>
                               <button onClick={() => setEditingId(null)}>Cancel</button>
                             </div>
                           </div>
                         ) : (
                           <div className="admin-msg__text-wrap">
                             <p>{msg.text}</p>
+                            {msg.sender === 'owner' && (
+                              <button
+                                className="admin-msg__edit-trigger"
+                                onClick={() => { setEditingId(msg.id); setEditText(msg.text || ''); }}
+                                title="Edit"
+                              >✏️</button>
+                            )}
                           </div>
                         )}
                       </div>

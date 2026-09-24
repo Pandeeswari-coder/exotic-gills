@@ -36,6 +36,18 @@
 .admin-msg__edit-actions button:first-child { background: #26a69a; color: white; }
 .admin-msg__edit-actions button:last-child { background: #eee; color: #555; }
 
+.admin-msg__edit-trigger {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  opacity: 0;
+  padding: 0 2px;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+.admin-msg__text-wrap:hover .admin-msg__edit-trigger { opacity: 1; }
+
 /* ── Password gate ───────────────────────────────────────── */
 .admin-gate {
   flex: 1;

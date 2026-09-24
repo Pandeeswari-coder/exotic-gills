@@ -26,6 +26,7 @@ interface ChatCtx {
   ownerUnread: number;
   connected: boolean;
   sendMessage: (p: SendPayload) => void;
+  editMessage: (messageId: string, text: string) => void;
   markCustomerRead: () => void;
   markOwnerRead: () => void;
 }
@@ -74,6 +75,11 @@ export const ChatProvider: React.FC<{
 
     ws.onmessage = (e) => {
       const raw = JSON.parse(e.data);
+      if (raw.action === 'edit') {
+        const updated = fromServer(raw);
+        setMessages(prev => prev.map(m => m.id === updated.id ? { ...m, text: updated.text } : m));
+        return;
+      }
       const msg = fromServer(raw);
       setMessages(prev => {
         if (prev.some(m => m.id === msg.id)) return prev;
@@ -120,6 +126,12 @@ export const ChatProvider: React.FC<{
     }));
   }, []);
 
+  const editMessage = useCallback((messageId: string, text: string) => {
+    const ws = wsRef.current;
+    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+    ws.send(JSON.stringify({ type: 'edit', message_id: messageId, text }));
+  }, []);
+
   const markCustomerRead = useCallback(() => {
     setMessages(prev => prev.map(m => m.sender === 'owner' ? { ...m, read: true } : m));
   }, []);
@@ -132,7 +144,7 @@ export const ChatProvider: React.FC<{
   const ownerUnread    = messages.filter(m => m.sender === 'customer' && !m.read).length;
 
   return (
-    <ChatContext.Provider value={{ messages, customerUnread, ownerUnread, connected, sendMessage, markCustomerRead, markOwnerRead }}>
+    <ChatContext.Provider value={{ messages, customerUnread, ownerUnread, connected, sendMessage, editMessage, markCustomerRead, markOwnerRead }}>
       {children}
     </ChatContext.Provider>
   );

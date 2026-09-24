@@ -139,6 +139,19 @@ async def customer_ws(
     try:
         while True:
             data = await ws.receive_json()
+
+            # Edit existing message
+            if data.get("type") == "edit":
+                mid = data.get("message_id")
+                new_text = (data.get("text") or "").strip()
+                if mid and new_text:
+                    existing = await ChatMessage.get(mid)
+                    if existing and existing.session_id == session_id and existing.sender == "customer":
+                        existing.text = new_text
+                        await existing.save()
+                        await manager.broadcast(session_id, {**_msg_out(existing), "action": "edit"})
+                continue
+
             msg = ChatMessage(
                 session_id=session_id,
                 sender="customer",
@@ -199,6 +212,19 @@ async def admin_ws(ws: WebSocket, token: str = Query(...)):
             session_id = data.get("session_id")
             if not session_id:
                 continue
+
+            # Edit existing message
+            if data.get("type") == "edit":
+                mid = data.get("message_id")
+                new_text = (data.get("text") or "").strip()
+                if mid and new_text:
+                    existing = await ChatMessage.get(mid)
+                    if existing:
+                        existing.text = new_text
+                        await existing.save()
+                        await manager.broadcast(existing.session_id, {**_msg_out(existing), "action": "edit"})
+                continue
+
             msg = ChatMessage(
                 session_id=session_id,
                 sender="owner",
