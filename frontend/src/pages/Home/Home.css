@@ -47,7 +47,7 @@
 
 .hero__content {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   max-width: 700px;
   padding: 2rem;
 }
@@ -113,6 +113,7 @@
   font-size: 0.75rem;
   letter-spacing: 1px;
   animation: bounce 2s infinite;
+  z-index: 1;
 }
 
 @keyframes bounce {
@@ -340,43 +341,41 @@
   }
 }
 
-/* ── Swimming fish in hero ─────────────────────────────── */
+/* ── SVG fish swimming in hero background ──────────────── */
 .hero__fish-scene {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 2;
+  z-index: 0;
 }
 
 .hero-fish {
   position: absolute;
-  line-height: 1;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+  line-height: 0;
+  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.5));
   will-change: transform;
 }
 
 @keyframes hero-swim-r {
-  0%   { transform: translateX(-140px) scaleX(1);  opacity: 0; }
-  6%   { opacity: 0.85; }
-  94%  { opacity: 0.85; }
-  100% { transform: translateX(calc(100vw + 140px)) scaleX(1); opacity: 0; }
+  0%   { transform: translateX(-160px) scaleX(1);  opacity: 0; }
+  8%   { opacity: 0.8; }
+  92%  { opacity: 0.8; }
+  100% { transform: translateX(calc(100vw + 160px)) scaleX(1); opacity: 0; }
 }
 
 @keyframes hero-swim-l {
-  0%   { transform: translateX(calc(100vw + 140px)) scaleX(-1); opacity: 0; }
-  6%   { opacity: 0.85; }
-  94%  { opacity: 0.85; }
-  100% { transform: translateX(-140px) scaleX(-1); opacity: 0; }
+  0%   { transform: translateX(calc(100vw + 160px)) scaleX(-1); opacity: 0; }
+  8%   { opacity: 0.8; }
+  92%  { opacity: 0.8; }
+  100% { transform: translateX(-160px) scaleX(-1); opacity: 0; }
 }
 
-.hero-fish--1 { top: 18%; font-size: 2.8rem; animation: hero-swim-r 14s linear infinite; animation-delay: 0s;   }
-.hero-fish--2 { top: 42%; font-size: 2rem;   animation: hero-swim-l 18s linear infinite; animation-delay: 3s;   }
-.hero-fish--3 { top: 68%; font-size: 2.4rem; animation: hero-swim-r 12s linear infinite; animation-delay: 6s;   }
-.hero-fish--4 { top: 28%; font-size: 1.6rem; animation: hero-swim-l 16s linear infinite; animation-delay: 1.5s; }
-.hero-fish--5 { top: 58%; font-size: 3rem;   animation: hero-swim-r 20s linear infinite; animation-delay: 9s;   }
-.hero-fish--6 { top: 12%; font-size: 2rem;   animation: hero-swim-l 13s linear infinite; animation-delay: 4.5s; }
-.hero-fish--7 { top: 48%; font-size: 1.4rem; animation: hero-swim-r 17s linear infinite; animation-delay: 7.5s; }
+.hero-fish--1 { top: 14%; animation: hero-swim-r 16s linear infinite; animation-delay: 0s;   }
+.hero-fish--2 { top: 40%; animation: hero-swim-l 20s linear infinite; animation-delay: 4s;   }
+.hero-fish--3 { top: 70%; animation: hero-swim-r 14s linear infinite; animation-delay: 8s;   }
+.hero-fish--4 { top: 24%; animation: hero-swim-l 18s linear infinite; animation-delay: 2s;   }
+.hero-fish--5 { top: 56%; animation: hero-swim-r 22s linear infinite; animation-delay: 11s;  }
 
 @media (max-width: 480px) {
-  .hero-fish--4, .hero-fish--5, .hero-fish--6, .hero-fish--7 { display: none; }
+  .hero-fish--3, .hero-fish--4, .hero-fish--5 { display: none; }
 }
