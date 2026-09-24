@@ -558,6 +558,7 @@
 
 /* ── Responsive ───────────────────────────────────────────────── */
 @media (max-width: 768px) {
+  .ap-layout { flex-direction: column; }  /* mobile nav becomes a top bar */
   .ap-sidebar { display: none; }
   .ap-form__row { grid-template-columns: 1fr; }
 

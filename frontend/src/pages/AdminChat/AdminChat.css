@@ -877,6 +877,7 @@
 
 /* ── Responsive ───────────────────────────────────────────── */
 @media (max-width: 768px) {
+  .admin-chat { flex-direction: column; }  /* mobile nav becomes top bar */
   .admin-chat__sidebar {
     display: none;
   }
