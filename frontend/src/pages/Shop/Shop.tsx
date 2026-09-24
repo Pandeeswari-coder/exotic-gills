@@ -74,7 +74,11 @@ const Shop: React.FC = () => {
 
   useEffect(() => {
     getCategories()
-      .then(cats => setCategories(cats.length > 0 ? cats : STATIC_CATEGORIES))
+      .then(cats => {
+        // Use API data only if it contains the new hierarchical categories
+        const hasNewStructure = cats.some(c => ['fish', 'plants', 'driftwoods', 'rocks', 'aquarium-filters'].includes(c.slug));
+        setCategories(hasNewStructure ? cats : STATIC_CATEGORIES);
+      })
       .catch(() => setCategories(STATIC_CATEGORIES));
   }, []);
 

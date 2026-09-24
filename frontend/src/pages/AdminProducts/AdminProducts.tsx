@@ -97,7 +97,10 @@ const AdminProducts: React.FC = () => {
     if (!isAuthenticated || !user?.is_admin) return;
     fetchProducts();
     getCategories()
-      .then(cats => setCategories(cats.length > 0 ? cats : STATIC_CATEGORIES))
+      .then(cats => {
+        const hasNewStructure = cats.some(c => ['fish', 'plants', 'driftwoods', 'rocks', 'aquarium-filters'].includes(c.slug));
+        setCategories(hasNewStructure ? cats : STATIC_CATEGORIES);
+      })
       .catch(() => setCategories(STATIC_CATEGORIES));
   }, [isAuthenticated, user, fetchProducts]);
 
@@ -249,7 +252,7 @@ const AdminProducts: React.FC = () => {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" />
             </svg>
-            Manage Fish
+            Manage Items
           </Link>
         </nav>
 
@@ -288,14 +291,14 @@ const AdminProducts: React.FC = () => {
         {/* Header */}
         <div className="ap-header">
           <div className="ap-header__left">
-            <h1>Fish Shop Management</h1>
+            <h1>Shop Management</h1>
             <span>{products.length} items in shop</span>
           </div>
           <button className="ap-add-btn" onClick={openAdd}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
             </svg>
-            Add New Fish
+            Add New Item
           </button>
         </div>
 
@@ -307,7 +310,7 @@ const AdminProducts: React.FC = () => {
         <div className="ap-filters">
           <input
             type="text"
-            placeholder="Search fish…"
+            placeholder="Search items…"
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="ap-search"
@@ -331,7 +334,7 @@ const AdminProducts: React.FC = () => {
         ) : visible.length === 0 ? (
           <div className="ap-empty">
             <span>🐠</span>
-            <p>{search ? 'No fish match your search.' : 'No fish added yet. Click "Add New Fish" to start!'}</p>
+            <p>{search ? 'No items match your search.' : 'No items added yet. Click "Add New Item" to start!'}</p>
           </div>
         ) : (
           <div className="ap-grid">
@@ -385,7 +388,7 @@ const AdminProducts: React.FC = () => {
         <div className="ap-modal-overlay" onClick={e => { if (e.target === e.currentTarget) setShowForm(false); }}>
           <div className="ap-modal">
             <div className="ap-modal__header">
-              <h2>{editingId ? 'Edit Fish' : 'Add New Fish'}</h2>
+              <h2>{editingId ? 'Edit Item' : 'Add New Item'}</h2>
               <button onClick={() => setShowForm(false)}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
@@ -402,7 +405,7 @@ const AdminProducts: React.FC = () => {
                   ? <img src={imagePreview} alt="Preview" className="ap-form__img-preview" />
                   : <div className="ap-form__img-placeholder">
                       <span>📷</span>
-                      <p>Click to upload fish image</p>
+                      <p>Click to upload image</p>
                     </div>
                 }
                 <input ref={fileRef} type="file" accept="image/*" onChange={onImageChange} style={{ display: 'none' }} />
@@ -419,10 +422,10 @@ const AdminProducts: React.FC = () => {
 
               <div className="ap-form__row">
                 <div className="ap-form__field">
-                  <label>Fish Name *</label>
+                  <label>Item Name *</label>
                   <input
                     type="text"
-                    placeholder="e.g. Blue Discus"
+                    placeholder="e.g. Blue Discus, Java Fern, Driftwood…"
                     value={form.name}
                     onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                     required
@@ -480,7 +483,7 @@ const AdminProducts: React.FC = () => {
                 <label>Description</label>
                 <textarea
                   rows={3}
-                  placeholder="Describe the fish — color, size, temperament…"
+                  placeholder="Describe the item — color, size, type, care level…"
                   value={form.description}
                   onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
                 />
@@ -505,7 +508,7 @@ const AdminProducts: React.FC = () => {
                   Cancel
                 </button>
                 <button type="submit" className="ap-form__save" disabled={saving}>
-                  {saving ? 'Saving…' : editingId ? 'Update Fish' : 'Add to Shop'}
+                  {saving ? 'Saving…' : editingId ? 'Update Item' : 'Add to Shop'}
                 </button>
               </div>
             </form>
