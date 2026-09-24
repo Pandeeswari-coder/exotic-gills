@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import type { Product, Category, ProductQueryParams } from '../../types';
 import { getProducts, getCategories } from '../../services/api';
@@ -33,13 +33,14 @@ const STATIC_CATEGORIES: Category[] = [
 ];
 
 const Shop: React.FC = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const selfNavRef = useRef(false); // true when we ourselves called setSearchParams
   const [spotlight, setSpotlight] = useState({ x: 50, y: 50 });
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -54,16 +55,17 @@ const Shop: React.FC = () => {
   const [searchQuery, setSearchQuery]         = useState(searchParams.get('search') || '');
   const [selectedCategories, setSelectedCategories] = useState<string[]>(() => {
     const cat = searchParams.get('category');
-    return cat ? [cat] : [];
+    return cat ? cat.split(',').filter(Boolean) : [];
   });
   const [priceRange, setPriceRange]           = useState<[number, number]>([0, 10000]);
   const [availableOnly, setAvailableOnly]     = useState(false);
 
-  // Sync URL params → state (one place, one effect — prevents double-fetch race)
+  // Sync URL params → state when URL changes externally (hero cards, back/forward)
   useEffect(() => {
+    if (selfNavRef.current) { selfNavRef.current = false; return; }
     const cat    = searchParams.get('category');
     const search = searchParams.get('search') || '';
-    setSelectedCategories(cat ? [cat] : []);
+    setSelectedCategories(cat ? cat.split(',').filter(Boolean) : []);
     setSearchQuery(search);
     if (cat) {
       setTimeout(() => {
@@ -111,17 +113,29 @@ const Shop: React.FC = () => {
     fetchProducts();
   }, [fetchProducts]);
 
+  const updateCategoryUrl = (next: string[]) => {
+    selfNavRef.current = true;
+    const p = new URLSearchParams(searchParams);
+    if (next.length > 0) p.set('category', next.join(','));
+    else p.delete('category');
+    setSearchParams(p, { replace: true });
+  };
+
   const handleCategoryToggle = (slug: string) => {
-    setSelectedCategories((prev) =>
-      prev.includes(slug) ? prev.filter((s) => s !== slug) : [...prev, slug]
-    );
+    setSelectedCategories(prev => {
+      const next = prev.includes(slug) ? prev.filter(s => s !== slug) : [...prev, slug];
+      updateCategoryUrl(next);
+      return next;
+    });
   };
 
   const handleClearFilters = () => {
+    selfNavRef.current = true;
     setSelectedCategories([]);
     setSearchQuery('');
     setPriceRange([0, 10000]);
     setAvailableOnly(false);
+    setSearchParams(new URLSearchParams(), { replace: true });
   };
 
   return (
