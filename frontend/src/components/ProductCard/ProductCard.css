@@ -24,7 +24,7 @@
 /* ── Image area ─────────────────────────────────────────────── */
 .product-card__image-wrap {
   position: relative;
-  padding-top: 82%;
+  padding-top: 58%;
   background: linear-gradient(135deg, #e8faf7 0%, #c8f0ea 100%);
   overflow: hidden;
 }
@@ -121,9 +121,9 @@
 .product-card__body {
   display: flex;
   flex-direction: column;
-  padding: 1rem 1.1rem 1.2rem;
+  padding: 0.7rem 1rem 0.9rem;
   flex: 1;
-  gap: 0.3rem;
+  gap: 0.2rem;
 }
 
 /* ── Category pill ──────────────────────────────────────────── */
@@ -143,12 +143,12 @@
 
 /* ── Name ───────────────────────────────────────────────────── */
 .product-card__name {
-  font-size: 1.05rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: var(--dark);
   margin: 0;
-  line-height: 1.35;
-  min-height: 2.7rem;
+  line-height: 1.3;
+  min-height: 2.4rem;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -157,10 +157,10 @@
 
 /* ── Price ──────────────────────────────────────────────────── */
 .product-card__price {
-  font-size: 1.3rem;
+  font-size: 1.15rem;
   font-weight: 800;
   color: var(--primary);
-  margin: 0.25rem 0 0.6rem;
+  margin: 0.15rem 0 0.4rem;
   letter-spacing: -0.3px;
 }
 
@@ -172,8 +172,8 @@
   color: var(--dark);
   border: none;
   border-radius: 50px;
-  padding: 0.6rem 1rem;
-  font-size: 0.88rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.83rem;
   font-weight: 700;
   cursor: pointer;
   letter-spacing: 0.3px;
