@@ -86,7 +86,7 @@ async def delete_category(category_id: str, _=Depends(get_current_admin)):
     await cat.delete()
 
 
-SEED_TREE = [
+SEED_TREE: list[tuple[str, str, list[tuple[str, str]]]] = [
     ("Fish", "fish", [
         ("Cichlids", "cichlids"),
         ("Stingray", "stingray"),
@@ -114,9 +114,9 @@ SEED_TREE = [
 ]
 
 
-@router.post("/seed", status_code=201)
-async def seed_categories(_=Depends(get_current_admin)):
-    created = []
+async def run_seed() -> list[str]:
+    """Idempotent — inserts only missing categories. Safe to call on every startup."""
+    created: list[str] = []
     for main_name, main_slug, subs in SEED_TREE:
         existing = await Category.find_one({"slug": main_slug})
         if not existing:
@@ -129,4 +129,10 @@ async def seed_categories(_=Depends(get_current_admin)):
                 sub = Category(name=sub_name, slug=sub_slug, parent_id=parent_id)
                 await sub.insert()
                 created.append(sub_slug)
+    return created
+
+
+@router.post("/seed", status_code=201)
+async def seed_categories(_=Depends(get_current_admin)):
+    created = await run_seed()
     return {"created": created}
