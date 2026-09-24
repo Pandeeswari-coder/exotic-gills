@@ -43,6 +43,18 @@ const Shop: React.FC = () => {
     searchParams.get('available') === 'true'
   );
 
+  // When URL ?category= changes (e.g. clicking a hero category card), sync filter state
+  useEffect(() => {
+    const cat = searchParams.get('category');
+    setSelectedCategories(cat ? [cat] : []);
+    // Scroll to product grid
+    if (cat) {
+      setTimeout(() => {
+        document.getElementById('shop-main')?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+  }, [searchParams]);
+
   useEffect(() => {
     getCategories()
       .then(cats => setCategories(cats.length > 0 ? cats : STATIC_CATEGORIES))
