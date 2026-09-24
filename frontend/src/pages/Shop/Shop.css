@@ -333,10 +333,10 @@
   display: grid;
   grid-template-columns: 260px 1fr;
   grid-template-rows: auto 1fr;
-  gap: 2rem;
+  gap: 1.5rem;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1.25rem 2rem 2rem;
 }
 
 /* Mobile filter toggle */
@@ -364,7 +364,7 @@
   box-shadow: 0 2px 12px rgba(0, 201, 167, 0.08);
   height: fit-content;
   position: sticky;
-  top: 100px;
+  top: 80px;
   border: 1px solid rgba(0, 201, 167, 0.1);
 }
 

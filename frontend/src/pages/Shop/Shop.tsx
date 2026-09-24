@@ -203,15 +203,7 @@ const Shop: React.FC = () => {
         </div>
       </div>
 
-      {/* Stats strip */}
-      <div className="shop-stats">
-        <div className="shop-stat"><span>🐡</span><p>Premium Species</p></div>
-        <div className="shop-stat"><span>✅</span><p>Health Guaranteed</p></div>
-        <div className="shop-stat"><span>📦</span><p>Safe Packaging</p></div>
-        <div className="shop-stat"><span>🚚</span><p>Fast Delivery</p></div>
-      </div>
-
-      <div className="shop-layout">
+      <div className="shop-layout" id="shop-main">
         {/* Mobile filter toggle */}
         <button className="filter-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -309,7 +301,7 @@ const Shop: React.FC = () => {
         </aside>
 
         {/* Product grid */}
-        <main className="shop-main" id="shop-main">
+        <main className="shop-main">
           <div className="shop-results-header">
             {!loading && (
               <p className="results-count">
