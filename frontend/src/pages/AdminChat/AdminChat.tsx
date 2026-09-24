@@ -2,21 +2,23 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { getProducts } from '../../services/api';
 import type { Product } from '../../types';
-import {
-  getSessions,
-  getSessionMsgs,
-  saveSessionMsgs,
-  syncChannelName,
-  upsertSession,
-  type SessionMeta,
-} from '../../services/chatStore';
 import type { ChatMsg, SendPayload } from '../../context/ChatContext';
+import { useAuth } from '../../context/AuthContext';
 import './AdminChat.css';
+
+const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8000';
+const WS_BASE = API_BASE.replace(/^http/, 'ws');
 
 type AttachMode = null | 'image' | 'video' | 'catalog';
 
-const ADMIN_PASSWORD = 'fishowner2024';
-const ADMIN_TAB_ID = Math.random().toString(36).slice(2);
+interface SessionMeta {
+  id: string;
+  name?: string;
+  last_message: string;
+  last_at: string;
+  unread: number;
+  started_at: string;
+}
 
 const fmtTime = (iso: string) =>
   new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -29,41 +31,128 @@ const fmtSessionTime = (iso: string) => {
   return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
 };
 
+function fromServer(raw: Record<string, unknown>): ChatMsg {
+  return {
+    id: raw.id as string,
+    sender: raw.sender as 'owner' | 'customer',
+    type: raw.type as ChatMsg['type'],
+    text: raw.text as string | undefined,
+    mediaUrl: raw.media_url as string | undefined,
+    videoUrl: raw.video_url as string | undefined,
+    productIds: raw.product_ids as string[] | undefined,
+    timestamp: raw.timestamp as string,
+    read: raw.read as boolean,
+  };
+}
+
 const AdminChat: React.FC = () => {
   const navigate = useNavigate();
+  const { user, token, login } = useAuth();
 
-  /* ── Auth gate ── */
-  const [authed, setAuthed] = useState(() => sessionStorage.getItem('egf_admin') === '1');
-  const [pwInput, setPwInput] = useState('');
-  const [pwError, setPwError] = useState(false);
+  /* ── Auth gate (uses real admin login) ── */
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPw, setLoginPw] = useState('');
+  const [loginErr, setLoginErr] = useState('');
+  const [loginLoading, setLoginLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (pwInput === ADMIN_PASSWORD) {
-      sessionStorage.setItem('egf_admin', '1');
-      setAuthed(true);
-      setPwError(false);
-    } else {
-      setPwError(true);
+    setLoginLoading(true);
+    setLoginErr('');
+    try {
+      const loggedIn = await login(loginEmail, loginPw);
+      if (!loggedIn.is_admin) {
+        setLoginErr('This account does not have admin privileges.');
+      }
+    } catch {
+      setLoginErr('Incorrect email or password.');
+    } finally {
+      setLoginLoading(false);
     }
   };
+
+  const authed = !!(user?.is_admin && token);
 
   /* ── Sessions ── */
   const [sessions, setSessions] = useState<SessionMeta[]>([]);
   const [selectedSid, setSelectedSid] = useState<string | null>(null);
 
-  const reloadSessions = useCallback(() => {
-    setSessions(getSessions());
-  }, []);
-
-  const sessionLabel = (sid: string) => {
-    const s = sessions.find(x => x.id === sid);
-    return s?.name ?? `Customer #${sid.slice(-4)}`;
-  };
+  const loadSessions = useCallback(async () => {
+    if (!token) return;
+    try {
+      const r = await fetch(`${API_BASE}/chat/sessions`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (r.ok) setSessions(await r.json());
+    } catch { /* network */ }
+  }, [token]);
 
   /* ── Messages for selected session ── */
   const [messages, setMessages] = useState<ChatMsg[]>([]);
-  const bcRef = useRef<BroadcastChannel | null>(null);
+
+  const loadHistory = useCallback(async (sid: string) => {
+    try {
+      const r = await fetch(`${API_BASE}/chat/history/${sid}`);
+      if (r.ok) {
+        const raw: Record<string, unknown>[] = await r.json();
+        setMessages(raw.map(fromServer));
+      }
+    } catch { /* network */ }
+  }, []);
+
+  /* ── Admin WebSocket ── */
+  const wsRef = useRef<WebSocket | null>(null);
+  const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const connectAdminWs = useCallback(() => {
+    if (!token) return;
+    if (wsRef.current) {
+      wsRef.current.onclose = null;
+      wsRef.current.close();
+    }
+    const ws = new WebSocket(`${WS_BASE}/chat/ws/admin?token=${encodeURIComponent(token)}`);
+    wsRef.current = ws;
+
+    ws.onmessage = (e) => {
+      const raw = JSON.parse(e.data);
+      const msg = fromServer(raw);
+      setMessages(prev => {
+        if (prev.some(m => m.id === msg.id)) return prev;
+        return [...prev, msg];
+      });
+      // Refresh session list to update unread counts / last message
+      loadSessions();
+    };
+
+    ws.onclose = () => {
+      reconnectTimer.current = setTimeout(connectAdminWs, 3000);
+    };
+    ws.onerror = () => ws.close();
+  }, [token, loadSessions]);
+
+  useEffect(() => {
+    if (!authed) return;
+    loadSessions();
+    connectAdminWs();
+    return () => {
+      if (reconnectTimer.current) clearTimeout(reconnectTimer.current);
+      if (wsRef.current) { wsRef.current.onclose = null; wsRef.current.close(); }
+    };
+  }, [authed, loadSessions, connectAdminWs]);
+
+  /* ── Session selection ── */
+  const selectSession = useCallback(async (sid: string) => {
+    setSelectedSid(sid);
+    setEditingId(null);
+    await loadHistory(sid);
+    // Mark as read on server
+    if (token) {
+      fetch(`${API_BASE}/chat/read/${sid}`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}` },
+      }).then(() => loadSessions()).catch(() => {});
+    }
+  }, [loadHistory, token, loadSessions]);
 
   /* ── Edit ── */
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -86,57 +175,9 @@ const AdminChat: React.FC = () => {
   const messagesRef = useRef<HTMLDivElement>(null);
   const isAtBottom = useRef(true);
 
-  /* ── On auth: load sessions + products, listen for new sessions ── */
   useEffect(() => {
-    if (!authed) return;
-    reloadSessions();
-    getProducts().then(setProducts).catch(() => {});
-
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === 'egf_sessions') reloadSessions();
-    };
-    window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
-  }, [authed, reloadSessions]);
-
-  /* ── When selected session changes: load messages + connect BC ── */
-  useEffect(() => {
-    bcRef.current?.close();
-    bcRef.current = null;
-
-    if (!selectedSid) { setMessages([]); return; }
-
-    // Load + mark all customer messages as read
-    const raw = getSessionMsgs(selectedSid) as ChatMsg[];
-    const marked = raw.map(m => m.sender === 'customer' ? { ...m, read: true } : m);
-    saveSessionMsgs(selectedSid, marked);
-    upsertSession(selectedSid, { unread: 0 });
-    setMessages(marked);
-    reloadSessions();
-
-    // Reset editing
-    setEditingId(null);
-
-    // Connect BroadcastChannel for this session
-    try {
-      const bc = new BroadcastChannel(syncChannelName(selectedSid));
-      bc.onmessage = (e) => {
-        if (e.data?.type !== 'SYNC' || e.data.tabId === ADMIN_TAB_ID) return;
-        const incoming = e.data.msgs as ChatMsg[];
-        // Mark customer messages as read since admin is viewing
-        const markedIncoming = incoming.map(m =>
-          m.sender === 'customer' ? { ...m, read: true } : m
-        );
-        saveSessionMsgs(selectedSid, markedIncoming);
-        upsertSession(selectedSid, { unread: 0 });
-        setMessages(markedIncoming);
-        reloadSessions();
-      };
-      bcRef.current = bc;
-    } catch { /* BroadcastChannel not supported */ }
-
-    return () => { bcRef.current?.close(); };
-  }, [selectedSid, reloadSessions]);
+    if (authed) getProducts().then(setProducts).catch(() => {});
+  }, [authed]);
 
   /* ── Scroll ── */
   const handleMessagesScroll = () => {
@@ -146,9 +187,7 @@ const AdminChat: React.FC = () => {
   };
 
   useEffect(() => {
-    if (isAtBottom.current) {
-      bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }
+    if (isAtBottom.current) bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   useEffect(() => {
@@ -166,55 +205,24 @@ const AdminChat: React.FC = () => {
     return () => { document.title = 'Exotic Gills and Fins'; };
   }, [totalUnread]);
 
-  /* ── Sync helper ── */
-  const sync = useCallback((msgs: ChatMsg[]) => {
-    if (!selectedSid) return;
-    saveSessionMsgs(selectedSid, msgs);
-    bcRef.current?.postMessage({ type: 'SYNC', msgs, tabId: ADMIN_TAB_ID });
-  }, [selectedSid]);
-
-  /* ── Send message ── */
-  const doSend = useCallback((payload: SendPayload) => {
-    if (!selectedSid) return;
-    const msg: ChatMsg = {
-      ...payload,
-      id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-      timestamp: new Date().toISOString(),
-      read: true,
-    };
-    setMessages(prev => {
-      const n = [...prev, msg];
-      sync(n);
-      upsertSession(selectedSid, {
-        lastMessage: payload.text ?? '[media]',
-        lastAt: new Date().toISOString(),
-      });
-      reloadSessions();
-      return n;
-    });
-  }, [selectedSid, sync, reloadSessions]);
-
-  /* ── Delete / Edit ── */
-  const deleteMessage = useCallback((id: string) => {
-    setMessages(prev => { const n = prev.filter(m => m.id !== id); sync(n); return n; });
-  }, [sync]);
-
-  const editMessage = useCallback((id: string, newText: string) => {
-    setMessages(prev => {
-      const n = prev.map(m => m.id === id ? { ...m, text: newText } : m);
-      sync(n); return n;
-    });
-  }, [sync]);
-
-  /* ── Clear chat ── */
-  const clearChat = () => {
-    if (!selectedSid) return;
-    if (!window.confirm('Clear all messages in this conversation?')) return;
-    const empty: ChatMsg[] = [];
-    setMessages(empty);
-    saveSessionMsgs(selectedSid, empty);
-    bcRef.current?.postMessage({ type: 'SYNC', msgs: empty, tabId: ADMIN_TAB_ID });
+  const sessionLabel = (sid: string) => {
+    const s = sessions.find(x => x.id === sid);
+    return s?.name ?? `Customer #${sid.slice(-4)}`;
   };
+
+  /* ── Send via WebSocket ── */
+  const doSend = useCallback((payload: SendPayload) => {
+    const ws = wsRef.current;
+    if (!ws || ws.readyState !== WebSocket.OPEN || !selectedSid) return;
+    ws.send(JSON.stringify({
+      session_id: selectedSid,
+      type: payload.type,
+      text: payload.text,
+      media_url: payload.mediaUrl,
+      video_url: payload.videoUrl,
+      product_ids: payload.productIds,
+    }));
+  }, [selectedSid]);
 
   /* ── Text send ── */
   const sendText = () => {
@@ -276,31 +284,40 @@ const AdminChat: React.FC = () => {
 
   const getImgSrc = (p: Product) => {
     if (!p.image) return '/placeholder-fish.svg';
-    return (p.image.startsWith('http') || p.image.startsWith('data:')) ? p.image : `http://localhost:8000${p.image}`;
+    return (p.image.startsWith('http') || p.image.startsWith('data:')) ? p.image : `${API_BASE}${p.image}`;
   };
 
   const resolveProducts = (ids: string[]) =>
     ids.map(id => products.find(p => p.id === id)).filter(Boolean) as Product[];
 
-  /* ── Password gate ── */
+  /* ── Password / auth gate ── */
   if (!authed) {
     return (
       <div className="admin-gate">
         <div className="admin-gate__card">
           <div className="admin-gate__icon">🐠</div>
           <h2>Owner Admin Panel</h2>
-          <p>Enter your owner password to continue.</p>
+          <p>Sign in with your admin account to continue.</p>
           <form onSubmit={handleLogin} className="admin-gate__form">
+            <input
+              type="email"
+              placeholder="Admin Email"
+              value={loginEmail}
+              onChange={e => { setLoginEmail(e.target.value); setLoginErr(''); }}
+              autoFocus
+              className="admin-gate__input"
+            />
             <input
               type="password"
               placeholder="Password"
-              value={pwInput}
-              onChange={e => { setPwInput(e.target.value); setPwError(false); }}
-              autoFocus
-              className={pwError ? 'admin-gate__input admin-gate__input--error' : 'admin-gate__input'}
+              value={loginPw}
+              onChange={e => { setLoginPw(e.target.value); setLoginErr(''); }}
+              className={loginErr ? 'admin-gate__input admin-gate__input--error' : 'admin-gate__input'}
             />
-            {pwError && <p className="admin-gate__error">Incorrect password. Try again.</p>}
-            <button type="submit" className="admin-gate__btn">Enter Admin Panel</button>
+            {loginErr && <p className="admin-gate__error">{loginErr}</p>}
+            <button type="submit" className="admin-gate__btn" disabled={loginLoading}>
+              {loginLoading ? 'Signing in…' : 'Enter Admin Panel'}
+            </button>
           </form>
           <button className="admin-gate__back" onClick={() => navigate(-1)}>
             ← Back to Site
@@ -313,7 +330,6 @@ const AdminChat: React.FC = () => {
   /* ── Main admin UI ── */
   return (
     <div className="admin-chat">
-      {/* Hidden file inputs */}
       <input ref={fileRef} type="file" accept="image/*" onChange={onFileChange} style={{ display: 'none' }} />
       <input ref={videoFileRef} type="file" accept="video/*" onChange={onVideoFileChange} style={{ display: 'none' }} />
 
@@ -332,12 +348,7 @@ const AdminChat: React.FC = () => {
           </svg>
           Fish
         </Link>
-        <button
-          className="ap-mobile-nav__exit"
-          onClick={() => { sessionStorage.removeItem('egf_admin'); navigate('/'); }}
-        >
-          ← Exit
-        </button>
+        <button className="ap-mobile-nav__exit" onClick={() => navigate('/')}>← Exit</button>
       </div>
 
       {/* ── Sidebar ── */}
@@ -350,7 +361,6 @@ const AdminChat: React.FC = () => {
           </div>
         </div>
 
-        {/* Nav */}
         <nav style={{ display: 'flex', flexDirection: 'column', padding: '0.5rem 0', borderBottom: '1px solid rgba(0,201,167,0.1)' }}>
           <Link to="/admin" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.65rem 1rem', color: 'var(--primary)', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600, background: 'rgba(0,201,167,0.1)', borderLeft: '3px solid var(--primary)' }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
@@ -362,7 +372,6 @@ const AdminChat: React.FC = () => {
           </Link>
         </nav>
 
-        {/* Sessions list */}
         <div className="admin-chat__sessions-label">
           Conversations
           {totalUnread > 0 && <span className="admin-chat__total-badge">{totalUnread}</span>}
@@ -379,33 +388,25 @@ const AdminChat: React.FC = () => {
               <div
                 key={s.id}
                 className={`admin-chat__conv-item${selectedSid === s.id ? ' admin-chat__conv-item--active' : ''}`}
-                onClick={() => setSelectedSid(s.id)}
+                onClick={() => selectSession(s.id)}
               >
                 <div className="admin-chat__conv-avatar">👤</div>
                 <div className="admin-chat__conv-info">
                   <strong>{sessionLabel(s.id)}</strong>
-                  <p>{s.lastMessage || 'Started a chat'}</p>
+                  <p>{s.last_message || 'Started a chat'}</p>
                 </div>
                 <div className="admin-chat__conv-meta">
-                  <span className="admin-chat__conv-time">{fmtSessionTime(s.lastAt)}</span>
-                  {s.unread > 0 && (
-                    <span className="admin-chat__unread-badge">{s.unread}</span>
-                  )}
+                  <span className="admin-chat__conv-time">{fmtSessionTime(s.last_at)}</span>
+                  {s.unread > 0 && <span className="admin-chat__unread-badge">{s.unread}</span>}
                 </div>
               </div>
             ))
           )}
         </div>
 
-        {selectedSid && (
-          <button className="admin-chat__clear-btn" onClick={clearChat}>
-            Clear Chat
-          </button>
-        )}
-
         <button
           className="admin-chat__logout-btn"
-          onClick={() => { sessionStorage.removeItem('egf_admin'); navigate('/'); }}
+          onClick={() => navigate('/')}
         >
           ← Exit to Site
         </button>
@@ -420,7 +421,6 @@ const AdminChat: React.FC = () => {
           </div>
         ) : (
           <>
-            {/* Header */}
             <div className="admin-chat__main-header">
               <button className="admin-chat__back-btn" onClick={() => navigate('/')} title="Back to site">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -434,7 +434,6 @@ const AdminChat: React.FC = () => {
               </div>
             </div>
 
-            {/* Messages */}
             <div className="admin-chat__messages" ref={messagesRef} onScroll={handleMessagesScroll}>
               {messages.length === 0 && (
                 <div className="admin-chat__empty">
@@ -445,9 +444,7 @@ const AdminChat: React.FC = () => {
 
               {messages.map(msg => (
                 <div key={msg.id} className={`admin-msg admin-msg--${msg.sender}`}>
-                  <div className="admin-msg__avatar">
-                    {msg.sender === 'owner' ? '🐠' : '👤'}
-                  </div>
+                  <div className="admin-msg__avatar">{msg.sender === 'owner' ? '🐠' : '👤'}</div>
                   <div className="admin-msg__wrap">
                     <span className="admin-msg__label">
                       {msg.sender === 'owner' ? 'You (Owner)' : sessionLabel(selectedSid)}
@@ -462,26 +459,19 @@ const AdminChat: React.FC = () => {
                               value={editText}
                               onChange={e => setEditText(e.target.value)}
                               onKeyDown={e => {
-                                if (e.key === 'Enter' && editText.trim()) { editMessage(msg.id, editText.trim()); setEditingId(null); }
+                                if (e.key === 'Enter' && editText.trim()) setEditingId(null);
                                 if (e.key === 'Escape') setEditingId(null);
                               }}
                               autoFocus
                             />
                             <div className="admin-msg__edit-actions">
-                              <button onClick={() => { if (editText.trim()) { editMessage(msg.id, editText.trim()); setEditingId(null); } }}>Save</button>
+                              <button onClick={() => setEditingId(null)}>Done</button>
                               <button onClick={() => setEditingId(null)}>Cancel</button>
                             </div>
                           </div>
                         ) : (
                           <div className="admin-msg__text-wrap">
                             <p>{msg.text}</p>
-                            {msg.sender === 'owner' && (
-                              <button
-                                className="admin-msg__edit-btn"
-                                title="Edit message"
-                                onClick={() => { setEditingId(msg.id); setEditText(msg.text!); }}
-                              >✏️</button>
-                            )}
                           </div>
                         )}
                       </div>
@@ -491,11 +481,6 @@ const AdminChat: React.FC = () => {
                       <div className="admin-msg__bubble admin-msg__bubble--media">
                         <img src={msg.mediaUrl} alt="Sent" className="admin-msg__img" />
                         {msg.text && <p className="admin-msg__caption">{msg.text}</p>}
-                        {msg.sender === 'owner' && (
-                          <button className="admin-msg__delete-btn" onClick={() => { if (window.confirm('Remove this image?')) deleteMessage(msg.id); }}>
-                            🗑 Remove
-                          </button>
-                        )}
                       </div>
                     )}
 
@@ -508,11 +493,6 @@ const AdminChat: React.FC = () => {
                           </a>
                         </div>
                         {msg.text && <p className="admin-msg__caption">{msg.text}</p>}
-                        {msg.sender === 'owner' && (
-                          <button className="admin-msg__delete-btn" onClick={() => { if (window.confirm('Remove this video?')) deleteMessage(msg.id); }}>
-                            🗑 Remove
-                          </button>
-                        )}
                       </div>
                     )}
 
@@ -523,11 +503,6 @@ const AdminChat: React.FC = () => {
                           <span key={p.id} className="admin-msg__catalog-tag">{p.name}</span>
                         ))}
                         {msg.text && <p className="admin-msg__caption">{msg.text}</p>}
-                        {msg.sender === 'owner' && (
-                          <button className="admin-msg__delete-btn" onClick={() => { if (window.confirm('Remove this catalog?')) deleteMessage(msg.id); }}>
-                            🗑 Remove
-                          </button>
-                        )}
                       </div>
                     )}
 

@@ -33,8 +33,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import init_db
-from models import Category, Order, Product, User
-from routers import auth, categories, orders, products, users
+from models import Category, ChatMessage, ChatSession, Order, Product, User
+from routers import auth, categories, chat, orders, products, users
 
 load_dotenv()
 
@@ -53,7 +53,7 @@ for _url in _extra.split(","):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await init_db([Category, Product, User, Order])
+    await init_db([Category, Product, User, Order, ChatMessage, ChatSession])
     yield
 
 
@@ -77,6 +77,7 @@ app.include_router(categories.router)
 app.include_router(products.router)
 app.include_router(orders.router)
 app.include_router(users.router)
+app.include_router(chat.router)
 
 
 @app.get("/", tags=["health"])

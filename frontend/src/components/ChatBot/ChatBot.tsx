@@ -14,9 +14,7 @@ const ChatBot: React.FC = () => {
   const bottomRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<HTMLDivElement>(null);
   const isAtBottom = useRef(true);
-  const { messages, customerUnread, sendMessage, editMessage, markCustomerRead } = useChat();
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editText, setEditText] = useState('');
+  const { messages, customerUnread, sendMessage, markCustomerRead } = useChat();
   const { addToCart } = useCart();
   const navigate = useNavigate();
 
@@ -136,35 +134,9 @@ const ChatBot: React.FC = () => {
                   {/* Text */}
                   {msg.type === 'text' && msg.text && (
                     <div className="chatbot-msg__bubble">
-                      {editingId === msg.id ? (
-                        <div className="chatbot-msg__edit-wrap">
-                          <input
-                            className="chatbot-msg__edit-input"
-                            value={editText}
-                            onChange={e => setEditText(e.target.value)}
-                            onKeyDown={e => {
-                              if (e.key === 'Enter' && editText.trim()) { editMessage(msg.id, editText.trim()); setEditingId(null); }
-                              if (e.key === 'Escape') setEditingId(null);
-                            }}
-                            autoFocus
-                          />
-                          <div className="chatbot-msg__edit-actions">
-                            <button onClick={() => { if (editText.trim()) { editMessage(msg.id, editText.trim()); setEditingId(null); } }}>Save</button>
-                            <button onClick={() => setEditingId(null)}>Cancel</button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="chatbot-msg__text-wrap">
-                          <p dangerouslySetInnerHTML={{ __html: msg.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
-                          {msg.sender === 'customer' && (
-                            <button
-                              className="chatbot-msg__edit-btn"
-                              title="Edit message"
-                              onClick={() => { setEditingId(msg.id); setEditText(msg.text!); }}
-                            >✏️</button>
-                          )}
-                        </div>
-                      )}
+                      <div className="chatbot-msg__text-wrap">
+                        <p dangerouslySetInnerHTML={{ __html: msg.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
+                      </div>
                     </div>
                   )}
 

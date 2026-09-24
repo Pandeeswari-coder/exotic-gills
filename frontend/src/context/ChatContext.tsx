@@ -1,11 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import {
-  chatKey,
-  syncChannelName,
-  upsertSession,
-  getSessionMsgs,
-  saveSessionMsgs,
-} from '../services/chatStore';
+
+const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8000';
+const WS_BASE = API_BASE.replace(/^http/, 'ws');
 
 export type MsgSender = 'owner' | 'customer';
 export type MsgType = 'text' | 'image' | 'video' | 'catalog';
@@ -28,97 +24,111 @@ interface ChatCtx {
   messages: ChatMsg[];
   customerUnread: number;
   ownerUnread: number;
+  connected: boolean;
   sendMessage: (p: SendPayload) => void;
-  deleteMessage: (id: string) => void;
-  editMessage: (id: string, newText: string) => void;
   markCustomerRead: () => void;
   markOwnerRead: () => void;
-  clearChat: () => void;
 }
 
 const ChatContext = createContext<ChatCtx | null>(null);
-const TAB_ID = Math.random().toString(36).slice(2);
 
-export const ChatProvider: React.FC<{ children: React.ReactNode; sessionId: string; customerName?: string }> = ({ children, sessionId, customerName }) => {
-  const [messages, setMessages] = useState<ChatMsg[]>(() => getSessionMsgs(sessionId));
-  const bcRef = useRef<BroadcastChannel | null>(null);
+function fromServer(raw: Record<string, unknown>): ChatMsg {
+  return {
+    id: raw.id as string,
+    sender: raw.sender as MsgSender,
+    type: raw.type as MsgType,
+    text: raw.text as string | undefined,
+    mediaUrl: raw.media_url as string | undefined,
+    videoUrl: raw.video_url as string | undefined,
+    productIds: raw.product_ids as string[] | undefined,
+    timestamp: raw.timestamp as string,
+    read: raw.read as boolean,
+  };
+}
 
+export const ChatProvider: React.FC<{
+  children: React.ReactNode;
+  sessionId: string;
+  customerName?: string;
+}> = ({ children, sessionId, customerName }) => {
+  const [messages, setMessages] = useState<ChatMsg[]>([]);
+  const [connected, setConnected] = useState(false);
+  const wsRef = useRef<WebSocket | null>(null);
+  const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const connect = useCallback(() => {
+    if (wsRef.current) {
+      wsRef.current.onclose = null;
+      wsRef.current.close();
+    }
+
+    const params = customerName ? `?customer_name=${encodeURIComponent(customerName)}` : '';
+    const ws = new WebSocket(`${WS_BASE}/chat/ws/customer/${sessionId}${params}`);
+    wsRef.current = ws;
+
+    ws.onopen = () => setConnected(true);
+
+    ws.onmessage = (e) => {
+      const raw = JSON.parse(e.data);
+      const msg = fromServer(raw);
+      setMessages(prev => {
+        if (prev.some(m => m.id === msg.id)) return prev;
+        return [...prev, msg];
+      });
+    };
+
+    ws.onclose = () => {
+      setConnected(false);
+      reconnectTimer.current = setTimeout(connect, 3000);
+    };
+
+    ws.onerror = () => ws.close();
+  }, [sessionId, customerName]);
+
+  // Load history then connect WS
   useEffect(() => {
-    bcRef.current?.close();
-    try {
-      const bc = new BroadcastChannel(syncChannelName(sessionId));
-      bc.onmessage = (e) => {
-        if (e.data?.type === 'SYNC' && e.data.tabId !== TAB_ID) {
-          setMessages(e.data.msgs);
-        }
-      };
-      bcRef.current = bc;
-    } catch { /* BroadcastChannel not supported */ }
-    setMessages(getSessionMsgs(sessionId));
-    return () => { bcRef.current?.close(); };
-  }, [sessionId]);
+    setMessages([]);
+    fetch(`${API_BASE}/chat/history/${sessionId}`)
+      .then(r => r.json())
+      .then((raw: Record<string, unknown>[]) => setMessages(raw.map(fromServer)))
+      .catch(() => {});
 
-  const sync = useCallback((msgs: ChatMsg[]) => {
-    saveSessionMsgs(sessionId, msgs);
-    bcRef.current?.postMessage({ type: 'SYNC', msgs, tabId: TAB_ID });
-  }, [sessionId]);
+    connect();
+
+    return () => {
+      if (reconnectTimer.current) clearTimeout(reconnectTimer.current);
+      if (wsRef.current) {
+        wsRef.current.onclose = null;
+        wsRef.current.close();
+      }
+    };
+  }, [sessionId, connect]);
 
   const sendMessage = useCallback((payload: SendPayload) => {
-    const msg: ChatMsg = {
-      ...payload,
-      id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-      timestamp: new Date().toISOString(),
-      read: false,
-    };
-    setMessages(prev => {
-      const n = [...prev, msg];
-      sync(n);
-      if (payload.sender === 'customer') {
-        upsertSession(sessionId, {
-          name: customerName,
-          lastMessage: payload.text ?? '[media]',
-          lastAt: new Date().toISOString(),
-          unread: n.filter(m => m.sender === 'customer' && !m.read).length,
-        });
-      }
-      return n;
-    });
-  }, [sync, sessionId]);
+    const ws = wsRef.current;
+    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+    ws.send(JSON.stringify({
+      type: payload.type,
+      text: payload.text,
+      media_url: payload.mediaUrl,
+      video_url: payload.videoUrl,
+      product_ids: payload.productIds,
+    }));
+  }, []);
 
   const markCustomerRead = useCallback(() => {
-    setMessages(prev => {
-      if (!prev.some(m => m.sender === 'owner' && !m.read)) return prev;
-      const n = prev.map(m => m.sender === 'owner' ? { ...m, read: true } : m);
-      sync(n); return n;
-    });
-  }, [sync]);
+    setMessages(prev => prev.map(m => m.sender === 'owner' ? { ...m, read: true } : m));
+  }, []);
 
   const markOwnerRead = useCallback(() => {
-    setMessages(prev => {
-      if (!prev.some(m => m.sender === 'customer' && !m.read)) return prev;
-      const n = prev.map(m => m.sender === 'customer' ? { ...m, read: true } : m);
-      sync(n); return n;
-    });
-  }, [sync]);
-
-  const clearChat = useCallback(() => { setMessages([]); sync([]); }, [sync]);
-
-  const deleteMessage = useCallback((id: string) => {
-    setMessages(prev => { const n = prev.filter(m => m.id !== id); sync(n); return n; });
-  }, [sync]);
-
-  const editMessage = useCallback((id: string, newText: string) => {
-    setMessages(prev => {
-      const n = prev.map(m => m.id === id ? { ...m, text: newText } : m);
-      sync(n); return n;
-    });
-  }, [sync]);
+    setMessages(prev => prev.map(m => m.sender === 'customer' ? { ...m, read: true } : m));
+  }, []);
 
   const customerUnread = messages.filter(m => m.sender === 'owner' && !m.read).length;
   const ownerUnread    = messages.filter(m => m.sender === 'customer' && !m.read).length;
 
   return (
-    <ChatContext.Provider value={{ messages, customerUnread, ownerUnread, sendMessage, deleteMessage, editMessage, markCustomerRead, markOwnerRead, clearChat }}>
+    <ChatContext.Provider value={{ messages, customerUnread, ownerUnread, connected, sendMessage, markCustomerRead, markOwnerRead }}>
       {children}
     </ChatContext.Provider>
   );
@@ -129,6 +139,3 @@ export const useChat = () => {
   if (!ctx) throw new Error('useChat must be inside ChatProvider');
   return ctx;
 };
-
-// Kept for localStorage key access compatibility (e.g. old data migration)
-export const LEGACY_STORE_KEY = 'egf_chat';

@@ -64,3 +64,30 @@ class Order(Document):
 
     class Settings:
         name = "orders"
+
+
+class ChatMessage(Document):
+    session_id: str
+    sender: str          # 'customer' | 'owner'
+    type: str            # 'text' | 'image' | 'video' | 'catalog'
+    text: Optional[str] = None
+    media_url: Optional[str] = None
+    video_url: Optional[str] = None
+    product_ids: Optional[List[str]] = None
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    read: bool = False
+
+    class Settings:
+        name = "chat_messages"
+
+
+class ChatSession(Document):
+    session_id: str
+    customer_name: Optional[str] = None
+    started_at: datetime = Field(default_factory=datetime.utcnow)
+    last_message: str = ""
+    last_at: datetime = Field(default_factory=datetime.utcnow)
+    unread: int = 0
+
+    class Settings:
+        name = "chat_sessions"
