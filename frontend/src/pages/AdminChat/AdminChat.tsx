@@ -72,7 +72,7 @@ const AdminChat: React.FC = () => {
   const [videoUrl, setVideoUrl] = useState('');
   const [videoCaption, setVideoCaption] = useState('');
   const [products, setProducts] = useState<Product[]>([]);
-  const [selectedProductIds, setSelectedProductIds] = useState<number[]>([]);
+  const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
   const [catalogNote, setCatalogNote] = useState('');
 
   const fileRef = useRef<HTMLInputElement>(null);
@@ -259,7 +259,7 @@ const AdminChat: React.FC = () => {
   };
 
   /* ── Catalog ── */
-  const toggleProduct = (id: number) => {
+  const toggleProduct = (id: string) => {
     setSelectedProductIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   };
 
@@ -274,7 +274,7 @@ const AdminChat: React.FC = () => {
     return (p.image.startsWith('http') || p.image.startsWith('data:')) ? p.image : `http://localhost:8000${p.image}`;
   };
 
-  const resolveProducts = (ids: number[]) =>
+  const resolveProducts = (ids: string[]) =>
     ids.map(id => products.find(p => p.id === id)).filter(Boolean) as Product[];
 
   /* ── Password gate ── */

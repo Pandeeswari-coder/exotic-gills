@@ -4,10 +4,10 @@ const PRODUCTS_KEY = 'egf_local_products';
 const ID_KEY = 'egf_product_next_id';
 
 /* ── Helpers ── */
-const nextId = (): number => {
+const nextId = (): string => {
   const n = parseInt(localStorage.getItem(ID_KEY) || '1000', 10) + 1;
   localStorage.setItem(ID_KEY, String(n));
-  return n;
+  return String(n);
 };
 
 const slugify = (name: string): string =>
@@ -51,7 +51,7 @@ export const addLocalProduct = async (
   let image = existingImageUrl;
   if (imageFile) image = await resizeImage(imageFile);
 
-  const cat = categories.find(c => String(c.id) === form.category);
+  const cat = categories.find(c => c.id === form.category);
 
   const product: Product = {
     id: nextId(),
@@ -62,7 +62,7 @@ export const addLocalProduct = async (
     stock: parseInt(form.stock, 10) || 0,
     available: form.available,
     image,
-    category: cat ?? { id: 0, name: 'Uncategorized', slug: 'uncategorized' },
+    category: cat ?? { id: '0', name: 'Uncategorized', slug: 'uncategorized' },
     created_at: new Date().toISOString(),
   };
 
@@ -74,7 +74,7 @@ export const addLocalProduct = async (
 
 /* ── Update ── */
 export const updateLocalProduct = async (
-  id: number,
+  id: string,
   form: { name: string; description: string; price: string; stock: string; category: string; available: boolean },
   imageFile: File | null,
   existingImageUrl: string,
@@ -92,7 +92,7 @@ export const updateLocalProduct = async (
     image = existingImageUrl;
   }
 
-  const cat = categories.find(c => String(c.id) === form.category);
+  const cat = categories.find(c => c.id === form.category);
 
   const updated: Product = {
     ...products[idx],
@@ -112,7 +112,7 @@ export const updateLocalProduct = async (
 };
 
 /* ── Toggle available ── */
-export const toggleLocalAvailable = (id: number): void => {
+export const toggleLocalAvailable = (id: string): void => {
   const products = getLocalProducts();
   const idx = products.findIndex(p => p.id === id);
   if (idx === -1) return;
@@ -121,10 +121,10 @@ export const toggleLocalAvailable = (id: number): void => {
 };
 
 /* ── Delete ── */
-export const deleteLocalProduct = (id: number): void => {
+export const deleteLocalProduct = (id: string): void => {
   save(getLocalProducts().filter(p => p.id !== id));
 };
 
 /* ── Lookup single ── */
-export const getLocalProduct = (id: number | string): Product | undefined =>
-  getLocalProducts().find(p => p.id === Number(id));
+export const getLocalProduct = (id: string): Product | undefined =>
+  getLocalProducts().find(p => p.id === id);

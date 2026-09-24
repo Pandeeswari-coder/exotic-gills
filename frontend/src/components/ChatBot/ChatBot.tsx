@@ -70,7 +70,7 @@ const ChatBot: React.FC = () => {
     return (p.image.startsWith('http') || p.image.startsWith('data:')) ? p.image : `http://localhost:8000${p.image}`;
   };
 
-  const resolveProducts = (ids: number[]) =>
+  const resolveProducts = (ids: string[]) =>
     ids.map(id => products.find(p => p.id === id)).filter(Boolean) as Product[];
 
   return createPortal(

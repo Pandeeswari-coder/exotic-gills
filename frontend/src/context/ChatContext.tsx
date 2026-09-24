@@ -17,7 +17,7 @@ export interface ChatMsg {
   text?: string;
   mediaUrl?: string;
   videoUrl?: string;
-  productIds?: number[];
+  productIds?: string[];
   timestamp: string;
   read: boolean;
 }
