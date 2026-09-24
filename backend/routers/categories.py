@@ -97,9 +97,20 @@ SEED_TREE = [
         ("Ferns", "ferns"),
         ("Anubias", "anubias"),
     ]),
-    ("Driftwoods", "driftwoods", []),
-    ("Rocks", "rocks", []),
-    ("Aquarium Filters", "aquarium-filters", []),
+    ("Driftwoods", "driftwoods", [
+        ("Japonica Woods", "japonica-woods"),
+        ("Spiral Woods", "spiral-woods"),
+    ]),
+    ("Rocks", "rocks", [
+        ("Seiyur Rock", "seiyur-rock"),
+        ("Dragon Stone", "dragon-stone"),
+    ]),
+    ("Aquarium Filters", "aquarium-filters", [
+        ("Sponge Filter", "sponge-filter"),
+        ("Canister Filter", "canister-filter"),
+        ("Top Filter", "top-filter"),
+        ("Hang On Filter", "hang-on-filter"),
+    ]),
 ]
 
 

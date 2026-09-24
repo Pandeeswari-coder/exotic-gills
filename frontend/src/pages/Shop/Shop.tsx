@@ -16,9 +16,20 @@ const STATIC_CATEGORIES: Category[] = [
     { id: '2a', name: 'Ferns',    slug: 'ferns' },
     { id: '2b', name: 'Anubias',  slug: 'anubias' },
   ]},
-  { id: '3', name: 'Driftwoods',        slug: 'driftwoods',        subcategories: [] },
-  { id: '4', name: 'Rocks',             slug: 'rocks',             subcategories: [] },
-  { id: '5', name: 'Aquarium Filters',  slug: 'aquarium-filters',  subcategories: [] },
+  { id: '3', name: 'Driftwoods',        slug: 'driftwoods',        subcategories: [
+    { id: '3a', name: 'Japonica Woods', slug: 'japonica-woods' },
+    { id: '3b', name: 'Spiral Woods',   slug: 'spiral-woods'   },
+  ]},
+  { id: '4', name: 'Rocks',             slug: 'rocks',             subcategories: [
+    { id: '4a', name: 'Seiyur Rock',  slug: 'seiyur-rock'  },
+    { id: '4b', name: 'Dragon Stone', slug: 'dragon-stone' },
+  ]},
+  { id: '5', name: 'Aquarium Filters',  slug: 'aquarium-filters',  subcategories: [
+    { id: '5a', name: 'Sponge Filter',    slug: 'sponge-filter'    },
+    { id: '5b', name: 'Canister Filter',  slug: 'canister-filter'  },
+    { id: '5c', name: 'Top Filter',       slug: 'top-filter'       },
+    { id: '5d', name: 'Hang On Filter',   slug: 'hang-on-filter'   },
+  ]},
 ];
 
 const Shop: React.FC = () => {
