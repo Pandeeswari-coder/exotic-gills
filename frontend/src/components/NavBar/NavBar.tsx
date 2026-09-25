@@ -117,6 +117,9 @@ const NavBar: React.FC = () => {
           <li><Link to="/about"    onClick={() => setMenuOpen(false)}>About Us</Link></li>
           <li><Link to="/shipping" onClick={() => setMenuOpen(false)}>Shipping</Link></li>
           <li><Link to="/contact"  onClick={() => setMenuOpen(false)}>Contact</Link></li>
+          {isAuthenticated && !user?.is_admin && (
+            <li><Link to="/orders" onClick={() => setMenuOpen(false)}>My Orders</Link></li>
+          )}
         </ul>
       </nav>
     </header>
