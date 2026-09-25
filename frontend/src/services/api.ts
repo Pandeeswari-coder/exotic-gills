@@ -101,4 +101,23 @@ export const deleteProduct = async (id: string): Promise<void> => {
   await api.delete(`/products/${id}`);
 };
 
+/* ── Wishlist ── */
+export const getWishlist = async (): Promise<Product[]> => {
+  const response = await api.get('/wishlist');
+  return response.data;
+};
+
+export const getWishlistIds = async (): Promise<string[]> => {
+  const response = await api.get('/wishlist/ids');
+  return response.data.product_ids;
+};
+
+export const addToWishlist = async (productId: string): Promise<void> => {
+  await api.post(`/wishlist/${productId}`);
+};
+
+export const removeFromWishlist = async (productId: string): Promise<void> => {
+  await api.delete(`/wishlist/${productId}`);
+};
+
 export default api;

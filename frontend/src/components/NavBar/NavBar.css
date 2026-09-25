@@ -180,6 +180,42 @@
   background: rgba(0, 201, 167, 0.12);
 }
 
+.navbar-wishlist-btn {
+  position: relative;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #e05d80;
+  display: flex;
+  align-items: center;
+  padding: 0.4rem;
+  border-radius: 50%;
+  transition: color 0.2s, background 0.2s;
+  text-decoration: none;
+}
+
+.navbar-wishlist-btn:hover {
+  color: #c0334d;
+  background: rgba(224, 93, 128, 0.12);
+}
+
+.wishlist-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #e05d80;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 0.65rem;
+  font-weight: 700;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
 .navbar-cart-btn {
   position: relative;
   background: transparent;

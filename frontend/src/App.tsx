@@ -23,6 +23,7 @@ const Register    = lazy(() => import('./pages/Register/Register'));
 const About       = lazy(() => import('./pages/About/About'));
 const AdminChat     = lazy(() => import('./pages/AdminChat/AdminChat'));
 const AdminProducts = lazy(() => import('./pages/AdminProducts/AdminProducts'));
+const Wishlist      = lazy(() => import('./pages/Wishlist/Wishlist'));
 
 const LoadingFallback: React.FC = () => (
   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', fontSize: '2rem' }}>
@@ -79,6 +80,7 @@ const App: React.FC = () => {
               <Route path="/login"     element={<Login />} />
               <Route path="/register"  element={<Register />} />
               <Route path="/about"     element={<About />} />
+              <Route path="/wishlist"      element={<Wishlist />} />
               <Route path="/admin"          element={<AdminChat />} />
               <Route path="/admin/products" element={<AdminProducts />} />
               <Route path="*"          element={<NotFound />} />

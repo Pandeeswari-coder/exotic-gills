@@ -33,8 +33,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import init_db
-from models import Category, ChatMessage, ChatSession, Order, Product, PushSubscription, User
+from models import Category, ChatMessage, ChatSession, Order, Product, PushSubscription, User, Wishlist
 from routers import auth, categories, chat, orders, products, users
+from routers import wishlist
 from routers.categories import run_seed
 
 load_dotenv()
@@ -54,7 +55,7 @@ for _url in _extra.split(","):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await init_db([Category, Product, User, Order, ChatMessage, ChatSession, PushSubscription])
+    await init_db([Category, Product, User, Order, ChatMessage, ChatSession, PushSubscription, Wishlist])
     await run_seed()   # ensures all categories exist in DB on every startup
     yield
 
@@ -80,6 +81,7 @@ app.include_router(products.router)
 app.include_router(orders.router)
 app.include_router(users.router)
 app.include_router(chat.router)
+app.include_router(wishlist.router)
 
 
 @app.get("/", tags=["health"])

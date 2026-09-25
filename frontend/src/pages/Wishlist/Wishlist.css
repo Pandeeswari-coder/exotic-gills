@@ -1,0 +1,106 @@
+.wishlist-page {
+  min-height: 80vh;
+  background: var(--light-bg);
+}
+
+.wishlist-hero {
+  background: linear-gradient(135deg, #031d2e 0%, #0a2540 60%, #00c9a7 100%);
+  padding: 2.5rem 2rem 2rem;
+  text-align: center;
+}
+
+.wishlist-hero__title {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 900;
+  color: #fff;
+  margin: 0 0 0.4rem;
+}
+
+.wishlist-hero__sub {
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.65);
+  margin: 0;
+}
+
+.wishlist-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.wishlist-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.wishlist-empty {
+  text-align: center;
+  padding: 5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.wishlist-empty__icon {
+  font-size: 4rem;
+  display: block;
+  filter: drop-shadow(0 0 10px rgba(0,201,167,0.3));
+}
+
+.wishlist-empty h2 {
+  font-size: 1.4rem;
+  color: var(--dark);
+  margin: 0;
+}
+
+.wishlist-empty p {
+  color: #5a8c85;
+  margin: 0;
+  max-width: 320px;
+}
+
+.wishlist-btn {
+  margin-top: 0.5rem;
+  display: inline-block;
+  background: var(--primary);
+  color: var(--dark);
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.65rem 1.75rem;
+  border-radius: 50px;
+  text-decoration: none;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 16px rgba(0,201,167,0.35);
+}
+
+.wishlist-btn:hover {
+  background: var(--primary-dark);
+  box-shadow: 0 6px 22px rgba(0,201,167,0.5);
+}
+
+.skeleton-card {
+  height: 340px;
+  background: linear-gradient(90deg, #d0f0ec 25%, #b8e8e2 50%, #d0f0ec 75%);
+  background-size: 200% 100%;
+  border-radius: 12px;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+@media (max-width: 1024px) {
+  .wishlist-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .wishlist-content { padding: 1rem; }
+  .wishlist-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+}

@@ -106,3 +106,12 @@ class PushSubscription(Document):
 
     class Settings:
         name = "push_subscriptions"
+
+
+class Wishlist(Document):
+    user_id: str
+    product_ids: List[str] = []
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+    class Settings:
+        name = "wishlists"
