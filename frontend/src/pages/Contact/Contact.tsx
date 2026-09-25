@@ -55,7 +55,7 @@ const Contact: React.FC = () => {
             </svg>
           </div>
           <h3>Instagram</h3>
-          <a href="https://www.instagram.com/exoticgillsandfins" target="_blank" rel="noreferrer" className="contact-card__value">@exoticgillsandfins</a>
+          <a href="https://www.instagram.com/extoticgillsandfins" target="_blank" rel="noreferrer" className="contact-card__value">@extoticgillsandfins</a>
         </div>
 
         {/* Facebook */}
