@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import type { Product } from '../../types';
 import { useCart } from '../../context/CartContext';
+import { useWishlist } from '../../context/WishlistContext';
 import './ProductCard.css';
 
 interface ProductCardProps {
@@ -10,6 +11,8 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addToCart } = useCart();
+  const { toggle, isWishlisted } = useWishlist();
+  const wishlisted = isWishlisted(product.id);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -20,7 +23,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const handleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    // wishlist — coming soon
+    toggle(product.id);
   };
 
   const imageSrc = product.image
@@ -40,8 +43,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         />
 
         {/* Wishlist heart */}
-        <button className="product-card__wishlist" onClick={handleWishlist} title="Add to wishlist">
-          ♡
+        <button
+          className={`product-card__wishlist${wishlisted ? ' wishlisted' : ''}`}
+          onClick={handleWishlist}
+          title={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+        >
+          {wishlisted ? '♥' : '♡'}
         </button>
 
         {/* Sold-out overlay */}

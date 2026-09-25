@@ -72,6 +72,11 @@
   box-shadow: 0 4px 16px rgba(239,68,68,0.25);
 }
 
+.product-card__wishlist.wishlisted {
+  color: #ef4444;
+  background: #fff0f0;
+}
+
 /* ── Sold-out overlay ───────────────────────────────────────── */
 .product-card__out-overlay {
   position: absolute;

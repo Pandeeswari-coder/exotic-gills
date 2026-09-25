@@ -11,6 +11,7 @@ import NavBar from './components/NavBar/NavBar';
 import Footer from './components/Footer/Footer';
 import ChatBot from './components/ChatBot/ChatBot';
 import { ChatProvider } from './context/ChatContext';
+import { WishlistProvider } from './context/WishlistContext';
 
 const Home        = lazy(() => import('./pages/Home/Home'));
 const Shop        = lazy(() => import('./pages/Shop/Shop'));
@@ -62,6 +63,7 @@ const App: React.FC = () => {
   );
 
   return (
+    <WishlistProvider>
     <ChatProvider sessionId={customerSessionId} customerName={user?.name}>
       <ScrollToTop />
       <div className={`page-wrapper${isAdminChat ? ' page-wrapper--admin' : isAdmin ? ' page-wrapper--admin-content' : ''}`}>
@@ -87,6 +89,7 @@ const App: React.FC = () => {
         {!isAdmin && <ChatBot />}
       </div>
     </ChatProvider>
+    </WishlistProvider>
   );
 };
 
