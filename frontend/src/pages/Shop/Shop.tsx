@@ -65,14 +65,26 @@ const Shop: React.FC = () => {
     if (selfNavRef.current) { selfNavRef.current = false; return; }
     const cat    = searchParams.get('category');
     const search = searchParams.get('search') || '';
-    setSelectedCategories(cat ? cat.split(',').filter(Boolean) : []);
+    const slugs = cat ? cat.split(',').filter(Boolean) : [];
+    setSelectedCategories(slugs);
     setSearchQuery(search);
+    // Auto-expand parent categories that have a selected subcategory
+    if (slugs.length > 0 && categories.length > 0) {
+      setExpandedCategories(prev => {
+        const next = new Set(prev);
+        for (const slug of slugs) {
+          const owner = categories.find(c => c.subcategories?.some(s => s.slug === slug));
+          if (owner) next.add(owner.slug);
+        }
+        return next;
+      });
+    }
     if (cat) {
       setTimeout(() => {
         document.getElementById('shop-main')?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
     }
-  }, [searchParams]);
+  }, [searchParams, categories]);
 
   useEffect(() => {
     const KNOWN_SLUGS = new Set([
@@ -139,7 +151,32 @@ const Shop: React.FC = () => {
 
   const handleCategoryToggle = (slug: string) => {
     setSelectedCategories(prev => {
-      const next = prev.includes(slug) ? prev.filter(s => s !== slug) : [...prev, slug];
+      let next: string[];
+      const parentCat = categories.find(c => c.slug === slug);
+      const isParent = !!parentCat;
+
+      if (prev.includes(slug)) {
+        next = prev.filter(s => s !== slug);
+      } else if (isParent) {
+        // Checking a parent: remove any of its selected children first
+        const childSlugs = new Set(parentCat!.subcategories?.map(s => s.slug) ?? []);
+        next = [...prev.filter(s => !childSlugs.has(s)), slug];
+      } else {
+        // Checking a subcategory: remove its parent if selected
+        const ownerCat = categories.find(c => c.subcategories?.some(s => s.slug === slug));
+        next = ownerCat
+          ? [...prev.filter(s => s !== ownerCat.slug), slug]
+          : [...prev, slug];
+        // Auto-expand the parent
+        if (ownerCat) {
+          setExpandedCategories(prev2 => {
+            const s = new Set(prev2);
+            s.add(ownerCat.slug);
+            return s;
+          });
+        }
+      }
+
       updateCategoryUrl(next);
       return next;
     });

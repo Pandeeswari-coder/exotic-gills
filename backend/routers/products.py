@@ -67,11 +67,9 @@ async def list_products(
         requested_slugs = [s.strip() for s in category.split(",") if s.strip()]
         # Expand each slug: if it's a parent, also collect its children
         all_slugs: set[str] = set()
-        all_parent_slugs: set[str] = set()
         for slug in requested_slugs:
             parent_cat = await Category.find_one({"slug": slug, "parent_id": None})
             if parent_cat:
-                all_parent_slugs.add(slug)
                 child_slugs = [
                     c.slug for c in await Category.find({"parent_id": str(parent_cat.id)}).to_list()
                 ]
@@ -79,12 +77,8 @@ async def list_products(
                 all_slugs.add(slug)
             else:
                 all_slugs.add(slug)
-        cat_conditions = [
-            {"category.slug": {"$in": list(all_slugs)}},
-        ]
-        if all_parent_slugs:
-            cat_conditions.append({"category.parent_slug": {"$in": list(all_parent_slugs)}})
-        query["$or"] = cat_conditions
+        if all_slugs:
+            query["category.slug"] = {"$in": list(all_slugs)}
     if search:
         search_cond = {"$or": [
             {"name": {"$regex": search, "$options": "i"}},
