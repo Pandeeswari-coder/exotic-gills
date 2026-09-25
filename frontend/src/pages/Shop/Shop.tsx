@@ -224,7 +224,10 @@ const Shop: React.FC = () => {
 
           <button
             className="shop-hero__cta"
-            onClick={() => document.getElementById('shop-main')?.scrollIntoView({ behavior: 'smooth' })}
+            onClick={() => {
+              handleClearFilters();
+              setTimeout(() => document.getElementById('shop-main')?.scrollIntoView({ behavior: 'smooth' }), 50);
+            }}
           >
             Explore All Products
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
