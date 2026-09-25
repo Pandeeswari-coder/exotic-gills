@@ -5,34 +5,9 @@ const Contact: React.FC = () => {
   return (
     <div className="contact-page">
 
-      {/* ── Ocean hero ── */}
       <div className="contact-hero">
-        {/* Floating fish */}
-        <span className="contact-hero__fish contact-hero__fish--1">🐠</span>
-        <span className="contact-hero__fish contact-hero__fish--2">🐟</span>
-        <span className="contact-hero__fish contact-hero__fish--3">🐡</span>
-        <span className="contact-hero__fish contact-hero__fish--4">🦈</span>
-        <span className="contact-hero__fish contact-hero__fish--5">🐠</span>
-
-        {/* Bubbles */}
-        <div className="contact-hero__bubbles" aria-hidden>
-          <span className="contact-bubble" />
-          <span className="contact-bubble" />
-          <span className="contact-bubble" />
-          <span className="contact-bubble" />
-          <span className="contact-bubble" />
-          <span className="contact-bubble" />
-        </div>
-
         <h1 className="contact-hero__title">Contact Us</h1>
         <p className="contact-hero__sub">We'd love to hear from you — reach out any way you like</p>
-
-        {/* Wave */}
-        <div className="contact-hero__wave" aria-hidden>
-          <svg viewBox="0 0 1440 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z" fill="#e8f8f5"/>
-          </svg>
-        </div>
       </div>
 
       {/* ── Cards ── */}

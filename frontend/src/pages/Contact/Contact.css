@@ -1,213 +1,157 @@
-/* ── Page wrapper ── */
+/* ── Page ── */
 .contact-page {
   min-height: 100vh;
-  background: linear-gradient(180deg, #031d2e 0%, #042a40 40%, #e8f8f5 40%);
-  overflow: hidden;
+  background: var(--light-bg);
 }
 
-/* ── Hero / ocean scene ── */
+/* ── Simple hero ── */
 .contact-hero {
-  position: relative;
-  padding: 3.5rem 2rem 7rem;
+  background: linear-gradient(135deg, #031d2e 0%, #0a2540 60%, #00c9a7 100%);
+  padding: 3rem 2rem 2.5rem;
   text-align: center;
-  overflow: hidden;
 }
 
 .contact-hero__title {
-  font-size: clamp(2.2rem, 5vw, 3.2rem);
+  font-size: clamp(2rem, 5vw, 3rem);
   font-weight: 900;
   color: #fff;
   margin: 0 0 0.5rem;
-  text-shadow: 0 2px 20px rgba(0,229,255,0.4);
-  position: relative;
-  z-index: 2;
 }
 
 .contact-hero__sub {
   color: rgba(255,255,255,0.65);
   font-size: 1rem;
   margin: 0;
-  position: relative;
-  z-index: 2;
 }
 
-/* Floating fish decorations */
-.contact-hero__fish {
-  position: absolute;
-  pointer-events: none;
-  z-index: 1;
-  animation: fishSwim 8s ease-in-out infinite;
-  font-size: 2.4rem;
-  filter: drop-shadow(0 0 8px rgba(0,229,255,0.5));
-}
-.contact-hero__fish--1 { top: 20%; left: 8%;  animation-delay: 0s;    font-size: 2rem; }
-.contact-hero__fish--2 { top: 55%; left: 15%; animation-delay: 1.5s;  font-size: 1.5rem; transform: scaleX(-1); }
-.contact-hero__fish--3 { top: 30%; right: 10%; animation-delay: 3s;   font-size: 2.5rem; transform: scaleX(-1); }
-.contact-hero__fish--4 { top: 65%; right: 18%; animation-delay: 2s;   font-size: 1.4rem; }
-.contact-hero__fish--5 { top: 10%; left: 45%; animation-delay: 0.8s;  font-size: 1.2rem; }
-
-@keyframes fishSwim {
-  0%,100% { transform: translateY(0)    scaleX(1); }
-  25%      { transform: translateY(-12px) scaleX(1); }
-  50%      { transform: translateY(6px)   scaleX(1); }
-  75%      { transform: translateY(-8px)  scaleX(1); }
-}
-.contact-hero__fish--2,
-.contact-hero__fish--3 {
-  animation-name: fishSwimFlip;
-}
-@keyframes fishSwimFlip {
-  0%,100% { transform: translateY(0)    scaleX(-1); }
-  25%      { transform: translateY(-12px) scaleX(-1); }
-  50%      { transform: translateY(6px)   scaleX(-1); }
-  75%      { transform: translateY(-8px)  scaleX(-1); }
-}
-
-/* Bubbles */
-.contact-hero__bubbles {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-}
-.contact-bubble {
-  position: absolute;
-  bottom: -20px;
-  border-radius: 50%;
-  background: rgba(0,229,255,0.12);
-  border: 1px solid rgba(0,229,255,0.25);
-  animation: bubbleRise linear infinite;
-}
-.contact-bubble:nth-child(1) { width:14px;height:14px;left:10%; animation-duration:6s;  animation-delay:0s; }
-.contact-bubble:nth-child(2) { width:22px;height:22px;left:25%; animation-duration:9s;  animation-delay:1s; }
-.contact-bubble:nth-child(3) { width:10px;height:10px;left:40%; animation-duration:7s;  animation-delay:2s; }
-.contact-bubble:nth-child(4) { width:18px;height:18px;left:60%; animation-duration:8s;  animation-delay:0.5s; }
-.contact-bubble:nth-child(5) { width:12px;height:12px;left:75%; animation-duration:5.5s;animation-delay:1.5s; }
-.contact-bubble:nth-child(6) { width:26px;height:26px;left:88%; animation-duration:10s; animation-delay:3s; }
-@keyframes bubbleRise {
-  0%   { transform: translateY(0)    scale(1);   opacity: 0.6; }
-  100% { transform: translateY(-420px) scale(1.3); opacity: 0; }
-}
-
-/* Wave divider */
-.contact-hero__wave {
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  right: 0;
-  line-height: 0;
-  z-index: 3;
-}
-.contact-hero__wave svg { width: 100%; display: block; }
-
-/* ── Cards grid ── */
+/* ── Grid ── */
 .contact-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
   max-width: 1050px;
-  margin: -2rem auto 4rem;
+  margin: 3rem auto 4rem;
   padding: 0 2rem;
-  position: relative;
-  z-index: 5;
 }
 
-/* ── Individual card ── */
+/* ── Card — ocean glass theme ── */
 .contact-card {
-  background: #fff;
+  position: relative;
   border-radius: 20px;
   padding: 2.25rem 1.75rem 2rem;
-  box-shadow: 0 8px 32px rgba(0,60,80,0.1);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   gap: 0.4rem;
-  transition: transform 0.25s, box-shadow 0.25s;
-  border-top: 4px solid transparent;
-  position: relative;
   overflow: hidden;
+  transition: transform 0.25s, box-shadow 0.25s;
+
+  /* Ocean gradient base */
+  background: linear-gradient(145deg, #042a40 0%, #063d5c 60%, #0a5070 100%);
+  box-shadow: 0 8px 32px rgba(0,60,90,0.28);
+  color: #fff;
 }
 
+/* Coral / reef decorative corner */
 .contact-card::before {
-  content: '';
+  content: '🪸';
   position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(0,201,167,0.04) 0%, transparent 60%);
+  bottom: -6px;
+  right: 4px;
+  font-size: 3.5rem;
+  opacity: 0.12;
   pointer-events: none;
+  line-height: 1;
+}
+
+/* Seaweed left corner */
+.contact-card::after {
+  content: '🌿';
+  position: absolute;
+  bottom: -4px;
+  left: 6px;
+  font-size: 3rem;
+  opacity: 0.1;
+  pointer-events: none;
+  line-height: 1;
 }
 
 .contact-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 16px 40px rgba(0,201,167,0.18);
+  box-shadow: 0 18px 44px rgba(0,201,167,0.3);
 }
 
-.contact-card--phone   { border-top-color: #00c9a7; }
-.contact-card--wa      { border-top-color: #25d366; }
-.contact-card--email   { border-top-color: #e05d80; }
-.contact-card--ig      { border-top-color: #e1306c; }
-.contact-card--fb      { border-top-color: #1877f2; }
-.contact-card--loc     { border-top-color: #4285f4; }
+/* Glowing teal shimmer on hover */
+.contact-card:hover::before { opacity: 0.22; }
 
-/* Icon circles */
+/* ── Icon circle ── */
 .contact-card__icon {
-  width: 68px;
-  height: 68px;
+  width: 66px;
+  height: 66px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 0.5rem;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  border: 2px solid rgba(255,255,255,0.15);
 }
 
-.contact-card__icon.phone    { background: linear-gradient(135deg,#e0faf5,#b2f0e4); color: #00b090; }
-.contact-card__icon.whatsapp { background: linear-gradient(135deg,#e7fce8,#b9f4be); color: #25d366; }
-.contact-card__icon.email    { background: linear-gradient(135deg,#fce4ec,#f8b5c8); color: #e05d80; }
-.contact-card__icon.instagram{ background: linear-gradient(135deg,#fce4ec,#f9c5d1); color: #e1306c; }
-.contact-card__icon.facebook { background: linear-gradient(135deg,#e8f0fe,#c5d5fb); color: #1877f2; }
-.contact-card__icon.location { background: linear-gradient(135deg,#e8f0fe,#c5d5fb); color: #4285f4; }
+.contact-card__icon.phone     { background: rgba(0,201,167,0.25); color: #00e5c0; }
+.contact-card__icon.whatsapp  { background: rgba(37,211,102,0.25); color: #4eff8f; }
+.contact-card__icon.email     { background: rgba(224,93,128,0.25); color: #ff8fab; }
+.contact-card__icon.instagram { background: rgba(225,48,108,0.25); color: #ff6b9d; }
+.contact-card__icon.facebook  { background: rgba(24,119,242,0.25); color: #72aaff; }
+.contact-card__icon.location  { background: rgba(66,133,244,0.25); color: #72aaff; }
 
+/* ── Text ── */
 .contact-card h3 {
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-weight: 800;
-  color: #0a2540;
+  color: #e0f7f4;
   margin: 0;
+  letter-spacing: 0.3px;
 }
 
 .contact-card__value {
-  color: #5a8c85;
-  font-size: 0.92rem;
+  color: rgba(255,255,255,0.7);
+  font-size: 0.9rem;
   text-decoration: none;
-  line-height: 1.6;
+  line-height: 1.65;
   word-break: break-all;
+  position: relative;
+  z-index: 1;
 }
 
-a.contact-card__value:hover { color: var(--primary); }
+a.contact-card__value:hover {
+  color: #00e5c0;
+}
 
+/* ── Divider line under heading ── */
+.contact-card h3::after {
+  content: '';
+  display: block;
+  width: 32px;
+  height: 2px;
+  background: rgba(0,229,197,0.45);
+  border-radius: 2px;
+  margin: 6px auto 0;
+}
+
+/* ── Map link ── */
 .contact-card__map-link {
   margin-top: 0.6rem;
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--primary);
+  color: #00e5c0;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  position: relative;
+  z-index: 1;
 }
 .contact-card__map-link:hover { text-decoration: underline; }
-
-/* Seaweed corner decorations */
-.contact-seaweed {
-  position: fixed;
-  bottom: 0;
-  pointer-events: none;
-  z-index: 0;
-  font-size: 3rem;
-  opacity: 0.18;
-}
-.contact-seaweed--l { left: 1rem; }
-.contact-seaweed--r { right: 1rem; transform: scaleX(-1); }
 
 /* ── Responsive ── */
 @media (max-width: 900px) {
@@ -216,5 +160,4 @@ a.contact-card__value:hover { color: var(--primary); }
 
 @media (max-width: 560px) {
   .contact-grid { grid-template-columns: 1fr; padding: 0 1rem; }
-  .contact-page { background: linear-gradient(180deg, #031d2e 0%, #042a40 30%, #e8f8f5 30%); }
 }

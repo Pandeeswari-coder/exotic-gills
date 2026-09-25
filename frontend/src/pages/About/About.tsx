@@ -7,7 +7,7 @@ const About: React.FC = () => {
     <div className="about-page">
       <div className="about-hero">
         <h1>About Exotic Gills and Fins</h1>
-        <p>Dedicated to the art of Discus fish keeping since 2014</p>
+        <p>Dedicated to the art of Chiclids fish keeping since 2023</p>
       </div>
 
       <div className="about-content">
@@ -15,13 +15,13 @@ const About: React.FC = () => {
           <div className="about-section__text">
             <h2>Our Story</h2>
             <p>
-              Exotic Gills and Fins was founded in 2014 by a passionate hobbyist who fell in love
-              with the majestic Discus fish — known as the &quot;King of the Aquarium.&quot;
+              Exotic Gills and Fins was founded in 2023 by a passionate hobbyist who fell in love
+              with the majestic Chiclids fish — known as the &quot;King of the Aquarium.&quot;
               What began as a personal hobby quickly grew into a full-scale breeding
               operation dedicated to producing championship-quality fish.
             </p>
             <p>
-              Over the past decade, we have developed proprietary water conditioning
+              Since 2023, we have developed proprietary water conditioning
               techniques and dietary regimens that produce fish with vibrant, true-to-type
               colors and robust health. Every fish we sell has been raised with care and
               individually observed before shipping.
@@ -29,13 +29,13 @@ const About: React.FC = () => {
           </div>
           <div className="about-section__visual">
             <div className="about-fish-icon">&#x1F41F;</div>
-            <p>10+ Years of Excellence</p>
+            <p>Founded in 2023</p>
           </div>
         </section>
 
         <div className="stats-row">
           <div className="stat-card">
-            <span className="stat-number">10+</span>
+            <span className="stat-number">2+</span>
             <span className="stat-label">Years in Business</span>
           </div>
           <div className="stat-card">
@@ -100,7 +100,7 @@ const About: React.FC = () => {
 
         <div className="about-cta">
           <h2>Ready to Add Some Beauty to Your Tank?</h2>
-          <p>Browse our collection of premium Discus and tropical fish.</p>
+          <p>Browse our collection of premium Chiclids and tropical fish.</p>
           <Link to="/shop" className="cta-btn">Shop Now</Link>
         </div>
       </div>

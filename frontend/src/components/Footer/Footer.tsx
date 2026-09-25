@@ -14,7 +14,7 @@ const Footer: React.FC = () => {
             <span className="footer__logo-text">Exotic Gills and Fins</span>
           </Link>
           <p className="footer__tagline">
-            Bringing the world's finest Discus fish directly to hobbyists since 2014.
+            Bringing the world's finest Chiclids fish directly to hobbyists since 2023.
           </p>
         </div>
 
@@ -22,7 +22,7 @@ const Footer: React.FC = () => {
           <h4>Shop</h4>
           <ul>
             <li><Link to="/shop">All Fish</Link></li>
-            <li><Link to="/shop?category=discus">Discus</Link></li>
+            <li><Link to="/shop?category=chiclids">Chiclids</Link></li>
             <li><Link to="/shop?category=tropical">Tropical</Link></li>
             <li><Link to="/shop?available=true">In Stock</Link></li>
           </ul>

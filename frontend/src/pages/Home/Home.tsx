@@ -174,14 +174,14 @@ const Home: React.FC = () => {
         <div className="hero__body">
           <div className="hero__content">
             <p className="hero__eyebrow">Premium Quality Fish</p>
-            <h1 className="hero__title">Premium<br/>Discus Fish</h1>
-            <p className="hero__subtitle">Servicing the Hobby for Over 10 Years</p>
+            <h1 className="hero__title">Premium<br/>Chiclids Fish</h1>
+            <p className="hero__subtitle">Servicing the Hobby Since 2023</p>
             <Link to="/shop" className="hero__cta">
               SHOP NOW
             </Link>
           </div>
 
-          {/* Discus fish — floats and follows mouse */}
+          {/* Chiclids fish — floats and follows mouse */}
           <div
             className="hero__visual-parallax"
             style={{
@@ -298,13 +298,13 @@ const Home: React.FC = () => {
               <p>Insulated boxes with heat packs</p>
             </div>
           </div>
-          <div className="feature-item">
+          {/* <div className="feature-item">
             <span className="feature-icon">&#x1F3C6;</span>
             <div>
               <strong>Award-Winning Stock</strong>
-              <p>Championship-level discus fish</p>
+              <p>Championship-level Chiclids fish</p>
             </div>
-          </div>
+          </div> */}
           <div className="feature-item">
             <span className="feature-icon">&#x1F4DE;</span>
             <div>
@@ -319,7 +319,7 @@ const Home: React.FC = () => {
       <section className="featured-section">
         <div className="featured-section__inner">
           <div className="section-header">
-            <h2>Featured Fish</h2>
+            <h2>Featured Products</h2>
             <p>Hand-selected premium specimens from our collection</p>
           </div>
 
@@ -353,8 +353,8 @@ const Home: React.FC = () => {
           <div className="about-teaser__text">
             <h2>Why Choose Exotic Gills and Fins?</h2>
             <p>
-              For over a decade, we have dedicated ourselves to breeding and raising the
-              finest Discus fish available. Our fish are bred in pristine water conditions,
+              Since 2023, we have dedicated ourselves to breeding and raising the
+              finest Chiclids fish available. Our fish are bred in pristine water conditions,
               fed a varied diet, and carefully monitored for health before shipping.
             </p>
             <p>
@@ -366,7 +366,7 @@ const Home: React.FC = () => {
           <div className="about-teaser__image">
             <div className="image-placeholder">
               <span>&#x1F41F;</span>
-              <p>Premium Discus Collection</p>
+              <p>Premium Chiclids Collection</p>
             </div>
           </div>
         </div>

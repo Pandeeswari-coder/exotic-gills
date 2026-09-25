@@ -113,8 +113,9 @@ const Checkout: React.FC = () => {
 
       const rzp = new window.Razorpay(options);
       rzp.open();
-    } catch (err) {
-      setError('Failed to create order. Please try again.');
+    } catch (err: unknown) {
+      const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
+      setError(detail || 'Failed to create order. Please try again.');
       setProcessing(false);
     }
   };
