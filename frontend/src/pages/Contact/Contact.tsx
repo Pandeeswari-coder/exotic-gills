@@ -21,7 +21,7 @@ const Contact: React.FC = () => {
             </svg>
           </div>
           <h3>Phone</h3>
-          <a href="tel:+917358144900" className="contact-card__value">+91 7358144900</a>
+          <a href="tel:+918668177360" className="contact-card__value">+91 8668177360</a>
         </div>
 
         {/* WhatsApp */}
@@ -32,7 +32,7 @@ const Contact: React.FC = () => {
             </svg>
           </div>
           <h3>WhatsApp</h3>
-          <a href="https://wa.me/917358144900" target="_blank" rel="noreferrer" className="contact-card__value">+91 7358144900</a>
+          <a href="https://wa.me/918668177360" target="_blank" rel="noreferrer" className="contact-card__value">+91 8668177360</a>
         </div>
 
         {/* Email */}
