@@ -289,6 +289,7 @@
 @media (max-width: 768px) {
   .navbar-top {
     padding: 0.75rem 1rem;
+    gap: 0.75rem;
   }
 
   .navbar-hamburger {
@@ -315,5 +316,33 @@
 
   .navbar-search {
     max-width: none;
+  }
+}
+
+/* Small phones: hide logo text so icons + search all fit in one row */
+@media (max-width: 540px) {
+  .logo-text {
+    display: none;
+  }
+
+  .navbar-top {
+    gap: 0.5rem;
+  }
+
+  .navbar-admin-btn {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+/* Very small phones: also compress search */
+@media (max-width: 400px) {
+  .navbar-search input {
+    min-width: 0;
+    width: 1px; /* let flex do the sizing */
+  }
+
+  .navbar-actions {
+    gap: 0.25rem;
   }
 }

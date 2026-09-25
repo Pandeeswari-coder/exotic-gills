@@ -262,6 +262,8 @@
   letter-spacing: 0.3px;
   padding: 0.6rem 1.5rem;
   border-radius: 50px;
+  border: none;
+  cursor: pointer;
   text-decoration: none;
   box-shadow: 0 6px 24px rgba(0, 201, 167, 0.45), 0 0 0 0 rgba(0, 201, 167, 0);
   transition: transform 0.2s, box-shadow 0.2s;
@@ -330,14 +332,15 @@
 }
 
 .shop-layout {
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  grid-template-rows: auto 1fr;
+  display: flex;
+  align-items: flex-start;
   gap: 1.5rem;
   max-width: 1400px;
   margin: 0 auto;
   padding: 1.25rem 2rem 2rem;
   scroll-margin-top: 100px;
+  /* Ensure enough height so sidebar sticky always has runway */
+  min-height: calc(100vh - 180px);
 }
 
 /* Mobile filter toggle */
@@ -354,17 +357,19 @@
   font-weight: 600;
   cursor: pointer;
   width: fit-content;
-  grid-column: 1 / -1;
 }
 
-/* Sidebar — sticky with its own scroll when filters overflow */
+/* Sidebar — sticky, scrolls its own content only if filters overflow viewport */
 .shop-sidebar {
+  width: 260px;
+  flex-shrink: 0;
   background: #fff;
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 2px 12px rgba(0, 201, 167, 0.08);
   position: sticky;
   top: 80px;
+  height: fit-content;
   max-height: calc(100vh - 100px);
   overflow-y: auto;
   border: 1px solid rgba(0, 201, 167, 0.1);
@@ -477,7 +482,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: #5a8c85;
+  color: #031d2e;
   font-size: 0.75rem;
   padding: 0.2rem 0.3rem;
   line-height: 1;
@@ -594,8 +599,9 @@
   transform: translateX(18px);
 }
 
-/* Main content */
+/* Main content — normal page flow, no internal scroll */
 .shop-main {
+  flex: 1;
   min-width: 0;
 }
 
@@ -702,17 +708,23 @@
 
 @media (max-width: 768px) {
   .shop-layout {
-    grid-template-columns: 1fr;
+    flex-direction: column;
     padding: 1rem;
+    min-height: 0;
   }
 
   .filter-toggle {
     display: flex;
+    width: 100%;
+    justify-content: center;
   }
 
   .shop-sidebar {
     display: none;
     position: static;
+    width: 100%;
+    max-height: none;
+    height: auto;
   }
 
   .shop-sidebar.open {

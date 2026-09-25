@@ -46,11 +46,22 @@ async def list_products(
     category: Optional[str] = Query(default=None),
     search: Optional[str] = Query(default=None),
     available: Optional[bool] = Query(default=None),
+    min_price: Optional[float] = Query(default=None),
+    max_price: Optional[float] = Query(default=None),
 ):
     query: dict = {}
 
     if available is not None:
         query["is_available"] = available
+
+    # Price range filter
+    if min_price is not None or max_price is not None:
+        price_cond: dict = {}
+        if min_price is not None:
+            price_cond["$gte"] = min_price
+        if max_price is not None:
+            price_cond["$lte"] = max_price
+        query["price"] = price_cond
     if category:
         # category may be comma-separated (e.g. "fish,plants,rocks")
         requested_slugs = [s.strip() for s in category.split(",") if s.strip()]
