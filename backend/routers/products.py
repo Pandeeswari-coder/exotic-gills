@@ -65,7 +65,7 @@ async def list_products(
     if category:
         # category may be comma-separated (e.g. "fish,plants,rocks")
         requested_slugs = [s.strip() for s in category.split(",") if s.strip()]
-        # Expand each slug: if it's a parent, also collect its children
+        requested_set = set(requested_slugs)
         all_slugs: set[str] = set()
         for slug in requested_slugs:
             parent_cat = await Category.find_one({"slug": slug, "parent_id": None})
@@ -73,8 +73,12 @@ async def list_products(
                 child_slugs = [
                     c.slug for c in await Category.find({"parent_id": str(parent_cat.id)}).to_list()
                 ]
-                all_slugs.update(child_slugs)
-                all_slugs.add(slug)
+                # If user also selected specific children, skip parent expansion
+                # so only the chosen children filter applies (not all children)
+                has_specific_child = any(s in requested_set for s in child_slugs)
+                if not has_specific_child:
+                    all_slugs.update(child_slugs)
+                    all_slugs.add(slug)
             else:
                 all_slugs.add(slug)
         if all_slugs:
