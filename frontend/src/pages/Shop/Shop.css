@@ -357,16 +357,34 @@
   grid-column: 1 / -1;
 }
 
-/* Sidebar */
+/* Sidebar — sticky with its own scroll when filters overflow */
 .shop-sidebar {
   background: #fff;
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 2px 12px rgba(0, 201, 167, 0.08);
-  height: fit-content;
   position: sticky;
   top: 80px;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
   border: 1px solid rgba(0, 201, 167, 0.1);
+  /* Thin custom scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 201, 167, 0.4) transparent;
+}
+
+.shop-sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+.shop-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.shop-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(0, 201, 167, 0.4);
+  border-radius: 4px;
+}
+.shop-sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 201, 167, 0.7);
 }
 
 .sidebar-header {
