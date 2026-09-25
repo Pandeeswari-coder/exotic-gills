@@ -58,7 +58,7 @@ const Shop: React.FC = () => {
     return cat ? cat.split(',').filter(Boolean) : [];
   });
   const [priceRange, setPriceRange]           = useState<[number, number]>([0, 10000]);
-  const [availableOnly, setAvailableOnly]     = useState(false);
+  const [availableOnly, setAvailableOnly]     = useState(() => searchParams.get('available') === 'true');
 
   // Sync URL params → state when URL changes externally (hero cards, back/forward)
   useEffect(() => {
@@ -68,6 +68,7 @@ const Shop: React.FC = () => {
     const slugs = cat ? cat.split(',').filter(Boolean) : [];
     setSelectedCategories(slugs);
     setSearchQuery(search);
+    setAvailableOnly(searchParams.get('available') === 'true');
     // Auto-expand parent categories that have a selected subcategory
     if (slugs.length > 0 && categories.length > 0) {
       setExpandedCategories(prev => {
@@ -79,7 +80,7 @@ const Shop: React.FC = () => {
         return next;
       });
     }
-    if (cat) {
+    if (cat || searchParams.get('available') === 'true' || searchParams.get('search')) {
       setTimeout(() => {
         document.getElementById('shop-main')?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
@@ -402,7 +403,15 @@ const Shop: React.FC = () => {
               <input
                 type="checkbox"
                 checked={availableOnly}
-                onChange={(e) => setAvailableOnly(e.target.checked)}
+                onChange={(e) => {
+                  const val = e.target.checked;
+                  setAvailableOnly(val);
+                  selfNavRef.current = true;
+                  const p = new URLSearchParams(searchParams);
+                  if (val) p.set('available', 'true');
+                  else p.delete('available');
+                  setSearchParams(p, { replace: true });
+                }}
               />
               <span className="toggle-track">
                 <span className="toggle-thumb" />

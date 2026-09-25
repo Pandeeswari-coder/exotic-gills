@@ -53,6 +53,8 @@ async def list_products(
 
     if available is not None:
         query["is_available"] = available
+        if available:
+            query["stock"] = {"$gt": 0}
 
     # Price range filter
     if min_price is not None or max_price is not None:
