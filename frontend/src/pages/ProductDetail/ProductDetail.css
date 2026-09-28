@@ -326,6 +326,71 @@
   font-weight: 600;
 }
 
+/* ── Admin inline edit ── */
+.btn-change-image {
+  display: block;
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 0.55rem 1rem;
+  background: #f1f5f9;
+  border: 1.5px dashed #94a3b8;
+  border-radius: 8px;
+  color: #475569;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-change-image:hover { background: #e2e8f0; }
+
+.admin-edit-form { display: flex; flex-direction: column; gap: 0.25rem; }
+
+.admin-edit-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  margin-top: 0.75rem;
+  margin-bottom: 0;
+}
+
+.admin-edit-input {
+  width: 100%;
+  padding: 0.6rem 0.85rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #1e293b;
+  background: #f8fafc;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+.admin-edit-input:focus {
+  outline: none;
+  border-color: #14b8a6;
+  background: #fff;
+}
+
+.admin-edit-textarea { resize: vertical; min-height: 90px; }
+
+.admin-edit-avail {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  font-size: 0.95rem;
+  color: #334155;
+  cursor: pointer;
+}
+.admin-edit-avail input[type="checkbox"] {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: #14b8a6;
+  cursor: pointer;
+}
+
+.error-notice { background: #fef2f2; color: #dc2626; border-color: #dc2626; }
+
 @media (max-width: 768px) {
   .product-detail {
     grid-template-columns: 1fr;
