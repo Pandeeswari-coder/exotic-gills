@@ -48,15 +48,8 @@ const UnderwaterCanvas: React.FC = () => {
       const w = canvas.width;
       const h = canvas.height;
 
-      /* ── background gradient ── */
-      const bg = ctx.createLinearGradient(0, 0, 0, h);
-      bg.addColorStop(0,    '#000c18');
-      bg.addColorStop(0.20, '#001830');
-      bg.addColorStop(0.45, '#002d5a');
-      bg.addColorStop(0.70, '#003870');
-      bg.addColorStop(1,    '#001020');
-      ctx.fillStyle = bg;
-      ctx.fillRect(0, 0, w, h);
+      /* ── clear canvas (photo behind shows through) ── */
+      ctx.clearRect(0, 0, w, h);
 
       /* ── god-ray shafts from top ── */
       const rayCount = 7;
