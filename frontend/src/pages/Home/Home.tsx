@@ -80,6 +80,18 @@ const Home: React.FC = () => {
     <div className="home">
       {/* Hero Section */}
       <section className="hero" onMouseMove={handleMouseMove} onMouseLeave={() => setMouse({ x: 0, y: 0 })}>
+        {/* Looping underwater video background */}
+        <video
+          className="hero__video"
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster="https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1600&q=80"
+        >
+          <source src="https://videos.pexels.com/video-files/1456220/1456220-hd_1920_1080_25fps.mp4" type="video/mp4"/>
+        </video>
+
         {/* God rays — shift slightly with mouse */}
         <div
           className="hero__rays"
