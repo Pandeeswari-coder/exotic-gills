@@ -145,7 +145,7 @@ const Home: React.FC = () => {
         <div className="hero__fish-scene" aria-hidden>
           <span className="hero-fish hero-fish--1">
             <svg viewBox="0 0 100 58" width="90" height="52" xmlns="http://www.w3.org/2000/svg">
-              <g opacity="0.80">
+              <g opacity="0.95">
                 <polygon points="16,29 1,6 1,52" fill="#E8500A"/>
                 <ellipse cx="58" cy="29" rx="40" ry="22" fill="#F4641E"/>
                 <path d="M30,8 Q50,-3 73,8" fill="#D94010"/>
@@ -160,7 +160,7 @@ const Home: React.FC = () => {
           </span>
           <span className="hero-fish hero-fish--2">
             <svg viewBox="0 0 75 35" width="68" height="32" xmlns="http://www.w3.org/2000/svg">
-              <g opacity="0.75">
+              <g opacity="0.92">
                 <polygon points="10,17 0,5 0,29" fill="#1565C0"/>
                 <ellipse cx="42" cy="17" rx="32" ry="12" fill="#1565C0"/>
                 <ellipse cx="42" cy="22" rx="24" ry="8" fill="#E53935" opacity="0.75"/>
@@ -173,7 +173,7 @@ const Home: React.FC = () => {
           </span>
           <span className="hero-fish hero-fish--3">
             <svg viewBox="0 0 100 58" width="75" height="44" xmlns="http://www.w3.org/2000/svg">
-              <g opacity="0.72">
+              <g opacity="0.90">
                 <polygon points="16,29 1,6 1,52" fill="#E8500A"/>
                 <ellipse cx="58" cy="29" rx="40" ry="22" fill="#F4641E"/>
                 <path d="M30,8 Q50,-3 73,8" fill="#D94010"/>
@@ -189,7 +189,7 @@ const Home: React.FC = () => {
           {/* Arowana-style elongated fish */}
           <span className="hero-fish hero-fish--4">
             <svg viewBox="0 0 130 38" width="90" height="26" xmlns="http://www.w3.org/2000/svg">
-              <g opacity="0.48">
+              <g opacity="0.85">
                 <polygon points="14,19 0,6 0,32" fill="#4CAF50"/>
                 <ellipse cx="72" cy="19" rx="58" ry="13" fill="#388E3C"/>
                 <path d="M20,10 Q72,2 124,10" stroke="#A5D6A7" strokeWidth="2.5" fill="none" opacity="0.8"/>
@@ -203,7 +203,7 @@ const Home: React.FC = () => {
           {/* Small bright tropical fish */}
           <span className="hero-fish hero-fish--5">
             <svg viewBox="0 0 68 42" width="48" height="30" xmlns="http://www.w3.org/2000/svg">
-              <g opacity="0.52">
+              <g opacity="0.88">
                 <polygon points="12,21 0,7 0,35" fill="#FF6F00"/>
                 <ellipse cx="38" cy="21" rx="28" ry="16" fill="#FF8F00"/>
                 <rect x="22" y="7" width="5" height="28" rx="2" fill="white" opacity="0.9"/>
@@ -218,6 +218,7 @@ const Home: React.FC = () => {
         </div>
 
         <div className="hero__overlay" />
+        <div className="hero__haze" aria-hidden />
 
         {/* Two-column body: text left, large fish right */}
         <div className="hero__body">
