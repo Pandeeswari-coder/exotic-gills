@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import type { Product } from '../../types';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
+import { useAuth } from '../../context/AuthContext';
 import './ProductCard.css';
 
 interface ProductCardProps {
@@ -12,6 +13,8 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addToCart } = useCart();
   const { toggle, isWishlisted } = useWishlist();
+  const { user } = useAuth();
+  const isAdmin = user?.is_admin;
   const wishlisted = isWishlisted(product.id);
 
   const handleAddToCart = (e: React.MouseEvent) => {
@@ -42,14 +45,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder-fish.svg'; }}
         />
 
-        {/* Wishlist heart */}
-        <button
-          className={`product-card__wishlist${wishlisted ? ' wishlisted' : ''}`}
-          onClick={handleWishlist}
-          title={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
-        >
-          {wishlisted ? '♥' : '♡'}
-        </button>
+        {/* Wishlist heart — hidden for admin */}
+        {!isAdmin && (
+          <button
+            className={`product-card__wishlist${wishlisted ? ' wishlisted' : ''}`}
+            onClick={handleWishlist}
+            title={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+          >
+            {wishlisted ? '♥' : '♡'}
+          </button>
+        )}
 
         {/* Sold-out overlay */}
         {!product.available && (
@@ -66,13 +71,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <h3 className="product-card__name">{product.name}</h3>
         <p className="product-card__price">₹{Number(product.price).toFixed(2)}</p>
 
-        <button
-          className={`product-card__btn ${!product.available ? 'disabled' : ''}`}
-          onClick={handleAddToCart}
-          disabled={!product.available}
-        >
-          {product.available ? 'Add to Cart' : 'Out of Stock'}
-        </button>
+        {!isAdmin && (
+          <button
+            className={`product-card__btn ${!product.available ? 'disabled' : ''}`}
+            onClick={handleAddToCart}
+            disabled={!product.available}
+          >
+            {product.available ? 'Add to Cart' : 'Out of Stock'}
+          </button>
+        )}
       </div>
     </Link>
   );
