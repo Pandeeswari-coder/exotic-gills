@@ -3,12 +3,15 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import type { Product } from '../../types';
 import { getProduct } from '../../services/api';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
 import './ProductDetail.css';
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { user } = useAuth();
+  const isAdmin = user?.is_admin;
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -36,6 +39,15 @@ const ProductDetail: React.FC = () => {
     if (!product) return;
     addToCart(product, quantity);
     navigate('/cart');
+  };
+
+  const getItemLabel = (): string => {
+    if (!product) return 'item';
+    const text = `${product.category?.name ?? ''} ${product.category?.slug ?? ''}`.toLowerCase();
+    if (/plant|anubias|moss|fern|java|stem|float|hygro|crypto|buce|lily|val|wisteria|hornwort|rotala|ludwigia|cabomba|sword/.test(text)) return 'plant';
+    if (/rock|stone|driftwood|decor|wood|substrate|gravel|sand|ornament/.test(text)) return 'decoration';
+    if (/filter|pump|heater|light|equip|accessory|accessories|co2|medicine|food|supply/.test(text)) return 'item';
+    return 'fish';
   };
 
   const imageSrc = product?.image
@@ -111,52 +123,62 @@ const ProductDetail: React.FC = () => {
             <p>{product.description}</p>
           </div>
 
-          {product.available && (
+          {isAdmin ? (
+            <div className="detail-actions">
+              <Link to="/admin/products" className="btn-add-cart" style={{ textAlign: 'center', textDecoration: 'none' }}>
+                Edit in Admin Panel
+              </Link>
+            </div>
+          ) : (
             <>
-              <div className="qty-selector">
-                <label>Quantity</label>
-                <div className="qty-controls">
-                  <button
-                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                    disabled={quantity <= 1}
-                  >
-                    -
-                  </button>
-                  <span>{quantity}</span>
-                  <button
-                    onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
-                    disabled={quantity >= product.stock}
-                  >
-                    +
-                  </button>
-                </div>
-                <p className="stock-note">{product.stock} available</p>
-              </div>
+              {product.available && (
+                <>
+                  <div className="qty-selector">
+                    <label>Quantity</label>
+                    <div className="qty-controls">
+                      <button
+                        onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                        disabled={quantity <= 1}
+                      >
+                        -
+                      </button>
+                      <span>{quantity}</span>
+                      <button
+                        onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
+                        disabled={quantity >= product.stock}
+                      >
+                        +
+                      </button>
+                    </div>
+                    <p className="stock-note">{product.stock} available</p>
+                  </div>
 
-              <div className="detail-actions">
-                <button className="btn-add-cart" onClick={handleAddToCart}>
-                  Add to Cart
-                </button>
-                <button className="btn-buy-now" onClick={handleBuyNow}>
-                  Buy Now
-                </button>
-              </div>
+                  <div className="detail-actions">
+                    <button className="btn-add-cart" onClick={handleAddToCart}>
+                      Add to Cart
+                    </button>
+                    <button className="btn-buy-now" onClick={handleBuyNow}>
+                      Buy Now
+                    </button>
+                  </div>
 
-              {addedMsg && (
-                <div className="added-notice">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                  {addedMsg}
+                  {addedMsg && (
+                    <div className="added-notice">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      {addedMsg}
+                    </div>
+                  )}
+                </>
+              )}
+
+              {!product.available && (
+                <div className="out-of-stock-msg">
+                  This {getItemLabel()} is currently not available. Please check back later.
                 </div>
               )}
             </>
-          )}
-
-          {!product.available && (
-            <div className="out-of-stock-msg">
-              This fish is currently not available. Please check back later.
-            </div>
           )}
         </div>
       </div>
