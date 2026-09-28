@@ -6,16 +6,29 @@ import ProductCard from '../../components/ProductCard/ProductCard';
 import './Home.css';
 
 const SEAWEED = [
-  { left: '3%',   h: 150, dur: '3.4s', delay: '0s',   from: '-8deg',  to: '7deg',  color: '#1a7a3c', w: 22 },
-  { left: '7%',   h: 100, dur: '2.8s', delay: '0.6s', from: '-11deg', to: '5deg',  color: '#25964a', w: 16 },
-  { left: '11%',  h: 175, dur: '4.1s', delay: '1.1s', from: '-7deg',  to: '10deg', color: '#14622e', w: 20 },
-  { left: '15%',  h: 115, dur: '3.0s', delay: '0.3s', from: '-9deg',  to: '6deg',  color: '#1e7a40', w: 18 },
-  { left: '20%',  h: 85,  dur: '2.6s', delay: '1.6s', from: '-12deg', to: '8deg',  color: '#2a8a4e', w: 14 },
-  { left: '72%',  h: 130, dur: '3.8s', delay: '0.8s', from: '-6deg',  to: '10deg', color: '#1a7a3c', w: 20 },
-  { left: '77%',  h: 165, dur: '3.1s', delay: '0s',   from: '-9deg',  to: '7deg',  color: '#25964a', w: 22 },
-  { left: '82%',  h: 95,  dur: '4.3s', delay: '1.3s', from: '-8deg',  to: '9deg',  color: '#14622e', w: 16 },
-  { left: '87%',  h: 145, dur: '3.5s', delay: '0.4s', from: '-5deg',  to: '11deg', color: '#1e7a40', w: 20 },
-  { left: '92%',  h: 80,  dur: '2.7s', delay: '1.9s', from: '-10deg', to: '7deg',  color: '#2a8a4e', w: 14 },
+  { left: '3%',   h: 160, dur: '3.4s', delay: '0s',   from: '-8deg',  to: '7deg',  color: '#1a7a3c', w: 24 },
+  { left: '7%',   h: 110, dur: '2.8s', delay: '0.6s', from: '-11deg', to: '5deg',  color: '#25964a', w: 17 },
+  { left: '11%',  h: 185, dur: '4.1s', delay: '1.1s', from: '-7deg',  to: '10deg', color: '#14622e', w: 22 },
+  { left: '15%',  h: 125, dur: '3.0s', delay: '0.3s', from: '-9deg',  to: '6deg',  color: '#1e7a40', w: 19 },
+  { left: '19%',  h: 90,  dur: '2.6s', delay: '1.6s', from: '-12deg', to: '8deg',  color: '#2a8a4e', w: 15 },
+  { left: '24%',  h: 140, dur: '3.7s', delay: '0.9s', from: '-6deg',  to: '9deg',  color: '#1a7a3c', w: 20 },
+  { left: '70%',  h: 130, dur: '3.8s', delay: '0.8s', from: '-6deg',  to: '10deg', color: '#1a7a3c', w: 21 },
+  { left: '75%',  h: 170, dur: '3.1s', delay: '0s',   from: '-9deg',  to: '7deg',  color: '#25964a', w: 23 },
+  { left: '80%',  h: 100, dur: '4.3s', delay: '1.3s', from: '-8deg',  to: '9deg',  color: '#14622e', w: 17 },
+  { left: '85%',  h: 155, dur: '3.5s', delay: '0.4s', from: '-5deg',  to: '11deg', color: '#1e7a40', w: 21 },
+  { left: '90%',  h: 85,  dur: '2.7s', delay: '1.9s', from: '-10deg', to: '7deg',  color: '#2a8a4e', w: 15 },
+  { left: '95%',  h: 120, dur: '3.2s', delay: '0.7s', from: '-7deg',  to: '8deg',  color: '#1a7a3c', w: 18 },
+];
+
+const SCHOOL = [
+  { dx: '0px',   dy: '0px',   delay: '0s',    size: 22 },
+  { dx: '-28px', dy: '-14px', delay: '0.15s', size: 18 },
+  { dx: '-50px', dy: '10px',  delay: '0.3s',  size: 16 },
+  { dx: '-72px', dy: '-6px',  delay: '0.45s', size: 20 },
+  { dx: '-96px', dy: '18px',  delay: '0.6s',  size: 15 },
+  { dx: '-118px',dy: '-20px', delay: '0.75s', size: 17 },
+  { dx: '-40px', dy: '30px',  delay: '0.2s',  size: 14 },
+  { dx: '-80px', dy: '28px',  delay: '0.5s',  size: 16 },
 ];
 
 const BUBBLES = [
@@ -89,6 +102,30 @@ const Home: React.FC = () => {
                 '--drift': b.drift,
               } as React.CSSProperties}
             />
+          ))}
+        </div>
+
+        {/* Water surface ripple at the top */}
+        <div className="hero__surface" aria-hidden>
+          <svg viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path className="surface-wave surface-wave--1" d="M0,30 C240,55 480,5 720,30 C960,55 1200,5 1440,30 L1440,0 L0,0 Z" fill="rgba(0,180,255,0.07)"/>
+            <path className="surface-wave surface-wave--2" d="M0,20 C200,45 440,0 720,25 C960,48 1240,8 1440,20 L1440,0 L0,0 Z" fill="rgba(0,210,255,0.05)"/>
+          </svg>
+        </div>
+
+        {/* School of small fish */}
+        <div className="hero__school" aria-hidden>
+          {SCHOOL.map((f, i) => (
+            <span key={i} className="school-fish" style={{ '--sdx': f.dx, '--sdy': f.dy, '--sdelay': f.delay } as React.CSSProperties}>
+              <svg viewBox="0 0 40 22" width={f.size} height={Math.round(f.size * 0.55)} xmlns="http://www.w3.org/2000/svg">
+                <polygon points="6,11 0,3 0,19" fill="#00BCD4"/>
+                <ellipse cx="24" cy="11" rx="17" ry="9" fill="#00E5FF"/>
+                <ellipse cx="18" cy="11" rx="4" ry="8" fill="rgba(255,255,255,0.3)"/>
+                <circle cx="37" cy="8" r="3.5" fill="white"/>
+                <circle cx="37" cy="8" r="2" fill="#012a38"/>
+                <circle cx="37.8" cy="7.2" r="0.8" fill="white"/>
+              </svg>
+            </span>
           ))}
         </div>
 
@@ -176,9 +213,13 @@ const Home: React.FC = () => {
             <p className="hero__eyebrow">Premium Quality Fish</p>
             <h1 className="hero__title">Premium<br/>Chiclids Fish</h1>
             <p className="hero__subtitle">Servicing the Hobby Since 2023</p>
-            <Link to="/shop" className="hero__cta">
-              SHOP NOW
-            </Link>
+            <span className="hero__cta-wrap">
+              <Link to="/shop" className="hero__cta">
+                SHOP NOW
+              </Link>
+              <span className="hero__cta-ring" aria-hidden />
+              <span className="hero__cta-ring hero__cta-ring--2" aria-hidden />
+            </span>
           </div>
 
           {/* Chiclids fish — floats and follows mouse */}

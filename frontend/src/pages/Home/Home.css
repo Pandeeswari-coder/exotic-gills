@@ -516,26 +516,113 @@
   will-change: transform;
 }
 
+/* Wavy swimming — right direction */
 @keyframes hero-swim-r {
-  0%   { transform: translateX(-160px) scaleX(1);  opacity: 0; }
-  8%   { opacity: 0.8; }
-  92%  { opacity: 0.8; }
-  100% { transform: translateX(calc(100vw + 160px)) scaleX(1); opacity: 0; }
+  0%   { transform: translateX(-160px) translateY(0px)   scaleX(1); opacity: 0; }
+  8%   { opacity: 0.85; }
+  25%  { transform: translateX(25vw)   translateY(-22px)  scaleX(1); }
+  50%  { transform: translateX(50vw)   translateY(18px)   scaleX(1); }
+  75%  { transform: translateX(75vw)   translateY(-16px)  scaleX(1); }
+  92%  { opacity: 0.85; }
+  100% { transform: translateX(calc(100vw + 160px)) translateY(0px) scaleX(1); opacity: 0; }
 }
 
+/* Wavy swimming — left direction */
 @keyframes hero-swim-l {
-  0%   { transform: translateX(calc(100vw + 160px)) scaleX(-1); opacity: 0; }
-  8%   { opacity: 0.8; }
-  92%  { opacity: 0.8; }
-  100% { transform: translateX(-160px) scaleX(-1); opacity: 0; }
+  0%   { transform: translateX(calc(100vw + 160px)) translateY(0px)   scaleX(-1); opacity: 0; }
+  8%   { opacity: 0.85; }
+  25%  { transform: translateX(75vw)   translateY(20px)   scaleX(-1); }
+  50%  { transform: translateX(50vw)   translateY(-18px)  scaleX(-1); }
+  75%  { transform: translateX(25vw)   translateY(14px)   scaleX(-1); }
+  92%  { opacity: 0.85; }
+  100% { transform: translateX(-160px) translateY(0px) scaleX(-1); opacity: 0; }
 }
 
-.hero-fish--1 { top: 14%; animation: hero-swim-r 16s linear infinite; animation-delay: 0s;   }
-.hero-fish--2 { top: 40%; animation: hero-swim-l 20s linear infinite; animation-delay: 4s;   }
-.hero-fish--3 { top: 70%; animation: hero-swim-r 14s linear infinite; animation-delay: 8s;   }
-.hero-fish--4 { top: 24%; animation: hero-swim-l 18s linear infinite; animation-delay: 2s;   }
-.hero-fish--5 { top: 56%; animation: hero-swim-r 22s linear infinite; animation-delay: 11s;  }
+.hero-fish--1 { top: 12%; animation: hero-swim-r 18s ease-in-out infinite; animation-delay: 0s;  }
+.hero-fish--2 { top: 38%; animation: hero-swim-l 22s ease-in-out infinite; animation-delay: 4s;  }
+.hero-fish--3 { top: 66%; animation: hero-swim-r 15s ease-in-out infinite; animation-delay: 8s;  }
+.hero-fish--4 { top: 22%; animation: hero-swim-l 20s ease-in-out infinite; animation-delay: 2s;  }
+.hero-fish--5 { top: 52%; animation: hero-swim-r 24s ease-in-out infinite; animation-delay: 11s; }
 
 @media (max-width: 480px) {
   .hero-fish--3, .hero-fish--4, .hero-fish--5 { display: none; }
+}
+
+/* ── Water surface ──────────────────────────────────── */
+.hero__surface {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  pointer-events: none;
+  z-index: 3;
+}
+.hero__surface svg { width: 100%; height: 100%; }
+
+.surface-wave { animation: surface-ripple 6s ease-in-out infinite alternate; }
+.surface-wave--2 { animation-duration: 9s; animation-delay: -3s; }
+
+@keyframes surface-ripple {
+  0%   { d: path("M0,30 C240,55 480,5 720,30 C960,55 1200,5 1440,30 L1440,0 L0,0 Z"); }
+  100% { d: path("M0,15 C180,40 420,8 720,22 C1020,36 1260,4 1440,18 L1440,0 L0,0 Z"); }
+}
+
+/* ── School of fish ──────────────────────────────────── */
+.hero__school {
+  position: absolute;
+  top: 32%;
+  left: 0;
+  pointer-events: none;
+  z-index: 1;
+  animation: school-swim 28s linear infinite;
+  animation-delay: 6s;
+}
+
+@keyframes school-swim {
+  0%   { transform: translateX(-200px) translateY(0px);  opacity: 0; }
+  5%   { opacity: 1; }
+  30%  { transform: translateX(30vw)   translateY(-30px); }
+  55%  { transform: translateX(55vw)   translateY(20px);  }
+  80%  { transform: translateX(80vw)   translateY(-15px); }
+  95%  { opacity: 1; }
+  100% { transform: translateX(calc(100vw + 200px)) translateY(0px); opacity: 0; }
+}
+
+.school-fish {
+  position: absolute;
+  transform: translate(var(--sdx, 0), var(--sdy, 0));
+  animation: school-wobble 2s ease-in-out var(--sdelay, 0s) infinite alternate;
+  filter: drop-shadow(0 0 6px rgba(0,230,255,0.5));
+}
+
+@keyframes school-wobble {
+  0%   { transform: translate(var(--sdx, 0), var(--sdy, 0)) rotate(-3deg); }
+  100% { transform: translate(var(--sdx, 0), calc(var(--sdy, 0px) - 8px)) rotate(3deg); }
+}
+
+/* ── CTA button pulse rings ──────────────────────────── */
+.hero__cta-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.hero__cta-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50px;
+  border: 2px solid rgba(0, 201, 167, 0.6);
+  animation: cta-pulse 2.4s ease-out infinite;
+  pointer-events: none;
+}
+.hero__cta-ring--2 {
+  inset: -10px;
+  border-color: rgba(0, 201, 167, 0.3);
+  animation-delay: 0.8s;
+}
+
+@keyframes cta-pulse {
+  0%   { transform: scale(1);    opacity: 0.8; }
+  70%  { transform: scale(1.18); opacity: 0;   }
+  100% { transform: scale(1.18); opacity: 0;   }
 }
