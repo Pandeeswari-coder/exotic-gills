@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import type { Product, Category, ProductQueryParams } from '../../types';
 import { getProducts, getCategories } from '../../services/api';
@@ -66,7 +66,11 @@ const Shop: React.FC = () => {
     const cat    = searchParams.get('category');
     const search = searchParams.get('search') || '';
     const slugs = cat ? cat.split(',').filter(Boolean) : [];
-    setSelectedCategories(slugs);
+    // Only update if value changed — prevents extra fetchProducts when categories load
+    setSelectedCategories(prev => {
+      const same = prev.length === slugs.length && prev.every((s, i) => s === slugs[i]);
+      return same ? prev : slugs;
+    });
     setSearchQuery(search);
     setAvailableOnly(searchParams.get('available') === 'true');
     // Auto-expand parent categories that have a selected subcategory
@@ -113,33 +117,33 @@ const Shop: React.FC = () => {
       .catch(() => setCategories(STATIC_CATEGORIES));
   }, []);
 
-  // fetchProducts depends only on state — never on searchParams directly
-  const fetchProducts = useCallback(async () => {
+  // fetchProducts — AbortController cancels stale in-flight requests
+  const fetchProducts = useCallback(() => {
+    const controller = new AbortController();
     setLoading(true);
     setError('');
-    try {
-      const params: ProductQueryParams = {
-        search: searchQuery || undefined,
-        min_price: priceRange[0] > 0 ? priceRange[0] : undefined,
-        max_price: priceRange[1] < 10000 ? priceRange[1] : undefined,
-        available: availableOnly || undefined,
-      };
 
-      if (selectedCategories.length > 0) {
-        params.category = selectedCategories.join(',');
-      }
-
-      const prods = await getProducts(params);
-      setProducts(prods);
-    } catch {
-      setError('Failed to load products. Please check your connection.');
-    } finally {
-      setLoading(false);
+    const params: ProductQueryParams = {
+      search: searchQuery || undefined,
+      min_price: priceRange[0] > 0 ? priceRange[0] : undefined,
+      max_price: priceRange[1] < 10000 ? priceRange[1] : undefined,
+      available: availableOnly || undefined,
+    };
+    if (selectedCategories.length > 0) {
+      params.category = selectedCategories.join(',');
     }
+
+    getProducts(params)
+      .then(prods => { if (!controller.signal.aborted) setProducts(prods); })
+      .catch(() => { if (!controller.signal.aborted) setError('Failed to load products. Please check your connection.'); })
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+
+    return controller;
   }, [searchQuery, selectedCategories, priceRange, availableOnly]);
 
   useEffect(() => {
-    fetchProducts();
+    const controller = fetchProducts();
+    return () => controller.abort();
   }, [fetchProducts]);
 
   const updateCategoryUrl = (next: string[]) => {
