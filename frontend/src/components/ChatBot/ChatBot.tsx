@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useChat } from '../../context/ChatContext';
 import { getProducts } from '../../services/api';
@@ -19,6 +19,7 @@ const ChatBot: React.FC = () => {
   const setOpen = setChatOpen;
   const { addToCart } = useCart();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     getProducts({ available: true }).then(setProducts).catch(() => {});
@@ -76,7 +77,17 @@ const ChatBot: React.FC = () => {
   return createPortal(
     <>
       {/* Floating trigger */}
-      <button className="chatbot-trigger" onClick={() => setOpen(o => !o)} aria-label="Chat with us">
+      <button
+        className="chatbot-trigger"
+        onClick={() => {
+          const authPages = ['/login', '/register'];
+          if (!open && authPages.includes(location.pathname)) {
+            navigate('/');
+          }
+          setOpen(!open);
+        }}
+        aria-label="Chat with us"
+      >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
         </svg>
