@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useChat } from '../../context/ChatContext';
 import './Login.css';
 
 const Login: React.FC = () => {
   const { login } = useAuth();
+  const { setChatOpen } = useChat();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const redirect = searchParams.get('redirect') || '/';
@@ -14,6 +16,8 @@ const Login: React.FC = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => { setChatOpen(false); }, [setChatOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

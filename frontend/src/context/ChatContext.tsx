@@ -25,6 +25,8 @@ interface ChatCtx {
   customerUnread: number;
   ownerUnread: number;
   connected: boolean;
+  chatOpen: boolean;
+  setChatOpen: (open: boolean) => void;
   sendMessage: (p: SendPayload) => void;
   editMessage: (messageId: string, text: string) => void;
   markCustomerRead: () => void;
@@ -54,6 +56,7 @@ export const ChatProvider: React.FC<{
 }> = ({ children, sessionId, customerName }) => {
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const [connected, setConnected] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const heartbeatTimer = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -159,7 +162,7 @@ export const ChatProvider: React.FC<{
   const ownerUnread    = messages.filter(m => m.sender === 'customer' && !m.read).length;
 
   return (
-    <ChatContext.Provider value={{ messages, customerUnread, ownerUnread, connected, sendMessage, editMessage, markCustomerRead, markOwnerRead }}>
+    <ChatContext.Provider value={{ messages, customerUnread, ownerUnread, connected, chatOpen, setChatOpen, sendMessage, editMessage, markCustomerRead, markOwnerRead }}>
       {children}
     </ChatContext.Provider>
   );

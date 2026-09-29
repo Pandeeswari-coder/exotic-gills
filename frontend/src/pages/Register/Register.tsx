@@ -1,13 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useChat } from '../../context/ChatContext';
 import { register as apiRegister } from '../../services/api';
 import '../Login/Login.css';
 import './Register.css';
 
 const Register: React.FC = () => {
   const { login } = useAuth();
+  const { setChatOpen } = useChat();
   const navigate = useNavigate();
+
+  useEffect(() => { setChatOpen(false); }, [setChatOpen]);
 
   const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '' });
   const [error, setError] = useState('');

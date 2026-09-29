@@ -8,7 +8,6 @@ import type { Product } from '../../types';
 import './ChatBot.css';
 
 const ChatBot: React.FC = () => {
-  const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
@@ -16,7 +15,8 @@ const ChatBot: React.FC = () => {
   const bottomRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<HTMLDivElement>(null);
   const isAtBottom = useRef(true);
-  const { messages, customerUnread, sendMessage, editMessage, markCustomerRead } = useChat();
+  const { messages, customerUnread, sendMessage, editMessage, markCustomerRead, chatOpen: open, setChatOpen } = useChat();
+  const setOpen = setChatOpen;
   const { addToCart } = useCart();
   const navigate = useNavigate();
 
