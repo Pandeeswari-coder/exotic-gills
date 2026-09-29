@@ -414,6 +414,7 @@ const Shop: React.FC = () => {
               <span>₹{priceRange[0].toLocaleString('en-IN')}</span>
               <span>₹{priceRange[1].toLocaleString('en-IN')}</span>
             </div>
+            <p className="price-hint">Shows products priced ₹{priceRange[0].toLocaleString('en-IN')} – ₹{priceRange[1].toLocaleString('en-IN')}</p>
           </div>
 
           <div className="filter-group">

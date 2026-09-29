@@ -555,6 +555,13 @@
   color: #94a3b8;
 }
 
+.price-hint {
+  font-size: 0.72rem;
+  color: #14b8a6;
+  margin-top: 0.35rem;
+  text-align: center;
+}
+
 /* Toggle switch */
 .filter-toggle-switch {
   display: flex;
