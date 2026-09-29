@@ -366,11 +366,12 @@ const Shop: React.FC = () => {
                 <input
                   type="number"
                   min={0}
-                  max={priceRange[1]}
+                  max={10000}
                   value={priceRange[0]}
-                  onChange={(e) =>
-                    setPriceRange([Number(e.target.value), priceRange[1]])
-                  }
+                  onChange={(e) => {
+                    const newMin = Math.max(0, Number(e.target.value));
+                    setPriceRange([newMin, Math.max(newMin, priceRange[1])]);
+                  }}
                 />
               </div>
               <span className="price-dash">-</span>
@@ -378,21 +379,25 @@ const Shop: React.FC = () => {
                 <label>Max (₹)</label>
                 <input
                   type="number"
-                  min={priceRange[0]}
+                  min={0}
                   max={10000}
                   value={priceRange[1]}
-                  onChange={(e) =>
-                    setPriceRange([priceRange[0], Number(e.target.value)])
-                  }
+                  onChange={(e) => {
+                    const newMax = Math.min(10000, Number(e.target.value));
+                    setPriceRange([Math.min(priceRange[0], newMax), newMax]);
+                  }}
                 />
               </div>
             </div>
             <input
               type="range"
-              min={0}
+              min={priceRange[0]}
               max={10000}
               value={priceRange[1]}
-              onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
+              onChange={(e) => {
+                const newMax = Number(e.target.value);
+                setPriceRange([priceRange[0], Math.max(priceRange[0], newMax)]);
+              }}
               className="price-slider"
             />
             <div className="price-labels">
