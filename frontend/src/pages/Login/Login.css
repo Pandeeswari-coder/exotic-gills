@@ -132,6 +132,14 @@
   padding-right: 2.8rem;
 }
 
+/* Hide browser-native password reveal button (Edge/Chrome) */
+.password-wrap input::-ms-reveal,
+.password-wrap input::-ms-clear,
+.password-wrap input::-webkit-contacts-auto-fill-button,
+.password-wrap input::-webkit-credentials-auto-fill-button {
+  display: none !important;
+}
+
 .toggle-password {
   position: absolute;
   right: 0.75rem;
