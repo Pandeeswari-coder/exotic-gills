@@ -126,7 +126,7 @@ const Shop: React.FC = () => {
     const params: ProductQueryParams = {
       search: searchQuery || undefined,
       min_price: priceRange[0] > 0 ? priceRange[0] : undefined,
-      max_price: priceRange[1] < 10000 ? priceRange[1] : undefined,
+      max_price: priceRange[1] > 0 ? priceRange[1] : undefined,
       available: availableOnly || undefined,
     };
     if (selectedCategories.length > 0) {
@@ -362,29 +362,39 @@ const Shop: React.FC = () => {
             <h4>Price Range</h4>
             <div className="price-inputs">
               <div className="price-field">
-                <label>Min (₹)</label>
+                <label>From (₹)</label>
                 <input
                   type="number"
                   min={0}
-                  max={10000}
+                  max={100000}
                   value={priceRange[0]}
+                  onBlur={(e) => {
+                    const newMin = Math.max(0, Number(e.target.value));
+                    setPriceRange([newMin, Math.max(newMin, priceRange[1])]);
+                  }}
                   onChange={(e) => {
                     const newMin = Math.max(0, Number(e.target.value));
                     setPriceRange([newMin, Math.max(newMin, priceRange[1])]);
                   }}
                 />
               </div>
-              <span className="price-dash">-</span>
+              <span className="price-dash">–</span>
               <div className="price-field">
-                <label>Max (₹)</label>
+                <label>To (₹)</label>
                 <input
                   type="number"
                   min={0}
-                  max={10000}
+                  max={100000}
                   value={priceRange[1]}
+                  onBlur={(e) => {
+                    const v = Number(e.target.value);
+                    const newMax = v < priceRange[0] ? priceRange[0] : v;
+                    setPriceRange([priceRange[0], newMax]);
+                  }}
                   onChange={(e) => {
-                    const newMax = Math.min(10000, Number(e.target.value));
-                    setPriceRange([Math.min(priceRange[0], newMax), newMax]);
+                    const v = Number(e.target.value);
+                    const newMax = v < priceRange[0] ? priceRange[0] : v;
+                    setPriceRange([priceRange[0], newMax]);
                   }}
                 />
               </div>
@@ -392,7 +402,7 @@ const Shop: React.FC = () => {
             <input
               type="range"
               min={priceRange[0]}
-              max={10000}
+              max={Math.max(priceRange[1], priceRange[0] + 1)}
               value={priceRange[1]}
               onChange={(e) => {
                 const newMax = Number(e.target.value);
@@ -401,8 +411,8 @@ const Shop: React.FC = () => {
               className="price-slider"
             />
             <div className="price-labels">
-              <span>₹{priceRange[0]}</span>
-              <span>₹{priceRange[1]}</span>
+              <span>₹{priceRange[0].toLocaleString('en-IN')}</span>
+              <span>₹{priceRange[1].toLocaleString('en-IN')}</span>
             </div>
           </div>
 
